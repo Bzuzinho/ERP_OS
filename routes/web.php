@@ -1,7 +1,15 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\TicketAttachmentController as AdminTicketAttachmentController;
+use App\Http\Controllers\Admin\TicketCommentController as AdminTicketCommentController;
+use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\Admin\TicketStatusController as AdminTicketStatusController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
+use App\Http\Controllers\Portal\TicketAttachmentController as PortalTicketAttachmentController;
+use App\Http\Controllers\Portal\TicketCommentController as PortalTicketCommentController;
+use App\Http\Controllers\Portal\TicketController as PortalTicketController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
@@ -28,6 +36,14 @@ Route::middleware(['auth', 'permission:admin.access'])
     ->name('admin.')
     ->group(function () {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
+
+        Route::resource('contacts', AdminContactController::class);
+
+        Route::resource('tickets', AdminTicketController::class);
+        Route::patch('tickets/{ticket}/status', [AdminTicketStatusController::class, 'update'])->name('tickets.status.update');
+        Route::patch('tickets/{ticket}/assign', [AdminTicketController::class, 'assign'])->name('tickets.assign');
+        Route::post('tickets/{ticket}/comments', [AdminTicketCommentController::class, 'store'])->name('tickets.comments.store');
+        Route::post('tickets/{ticket}/attachments', [AdminTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
     });
 
 Route::middleware(['auth'])
@@ -35,6 +51,11 @@ Route::middleware(['auth'])
     ->name('portal.')
     ->group(function () {
         Route::get('/', PortalDashboardController::class)->name('dashboard');
+
+        Route::resource('tickets', PortalTicketController::class)
+            ->only(['index', 'create', 'store', 'show']);
+        Route::post('tickets/{ticket}/comments', [PortalTicketCommentController::class, 'store'])->name('tickets.comments.store');
+        Route::post('tickets/{ticket}/attachments', [PortalTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
     });
 
 Route::middleware('auth')->group(function () {

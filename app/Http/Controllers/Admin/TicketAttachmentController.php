@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Attachments\StoreAttachmentRequest;
+use App\Models\Ticket;
+use Illuminate\Http\RedirectResponse;
+
+class TicketAttachmentController extends Controller
+{
+    public function store(StoreAttachmentRequest $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('view', $ticket);
+
+        $file = $request->file('file');
+        $path = $file->store('tickets/attachments', 'public');
+
+        $ticket->attachments()->create([
+            'organization_id' => $ticket->organization_id,
+            'uploaded_by' => $request->user()->id,
+            'file_path' => $path,
+            'file_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+            'visibility' => $request->validated('visibility') ?? 'internal',
+        ]);
+
+        return back()->with('success', 'Anexo enviado com sucesso.');
+    }
+}

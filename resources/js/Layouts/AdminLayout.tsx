@@ -11,8 +11,8 @@ type AdminLayoutProps = PropsWithChildren<{
 const navigationItems = [
     { label: 'Dashboard', href: '/admin', current: 'admin.dashboard', enabled: true },
     { label: 'Utilizadores', href: '#', current: '', enabled: false },
-    { label: 'Contactos', href: '#', current: '', enabled: false },
-    { label: 'Pedidos', href: '#', current: '', enabled: false },
+    { label: 'Contactos', href: route('admin.contacts.index'), current: 'admin.contacts.*', enabled: true },
+    { label: 'Pedidos', href: route('admin.tickets.index'), current: 'admin.tickets.*', enabled: true },
     { label: 'Agenda', href: '#', current: '', enabled: false },
     { label: 'Espaços', href: '#', current: '', enabled: false },
     { label: 'Inventário', href: '#', current: '', enabled: false },

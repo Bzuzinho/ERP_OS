@@ -10,7 +10,7 @@ type PortalLayoutProps = PropsWithChildren<{
 
 const navigationItems = [
     { label: 'O meu portal', href: '/portal', current: 'portal.dashboard', enabled: true },
-    { label: 'Pedidos', href: '#', current: '', enabled: false },
+    { label: 'Pedidos', href: route('portal.tickets.index'), current: 'portal.tickets.*', enabled: true },
     { label: 'Reservas', href: '#', current: '', enabled: false },
     { label: 'Documentos', href: '#', current: '', enabled: false },
     { label: 'Notificações', href: '#', current: '', enabled: false },
