@@ -16,18 +16,18 @@ export default function UpdateProfileInformation({
     status?: string;
     className?: string;
 }) {
-    const user = usePage<PageProps>().props.auth.user;
+    const user = usePage<PageProps>().props.auth.user!;
 
     type ProfileForm = {
-    name: string;
-    email: string;
-};
+        name: string;
+        email: string;
+    };
 
-const { data, setData, patch, errors, processing, recentlySuccessful } =
-    useForm<ProfileForm>({
-        name: user.name,
-        email: user.email,
-    });
+    const { data, setData, patch, errors, processing, recentlySuccessful } =
+        useForm<ProfileForm>({
+            name: user.name,
+            email: user.email,
+        });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
