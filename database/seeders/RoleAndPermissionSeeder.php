@@ -46,7 +46,18 @@ class RoleAndPermissionSeeder extends Seeder
             'documents.upload',
             'documents.update',
             'documents.delete',
+            'documents.download',
             'documents.manage_access',
+            'documents.approve',
+            'document_types.view',
+            'document_types.create',
+            'document_types.update',
+            'document_types.delete',
+            'meeting_minutes.view',
+            'meeting_minutes.create',
+            'meeting_minutes.update',
+            'meeting_minutes.approve',
+            'meeting_minutes.delete',
             'spaces.view',
             'spaces.create',
             'spaces.update',
@@ -104,6 +115,9 @@ class RoleAndPermissionSeeder extends Seeder
             'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close', 'tickets.delete',
             'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete', 'tasks.delete',
             'events.view', 'events.create', 'events.update', 'events.delete',
+            'documents.view', 'documents.upload', 'documents.update', 'documents.delete', 'documents.download', 'documents.manage_access', 'documents.approve',
+            'document_types.view', 'document_types.create', 'document_types.update', 'document_types.delete',
+            'meeting_minutes.view', 'meeting_minutes.create', 'meeting_minutes.update', 'meeting_minutes.approve', 'meeting_minutes.delete',
         ]);
 
         Role::findByName('executivo', 'web')->syncPermissions([
@@ -111,6 +125,8 @@ class RoleAndPermissionSeeder extends Seeder
             'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close',
             'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete',
             'events.view', 'events.create', 'events.update',
+            'documents.view', 'documents.download', 'documents.manage_access', 'documents.approve',
+            'meeting_minutes.view', 'meeting_minutes.approve',
         ]);
 
         Role::findByName('administrativo', 'web')->syncPermissions([
@@ -119,6 +135,8 @@ class RoleAndPermissionSeeder extends Seeder
             'tickets.view', 'tickets.create', 'tickets.update',
             'tasks.view', 'tasks.create', 'tasks.update', 'tasks.complete',
             'events.view', 'events.create', 'events.update',
+            'documents.view', 'documents.upload', 'documents.update', 'documents.download',
+            'meeting_minutes.view', 'meeting_minutes.create', 'meeting_minutes.update',
         ]);
 
         Role::findByName('operacional', 'web')->syncPermissions([
@@ -126,6 +144,8 @@ class RoleAndPermissionSeeder extends Seeder
             'tickets.view', 'tickets.update',
             'tasks.view', 'tasks.update', 'tasks.complete',
             'events.view',
+            'documents.view',
+            'meeting_minutes.view',
         ]);
 
         Role::findByName('manutencao', 'web')->syncPermissions([
@@ -133,6 +153,23 @@ class RoleAndPermissionSeeder extends Seeder
             'tickets.view', 'tickets.update',
             'tasks.view', 'tasks.update', 'tasks.complete',
             'events.view',
+            'documents.view',
+            'meeting_minutes.view',
+        ]);
+
+        Role::findByName('cidadao', 'web')->syncPermissions([
+            'documents.view', 'documents.download',
+            'meeting_minutes.view',
+        ]);
+
+        Role::findByName('associacao', 'web')->syncPermissions([
+            'documents.view', 'documents.download',
+            'meeting_minutes.view',
+        ]);
+
+        Role::findByName('empresa', 'web')->syncPermissions([
+            'documents.view', 'documents.download',
+            'meeting_minutes.view',
         ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

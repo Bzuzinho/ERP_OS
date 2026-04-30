@@ -69,6 +69,16 @@ class Event extends Model
         return $this->hasMany(EventParticipant::class);
     }
 
+    public function meetingMinutes(): HasMany
+    {
+        return $this->hasMany(MeetingMinute::class);
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');
+    }
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

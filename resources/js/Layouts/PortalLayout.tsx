@@ -4,7 +4,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 
 type PortalLayoutProps = PropsWithChildren<{
     title: string;
-    subtitle: string;
+    subtitle?: string;
     headerActions?: ReactNode;
 }>;
 
@@ -13,7 +13,7 @@ const navigationItems = [
     { label: 'Pedidos', href: route('portal.tickets.index'), current: 'portal.tickets.*', enabled: true },
     { label: 'Marcacoes', href: route('portal.events.index'), current: 'portal.events.*', enabled: true },
     { label: 'Reservas', href: '#', current: '', enabled: false },
-    { label: 'Documentos', href: '#', current: '', enabled: false },
+    { label: 'Documentos', href: route('portal.documents.index'), current: 'portal.documents.*', enabled: true },
     { label: 'Notificações', href: '#', current: '', enabled: false },
     { label: 'Perfil', href: route('profile.edit'), current: 'profile.edit', enabled: true },
 ];

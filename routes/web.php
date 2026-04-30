@@ -1,10 +1,17 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DocumentAccessRuleController as AdminDocumentAccessRuleController;
+use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
+use App\Http\Controllers\Admin\DocumentDownloadController as AdminDocumentDownloadController;
+use App\Http\Controllers\Admin\DocumentTypeController as AdminDocumentTypeController;
+use App\Http\Controllers\Admin\DocumentVersionController as AdminDocumentVersionController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\EventParticipantController as AdminEventParticipantController;
 use App\Http\Controllers\Admin\EventStatusController as AdminEventStatusController;
+use App\Http\Controllers\Admin\MeetingMinuteApprovalController as AdminMeetingMinuteApprovalController;
+use App\Http\Controllers\Admin\MeetingMinuteController as AdminMeetingMinuteController;
 use App\Http\Controllers\Admin\TaskChecklistController as AdminTaskChecklistController;
 use App\Http\Controllers\Admin\TaskChecklistItemController as AdminTaskChecklistItemController;
 use App\Http\Controllers\Admin\TaskController as AdminTaskController;
@@ -14,7 +21,10 @@ use App\Http\Controllers\Admin\TicketCommentController as AdminTicketCommentCont
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\TicketStatusController as AdminTicketStatusController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
+use App\Http\Controllers\Portal\DocumentController as PortalDocumentController;
+use App\Http\Controllers\Portal\DocumentDownloadController as PortalDocumentDownloadController;
 use App\Http\Controllers\Portal\EventController as PortalEventController;
+use App\Http\Controllers\Portal\MeetingMinuteController as PortalMeetingMinuteController;
 use App\Http\Controllers\Portal\TicketAttachmentController as PortalTicketAttachmentController;
 use App\Http\Controllers\Portal\TicketCommentController as PortalTicketCommentController;
 use App\Http\Controllers\Portal\TicketController as PortalTicketController;
@@ -67,6 +77,19 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::patch('events/{event}/status', [AdminEventStatusController::class, 'update'])->name('events.status.update');
         Route::post('events/{event}/participants', [AdminEventParticipantController::class, 'store'])->name('events.participants.store');
         Route::delete('events/{event}/participants/{participant}', [AdminEventParticipantController::class, 'destroy'])->name('events.participants.destroy');
+
+        Route::resource('document-types', AdminDocumentTypeController::class)
+            ->parameters(['document-types' => 'documentType']);
+
+        Route::resource('documents', AdminDocumentController::class);
+        Route::get('documents/{document}/download', AdminDocumentDownloadController::class)->name('documents.download');
+        Route::post('documents/{document}/versions', [AdminDocumentVersionController::class, 'store'])->name('documents.versions.store');
+        Route::post('documents/{document}/access-rules', [AdminDocumentAccessRuleController::class, 'store'])->name('documents.access-rules.store');
+        Route::delete('documents/{document}/access-rules/{documentAccessRule}', [AdminDocumentAccessRuleController::class, 'destroy'])->name('documents.access-rules.destroy');
+
+        Route::resource('meeting-minutes', AdminMeetingMinuteController::class)
+            ->parameters(['meeting-minutes' => 'meetingMinute']);
+        Route::post('meeting-minutes/{meetingMinute}/approve', AdminMeetingMinuteApprovalController::class)->name('meeting-minutes.approve');
     });
 
 Route::middleware(['auth'])
@@ -82,6 +105,14 @@ Route::middleware(['auth'])
 
         Route::resource('events', PortalEventController::class)
             ->only(['index', 'show']);
+
+        Route::resource('documents', PortalDocumentController::class)
+            ->only(['index', 'show']);
+        Route::get('documents/{document}/download', PortalDocumentDownloadController::class)->name('documents.download');
+
+        Route::resource('meeting-minutes', PortalMeetingMinuteController::class)
+            ->only(['index', 'show'])
+            ->parameters(['meeting-minutes' => 'meetingMinute']);
     });
 
 Route::middleware('auth')->group(function () {

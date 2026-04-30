@@ -55,6 +55,21 @@ class Organization extends Model
         return $this->hasMany(Event::class);
     }
 
+    public function documentTypes(): HasMany
+    {
+        return $this->hasMany(DocumentType::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    public function meetingMinutes(): HasMany
+    {
+        return $this->hasMany(MeetingMinute::class);
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);

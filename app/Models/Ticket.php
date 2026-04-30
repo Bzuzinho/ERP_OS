@@ -110,6 +110,11 @@ class Ticket extends Model
         return $this->hasMany(Event::class, 'related_ticket_id');
     }
 
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');
+    }
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

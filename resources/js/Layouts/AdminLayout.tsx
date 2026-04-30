@@ -4,7 +4,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 
 type AdminLayoutProps = PropsWithChildren<{
     title: string;
-    subtitle: string;
+    subtitle?: string;
     headerActions?: ReactNode;
 }>;
 
@@ -15,6 +15,9 @@ const navigationItems = [
     { label: 'Pedidos', href: route('admin.tickets.index'), current: 'admin.tickets.*', enabled: true },
     { label: 'Tarefas', href: route('admin.tasks.index'), current: 'admin.tasks.*', enabled: true },
     { label: 'Agenda', href: route('admin.events.index'), current: 'admin.events.*', enabled: true },
+    { label: 'Documentos', href: route('admin.documents.index'), current: 'admin.documents.*', enabled: true },
+    { label: 'Tipos Doc.', href: route('admin.document-types.index'), current: 'admin.document-types.*', enabled: true },
+    { label: 'Atas', href: route('admin.meeting-minutes.index'), current: 'admin.meeting-minutes.*', enabled: true },
     { label: 'Espaços', href: '#', current: '', enabled: false },
     { label: 'Inventário', href: '#', current: '', enabled: false },
     { label: 'RH', href: '#', current: '', enabled: false },

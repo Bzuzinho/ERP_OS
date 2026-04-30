@@ -65,6 +65,31 @@ class User extends Authenticatable
         return $this->hasMany(Event::class, 'created_by');
     }
 
+    public function uploadedDocuments(): HasMany
+    {
+        return $this->hasMany(Document::class, 'uploaded_by');
+    }
+
+    public function uploadedDocumentVersions(): HasMany
+    {
+        return $this->hasMany(DocumentVersion::class, 'uploaded_by');
+    }
+
+    public function createdDocumentAccessRules(): HasMany
+    {
+        return $this->hasMany(DocumentAccessRule::class, 'created_by');
+    }
+
+    public function createdMeetingMinutes(): HasMany
+    {
+        return $this->hasMany(MeetingMinute::class, 'created_by');
+    }
+
+    public function approvedMeetingMinutes(): HasMany
+    {
+        return $this->hasMany(MeetingMinute::class, 'approved_by');
+    }
+
     /**
      * Get the attributes that should be cast.
      *
