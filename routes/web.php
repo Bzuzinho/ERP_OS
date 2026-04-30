@@ -12,6 +12,15 @@ use App\Http\Controllers\Admin\EventParticipantController as AdminEventParticipa
 use App\Http\Controllers\Admin\EventStatusController as AdminEventStatusController;
 use App\Http\Controllers\Admin\MeetingMinuteApprovalController as AdminMeetingMinuteApprovalController;
 use App\Http\Controllers\Admin\MeetingMinuteController as AdminMeetingMinuteController;
+use App\Http\Controllers\Admin\SpaceCleaningRecordController as AdminSpaceCleaningRecordController;
+use App\Http\Controllers\Admin\SpaceCleaningStatusController as AdminSpaceCleaningStatusController;
+use App\Http\Controllers\Admin\SpaceController as AdminSpaceController;
+use App\Http\Controllers\Admin\SpaceMaintenanceRecordController as AdminSpaceMaintenanceRecordController;
+use App\Http\Controllers\Admin\SpaceMaintenanceStatusController as AdminSpaceMaintenanceStatusController;
+use App\Http\Controllers\Admin\SpaceReservationApprovalController as AdminSpaceReservationApprovalController;
+use App\Http\Controllers\Admin\SpaceReservationCancellationController as AdminSpaceReservationCancellationController;
+use App\Http\Controllers\Admin\SpaceReservationController as AdminSpaceReservationController;
+use App\Http\Controllers\Admin\SpaceStatusController as AdminSpaceStatusController;
 use App\Http\Controllers\Admin\TaskChecklistController as AdminTaskChecklistController;
 use App\Http\Controllers\Admin\TaskChecklistItemController as AdminTaskChecklistItemController;
 use App\Http\Controllers\Admin\TaskController as AdminTaskController;
@@ -25,6 +34,9 @@ use App\Http\Controllers\Portal\DocumentController as PortalDocumentController;
 use App\Http\Controllers\Portal\DocumentDownloadController as PortalDocumentDownloadController;
 use App\Http\Controllers\Portal\EventController as PortalEventController;
 use App\Http\Controllers\Portal\MeetingMinuteController as PortalMeetingMinuteController;
+use App\Http\Controllers\Portal\SpaceController as PortalSpaceController;
+use App\Http\Controllers\Portal\SpaceReservationCancellationController as PortalSpaceReservationCancellationController;
+use App\Http\Controllers\Portal\SpaceReservationController as PortalSpaceReservationController;
 use App\Http\Controllers\Portal\TicketAttachmentController as PortalTicketAttachmentController;
 use App\Http\Controllers\Portal\TicketCommentController as PortalTicketCommentController;
 use App\Http\Controllers\Portal\TicketController as PortalTicketController;
@@ -90,6 +102,24 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::resource('meeting-minutes', AdminMeetingMinuteController::class)
             ->parameters(['meeting-minutes' => 'meetingMinute']);
         Route::post('meeting-minutes/{meetingMinute}/approve', AdminMeetingMinuteApprovalController::class)->name('meeting-minutes.approve');
+
+        Route::resource('spaces', AdminSpaceController::class);
+        Route::patch('spaces/{space}/status', [AdminSpaceStatusController::class, 'update'])->name('spaces.status.update');
+
+        Route::resource('space-reservations', AdminSpaceReservationController::class)
+            ->parameters(['space-reservations' => 'spaceReservation']);
+        Route::post('space-reservations/{spaceReservation}/approve', [AdminSpaceReservationApprovalController::class, 'approve'])->name('space-reservations.approve');
+        Route::post('space-reservations/{spaceReservation}/reject', [AdminSpaceReservationApprovalController::class, 'reject'])->name('space-reservations.reject');
+        Route::post('space-reservations/{spaceReservation}/complete', [AdminSpaceReservationApprovalController::class, 'complete'])->name('space-reservations.complete');
+        Route::post('space-reservations/{spaceReservation}/cancel', AdminSpaceReservationCancellationController::class)->name('space-reservations.cancel');
+
+        Route::resource('space-maintenance', AdminSpaceMaintenanceRecordController::class)
+            ->parameters(['space-maintenance' => 'spaceMaintenance']);
+        Route::patch('space-maintenance/{spaceMaintenance}/status', [AdminSpaceMaintenanceStatusController::class, 'update'])->name('space-maintenance.status.update');
+
+        Route::resource('space-cleaning', AdminSpaceCleaningRecordController::class)
+            ->parameters(['space-cleaning' => 'spaceCleaning']);
+        Route::post('space-cleaning/{spaceCleaning}/complete', [AdminSpaceCleaningStatusController::class, 'complete'])->name('space-cleaning.complete');
     });
 
 Route::middleware(['auth'])
@@ -113,6 +143,14 @@ Route::middleware(['auth'])
         Route::resource('meeting-minutes', PortalMeetingMinuteController::class)
             ->only(['index', 'show'])
             ->parameters(['meeting-minutes' => 'meetingMinute']);
+
+        Route::resource('spaces', PortalSpaceController::class)
+            ->only(['index', 'show']);
+
+        Route::resource('space-reservations', PortalSpaceReservationController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->parameters(['space-reservations' => 'spaceReservation']);
+        Route::post('space-reservations/{spaceReservation}/cancel', PortalSpaceReservationCancellationController::class)->name('space-reservations.cancel');
     });
 
 Route::middleware('auth')->group(function () {

@@ -71,6 +71,16 @@ class Task extends Model
         return $this->hasMany(TaskChecklist::class);
     }
 
+    public function spaceMaintenanceRecords(): HasMany
+    {
+        return $this->hasMany(SpaceMaintenanceRecord::class);
+    }
+
+    public function spaceCleaningRecords(): HasMany
+    {
+        return $this->hasMany(SpaceCleaningRecord::class);
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

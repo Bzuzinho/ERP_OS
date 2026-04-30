@@ -66,6 +66,11 @@ class Contact extends Model
         return $this->hasMany(Event::class, 'related_contact_id');
     }
 
+    public function spaceReservations(): HasMany
+    {
+        return $this->hasMany(SpaceReservation::class);
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

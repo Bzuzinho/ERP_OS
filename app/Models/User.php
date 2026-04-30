@@ -90,6 +90,51 @@ class User extends Authenticatable
         return $this->hasMany(MeetingMinute::class, 'approved_by');
     }
 
+    public function requestedSpaceReservations(): HasMany
+    {
+        return $this->hasMany(SpaceReservation::class, 'requested_by_user_id');
+    }
+
+    public function approvedSpaceReservations(): HasMany
+    {
+        return $this->hasMany(SpaceReservation::class, 'approved_by');
+    }
+
+    public function rejectedSpaceReservations(): HasMany
+    {
+        return $this->hasMany(SpaceReservation::class, 'rejected_by');
+    }
+
+    public function cancelledSpaceReservations(): HasMany
+    {
+        return $this->hasMany(SpaceReservation::class, 'cancelled_by');
+    }
+
+    public function decidedSpaceReservationApprovals(): HasMany
+    {
+        return $this->hasMany(SpaceReservationApproval::class, 'decided_by');
+    }
+
+    public function assignedSpaceMaintenanceRecords(): HasMany
+    {
+        return $this->hasMany(SpaceMaintenanceRecord::class, 'assigned_to');
+    }
+
+    public function completedSpaceMaintenanceRecords(): HasMany
+    {
+        return $this->hasMany(SpaceMaintenanceRecord::class, 'completed_by');
+    }
+
+    public function assignedSpaceCleaningRecords(): HasMany
+    {
+        return $this->hasMany(SpaceCleaningRecord::class, 'assigned_to');
+    }
+
+    public function completedSpaceCleaningRecords(): HasMany
+    {
+        return $this->hasMany(SpaceCleaningRecord::class, 'completed_by');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

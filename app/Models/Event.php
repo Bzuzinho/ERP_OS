@@ -74,6 +74,11 @@ class Event extends Model
         return $this->hasMany(MeetingMinute::class);
     }
 
+    public function spaceReservations(): HasMany
+    {
+        return $this->hasMany(SpaceReservation::class);
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

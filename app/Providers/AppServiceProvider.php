@@ -11,6 +11,10 @@ use App\Models\DocumentType;
 use App\Models\DocumentVersion;
 use App\Models\Event;
 use App\Models\MeetingMinute;
+use App\Models\Space;
+use App\Models\SpaceCleaningRecord;
+use App\Models\SpaceMaintenanceRecord;
+use App\Models\SpaceReservation;
 use App\Models\Task;
 use App\Models\Ticket;
 use App\Policies\AttachmentPolicy;
@@ -22,6 +26,10 @@ use App\Policies\DocumentTypePolicy;
 use App\Policies\DocumentVersionPolicy;
 use App\Policies\EventPolicy;
 use App\Policies\MeetingMinutePolicy;
+use App\Policies\SpaceCleaningRecordPolicy;
+use App\Policies\SpaceMaintenanceRecordPolicy;
+use App\Policies\SpacePolicy;
+use App\Policies\SpaceReservationPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TicketPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -54,6 +62,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DocumentVersion::class, DocumentVersionPolicy::class);
         Gate::policy(DocumentAccessRule::class, DocumentAccessRulePolicy::class);
         Gate::policy(MeetingMinute::class, MeetingMinutePolicy::class);
+        Gate::policy(Space::class, SpacePolicy::class);
+        Gate::policy(SpaceReservation::class, SpaceReservationPolicy::class);
+        Gate::policy(SpaceMaintenanceRecord::class, SpaceMaintenanceRecordPolicy::class);
+        Gate::policy(SpaceCleaningRecord::class, SpaceCleaningRecordPolicy::class);
 
         Vite::prefetch(concurrency: 3);
     }

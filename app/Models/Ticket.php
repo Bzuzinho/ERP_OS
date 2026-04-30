@@ -105,6 +105,11 @@ class Ticket extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function spaceMaintenanceRecords(): HasMany
+    {
+        return $this->hasMany(SpaceMaintenanceRecord::class);
+    }
+
     public function events(): HasMany
     {
         return $this->hasMany(Event::class, 'related_ticket_id');
