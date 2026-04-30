@@ -5,10 +5,14 @@ namespace App\Providers;
 use App\Models\Attachment;
 use App\Models\Comment;
 use App\Models\Contact;
+use App\Models\Event;
+use App\Models\Task;
 use App\Models\Ticket;
 use App\Policies\AttachmentPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\ContactPolicy;
+use App\Policies\EventPolicy;
+use App\Policies\TaskPolicy;
 use App\Policies\TicketPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
@@ -33,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Ticket::class, TicketPolicy::class);
         Gate::policy(Comment::class, CommentPolicy::class);
         Gate::policy(Attachment::class, AttachmentPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
+        Gate::policy(Event::class, EventPolicy::class);
 
         Vite::prefetch(concurrency: 3);
     }

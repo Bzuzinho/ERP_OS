@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\Ticket;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,18 +15,35 @@ class DashboardController extends Controller
      */
     public function __invoke(): Response
     {
+        $user = request()->user();
+        $contactIds = $user->contacts()->pluck('id');
+
+        $upcomingEvents = Event::query()
+            ->where('start_at', '>=', now())
+            ->where(function ($query) use ($user, $contactIds) {
+                $query
+                    ->where('visibility', 'public')
+                    ->orWhereHas('relatedContact', fn ($contactQuery) => $contactQuery->whereIn('id', $contactIds))
+                    ->orWhereHas('participants', fn ($participantQuery) => $participantQuery
+                        ->where('user_id', $user->id)
+                        ->orWhereIn('contact_id', $contactIds));
+            })
+            ->orderBy('start_at')
+            ->limit(5)
+            ->get();
+
         return Inertia::render('Portal/Dashboard/Index', [
             'stats' => [
-                ['label' => 'Pedidos ativos', 'value' => 3],
-                ['label' => 'Respostas pendentes', 'value' => 1],
-                ['label' => 'Próximas marcações', 'value' => 2],
-                ['label' => 'Documentos disponíveis', 'value' => 5],
+                ['label' => 'Pedidos ativos', 'value' => Ticket::query()->whereIn('contact_id', $contactIds)->whereNotIn('status', ['resolved', 'closed'])->count()],
+                ['label' => 'Respostas pendentes', 'value' => Ticket::query()->whereIn('contact_id', $contactIds)->whereIn('status', ['new', 'in_progress'])->count()],
+                ['label' => 'Proximas marcacoes', 'value' => $upcomingEvents->count()],
             ],
             'actions' => [
                 'Novo pedido',
                 'Consultar pedidos',
-                'Pedir reserva',
+                'Consultar agenda',
             ],
+            'upcomingEvents' => $upcomingEvents,
         ]);
     }
 }

@@ -45,6 +45,16 @@ class Organization extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);

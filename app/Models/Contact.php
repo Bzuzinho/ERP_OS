@@ -59,4 +59,9 @@ class Contact extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class, 'related_contact_id');
+    }
 }

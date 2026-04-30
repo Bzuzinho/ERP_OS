@@ -98,7 +98,42 @@ class RoleAndPermissionSeeder extends Seeder
         }
 
         Role::findByName('super_admin', 'web')->syncPermissions(Permission::all());
-        Role::findByName('admin_junta', 'web')->givePermissionTo('admin.access');
+        Role::findByName('admin_junta', 'web')->syncPermissions([
+            'admin.access',
+            'contacts.view', 'contacts.create', 'contacts.update', 'contacts.delete',
+            'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close', 'tickets.delete',
+            'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete', 'tasks.delete',
+            'events.view', 'events.create', 'events.update', 'events.delete',
+        ]);
+
+        Role::findByName('executivo', 'web')->syncPermissions([
+            'admin.access',
+            'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close',
+            'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete',
+            'events.view', 'events.create', 'events.update',
+        ]);
+
+        Role::findByName('administrativo', 'web')->syncPermissions([
+            'admin.access',
+            'contacts.view', 'contacts.create', 'contacts.update',
+            'tickets.view', 'tickets.create', 'tickets.update',
+            'tasks.view', 'tasks.create', 'tasks.update', 'tasks.complete',
+            'events.view', 'events.create', 'events.update',
+        ]);
+
+        Role::findByName('operacional', 'web')->syncPermissions([
+            'admin.access',
+            'tickets.view', 'tickets.update',
+            'tasks.view', 'tasks.update', 'tasks.complete',
+            'events.view',
+        ]);
+
+        Role::findByName('manutencao', 'web')->syncPermissions([
+            'admin.access',
+            'tickets.view', 'tickets.update',
+            'tasks.view', 'tasks.update', 'tasks.complete',
+            'events.view',
+        ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }

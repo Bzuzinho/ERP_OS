@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\Task;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,29 +15,28 @@ class DashboardController extends Controller
      */
     public function __invoke(): Response
     {
+        $pendingTasks = Task::query()
+            ->with(['assignee:id,name'])
+            ->whereIn('status', ['pending', 'in_progress', 'waiting'])
+            ->latest()
+            ->limit(8)
+            ->get();
+
+        $todayEvents = Event::query()
+            ->whereDate('start_at', now()->toDateString())
+            ->orderBy('start_at')
+            ->limit(8)
+            ->get();
+
         return Inertia::render('Admin/Dashboard/Index', [
             'stats' => [
-                ['label' => 'Pedidos em aberto', 'value' => 128],
-                ['label' => 'Urgentes', 'value' => 8],
-                ['label' => 'Reservas hoje', 'value' => 7],
-                ['label' => 'Stock baixo', 'value' => 12],
-                ['label' => 'Ausências', 'value' => 6],
-                ['label' => 'Atividades planeadas', 'value' => 13],
+                ['label' => 'Tarefas pendentes', 'value' => Task::query()->whereIn('status', ['pending', 'in_progress', 'waiting'])->count()],
+                ['label' => 'Tarefas urgentes', 'value' => Task::query()->whereIn('status', ['pending', 'in_progress', 'waiting'])->where('priority', 'urgent')->count()],
+                ['label' => 'Eventos hoje', 'value' => Event::query()->whereDate('start_at', now()->toDateString())->count()],
+                ['label' => 'Eventos semana', 'value' => Event::query()->whereBetween('start_at', [now()->startOfWeek(), now()->endOfWeek()])->count()],
             ],
-            'sections' => [
-                [
-                    'title' => 'Pedidos Recentes',
-                    'description' => 'Espaço reservado para a fila operacional e priorização de pedidos.',
-                ],
-                [
-                    'title' => 'Agenda de Hoje',
-                    'description' => 'Resumo futuro de marcações, deslocações e compromissos da equipa.',
-                ],
-                [
-                    'title' => 'Alertas',
-                    'description' => 'Zona de incidentes, SLA e avisos de operação críticos.',
-                ],
-            ],
+            'pendingTasks' => $pendingTasks,
+            'todayEvents' => $todayEvents,
         ]);
     }
 }

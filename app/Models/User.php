@@ -45,6 +45,26 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class, 'closed_by');
     }
 
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function completedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'completed_by');
+    }
+
+    public function createdEvents(): HasMany
+    {
+        return $this->hasMany(Event::class, 'created_by');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

@@ -100,6 +100,16 @@ class Ticket extends Model
         return $this->hasMany(TicketStatusHistory::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class, 'related_ticket_id');
+    }
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

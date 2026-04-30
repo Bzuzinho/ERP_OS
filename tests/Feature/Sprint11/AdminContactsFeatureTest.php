@@ -36,7 +36,8 @@ class AdminContactsFeatureTest extends TestCase
 
     public function test_user_without_contacts_view_cannot_access_contacts_index(): void
     {
-        $admin = $this->makeAdminWithPermissions([]);
+        $admin = $this->makePortalUser('cidadao');
+        $admin->givePermissionTo('admin.access');
 
         $response = $this->actingAs($admin)->get(route('admin.contacts.index'));
 

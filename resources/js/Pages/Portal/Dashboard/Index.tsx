@@ -8,11 +8,13 @@ type Stat = {
 type PortalDashboardProps = {
     stats: Stat[];
     actions: string[];
+    upcomingEvents: { id: number; title: string; start_at: string; end_at: string; status: string }[];
 };
 
 export default function PortalDashboard({
     stats,
     actions,
+    upcomingEvents,
 }: PortalDashboardProps) {
     return (
         <PortalLayout
@@ -21,15 +23,15 @@ export default function PortalDashboard({
             headerActions={
                 <div className="rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5 text-white shadow-lg">
                     <p className="text-sm uppercase tracking-[0.22em] text-amber-100">
-                        Sprint 0
+                        Sprint 2
                     </p>
                     <p className="mt-2 max-w-2xl text-sm text-amber-50">
-                        Portal inicial preparado para o cidadão acompanhar pedidos, reservas e documentação sem ativar ainda os módulos funcionais.
+                        Portal com visao de pedidos ativos e agenda futura associada aos seus contactos e participacoes.
                     </p>
                 </div>
             }
         >
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {stats.map((stat) => (
                     <section key={stat.label} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
                         <p className="text-sm text-stone-500">{stat.label}</p>
@@ -55,7 +57,7 @@ export default function PortalDashboard({
                 </div>
             </div>
 
-            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            <div className="mt-8 grid gap-4 lg:grid-cols-2">
                 <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
                         Pedidos
@@ -67,21 +69,17 @@ export default function PortalDashboard({
                 </section>
                 <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                        Reservas
+                        Agenda
                     </p>
-                    <h2 className="mt-3 text-xl font-semibold text-stone-950">Próximas marcações</h2>
-                    <p className="mt-3 text-sm leading-6 text-stone-600">
-                        Placeholder para reservas de espaços, atendimentos e marcações futuras.
-                    </p>
-                </section>
-                <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                        Documentos
-                    </p>
-                    <h2 className="mt-3 text-xl font-semibold text-stone-950">Área documental</h2>
-                    <p className="mt-3 text-sm leading-6 text-stone-600">
-                        Placeholder para documentos publicados e downloads disponíveis ao utilizador autenticado.
-                    </p>
+                    <h2 className="mt-3 text-xl font-semibold text-stone-950">Proximas marcacoes</h2>
+                    <ul className="mt-3 space-y-2 text-sm text-stone-700">
+                        {upcomingEvents.map((event) => (
+                            <li key={event.id} className="rounded-xl bg-stone-50 px-3 py-2">
+                                {event.title} • {new Date(event.start_at).toLocaleString()} - {new Date(event.end_at).toLocaleString()} • {event.status}
+                            </li>
+                        ))}
+                        {upcomingEvents.length === 0 ? <li className="text-stone-500">Sem marcacoes futuras.</li> : null}
+                    </ul>
                 </section>
             </div>
         </PortalLayout>
