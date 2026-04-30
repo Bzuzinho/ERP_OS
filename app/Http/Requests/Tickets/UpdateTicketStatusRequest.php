@@ -12,7 +12,18 @@ class UpdateTicketStatusRequest extends FormRequest
     {
         $ticket = $this->route('ticket');
 
-        return $ticket instanceof Ticket && $this->user()->can('update', $ticket);
+        if (! $ticket instanceof Ticket) {
+            return false;
+        }
+
+        $requestedStatus = (string) $this->input('status');
+        $closingStatuses = ['fechado', 'cancelado', 'indeferido'];
+
+        if (in_array($requestedStatus, $closingStatuses, true)) {
+            return $this->user()->can('close', $ticket) || $this->user()->can('update', $ticket);
+        }
+
+        return $this->user()->can('update', $ticket);
     }
 
     public function rules(): array
