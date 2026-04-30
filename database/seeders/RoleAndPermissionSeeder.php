@@ -73,7 +73,13 @@ class RoleAndPermissionSeeder extends Seeder
             'inventory.delete',
             'inventory.move',
             'inventory.loan',
+            'inventory.return',
             'inventory.adjust',
+            'inventory.breakage',
+            'inventory.restock',
+            'inventory.approve_restock',
+            'inventory.manage_categories',
+            'inventory.manage_locations',
             'hr.view',
             'hr.create',
             'hr.update',
@@ -122,6 +128,7 @@ class RoleAndPermissionSeeder extends Seeder
             'document_types.view', 'document_types.create', 'document_types.update', 'document_types.delete',
             'meeting_minutes.view', 'meeting_minutes.create', 'meeting_minutes.update', 'meeting_minutes.approve', 'meeting_minutes.delete',
             'spaces.view', 'spaces.create', 'spaces.update', 'spaces.delete', 'spaces.reserve', 'spaces.approve_reservation', 'spaces.cancel_reservation', 'spaces.manage_maintenance', 'spaces.manage_cleaning',
+            'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
         ]);
 
         Role::findByName('executivo', 'web')->syncPermissions([
@@ -143,6 +150,7 @@ class RoleAndPermissionSeeder extends Seeder
             'documents.view', 'documents.upload', 'documents.update', 'documents.download',
             'meeting_minutes.view', 'meeting_minutes.create', 'meeting_minutes.update',
             'spaces.view', 'spaces.create', 'spaces.update', 'spaces.reserve', 'spaces.cancel_reservation',
+            'inventory.view', 'inventory.loan', 'inventory.return', 'inventory.restock',
         ]);
 
         Role::findByName('operacional', 'web')->syncPermissions([
@@ -153,6 +161,7 @@ class RoleAndPermissionSeeder extends Seeder
             'documents.view',
             'meeting_minutes.view',
             'spaces.view', 'spaces.manage_maintenance',
+            'inventory.view', 'inventory.move',
         ]);
 
         Role::findByName('manutencao', 'web')->syncPermissions([
@@ -163,6 +172,12 @@ class RoleAndPermissionSeeder extends Seeder
             'documents.view',
             'meeting_minutes.view',
             'spaces.view', 'spaces.manage_maintenance', 'spaces.manage_cleaning',
+            'inventory.view', 'inventory.move', 'inventory.breakage',
+        ]);
+
+        Role::findByName('armazem', 'web')->syncPermissions([
+            'admin.access',
+            'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
         ]);
 
         Role::findByName('cidadao', 'web')->syncPermissions([

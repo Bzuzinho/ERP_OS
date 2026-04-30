@@ -71,6 +71,11 @@ class Contact extends Model
         return $this->hasMany(SpaceReservation::class);
     }
 
+    public function inventoryLoans(): HasMany
+    {
+        return $this->hasMany(InventoryLoan::class, 'borrower_contact_id');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

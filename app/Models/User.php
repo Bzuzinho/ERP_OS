@@ -135,6 +135,51 @@ class User extends Authenticatable
         return $this->hasMany(SpaceCleaningRecord::class, 'completed_by');
     }
 
+    public function inventoryLocationResponsibilities(): HasMany
+    {
+        return $this->hasMany(InventoryLocation::class, 'responsible_user_id');
+    }
+
+    public function requestedInventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class, 'requested_by');
+    }
+
+    public function handledInventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class, 'handled_by');
+    }
+
+    public function loanedInventoryLoans(): HasMany
+    {
+        return $this->hasMany(InventoryLoan::class, 'loaned_by');
+    }
+
+    public function receivedInventoryReturns(): HasMany
+    {
+        return $this->hasMany(InventoryLoan::class, 'returned_to');
+    }
+
+    public function requestedInventoryRestocks(): HasMany
+    {
+        return $this->hasMany(InventoryRestockRequest::class, 'requested_by');
+    }
+
+    public function approvedInventoryRestocks(): HasMany
+    {
+        return $this->hasMany(InventoryRestockRequest::class, 'approved_by');
+    }
+
+    public function reportedInventoryBreakages(): HasMany
+    {
+        return $this->hasMany(InventoryBreakage::class, 'reported_by');
+    }
+
+    public function resolvedInventoryBreakages(): HasMany
+    {
+        return $this->hasMany(InventoryBreakage::class, 'resolved_by');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

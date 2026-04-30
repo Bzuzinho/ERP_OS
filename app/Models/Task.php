@@ -81,6 +81,21 @@ class Task extends Model
         return $this->hasMany(SpaceCleaningRecord::class);
     }
 
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class, 'related_task_id');
+    }
+
+    public function inventoryLoans(): HasMany
+    {
+        return $this->hasMany(InventoryLoan::class, 'related_task_id');
+    }
+
+    public function inventoryBreakages(): HasMany
+    {
+        return $this->hasMany(InventoryBreakage::class, 'related_task_id');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

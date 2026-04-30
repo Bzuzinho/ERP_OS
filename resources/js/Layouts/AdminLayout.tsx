@@ -19,7 +19,7 @@ const navigationItems = [
     { label: 'Tipos Doc.', href: route('admin.document-types.index'), current: 'admin.document-types.*', enabled: true },
     { label: 'Atas', href: route('admin.meeting-minutes.index'), current: 'admin.meeting-minutes.*', enabled: true },
     { label: 'Espacos', href: route('admin.spaces.index'), current: 'admin.spaces.*', enabled: true },
-    { label: 'Inventario', href: '#', current: '', enabled: false },
+    { label: 'Recursos Materiais', href: route('admin.inventory-items.index'), current: 'admin.inventory*', enabled: true },
     { label: 'RH', href: '#', current: '', enabled: false },
     { label: 'Planeamento', href: '#', current: '', enabled: false },
     { label: 'Relatórios', href: '#', current: '', enabled: false },

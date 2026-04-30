@@ -79,6 +79,16 @@ class Event extends Model
         return $this->hasMany(SpaceReservation::class);
     }
 
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class, 'related_event_id');
+    }
+
+    public function inventoryLoans(): HasMany
+    {
+        return $this->hasMany(InventoryLoan::class, 'related_event_id');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

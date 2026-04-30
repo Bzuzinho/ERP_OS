@@ -11,6 +11,8 @@ type AdminDashboardProps = {
     todayEvents: { id: number; title: string; start_at: string; end_at: string; status: string }[];
     todayReservations: { id: number; purpose: string; start_at: string; status: string; space?: { id: number; name: string } | null; contact?: { id: number; name: string } | null }[];
     pendingMaintenance: { id: number; title: string; status: string; space?: { id: number; name: string } | null; assignee?: { id: number; name: string } | null }[];
+    lowStockItems: { id: number; name: string; sku: string | null; current_stock: number; minimum_stock: number | null }[];
+    overdueLoans: { id: number; quantity: number; expected_return_at: string | null; item?: { id: number; name: string; sku: string | null } | null; borrowerUser?: { id: number; name: string } | null; borrowerContact?: { id: number; name: string } | null }[];
 };
 
 export default function AdminDashboard({
@@ -19,6 +21,8 @@ export default function AdminDashboard({
     todayEvents,
     todayReservations,
     pendingMaintenance,
+    lowStockItems,
+    overdueLoans,
 }: AdminDashboardProps) {
     return (
         <AdminLayout
@@ -96,6 +100,34 @@ export default function AdminDashboard({
                             </li>
                         ))}
                         {pendingMaintenance.length === 0 ? <li className="text-slate-500">Sem manutencoes pendentes.</li> : null}
+                    </ul>
+                </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Stock Baixo</p>
+                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Itens Criticos</h2>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        {lowStockItems.map((item) => (
+                            <li key={item.id} className="rounded-xl bg-amber-50 px-3 py-2 text-amber-900">
+                                {item.name} ({item.sku ?? 'sem sku'}) • {item.current_stock} / min {item.minimum_stock ?? '-'}
+                            </li>
+                        ))}
+                        {lowStockItems.length === 0 ? <li className="text-slate-500">Sem itens com stock baixo.</li> : null}
+                    </ul>
+                </section>
+            </div>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-1">
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-700">Emprestimos</p>
+                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Emprestimos em Atraso</h2>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        {overdueLoans.map((loan) => (
+                            <li key={loan.id} className="rounded-xl bg-rose-50 px-3 py-2 text-rose-900">
+                                {loan.item?.name ?? '-'} • {loan.borrowerUser?.name ?? loan.borrowerContact?.name ?? '-'} • {loan.quantity} • devolucao prevista {loan.expected_return_at ? new Date(loan.expected_return_at).toLocaleDateString() : '-'}
+                            </li>
+                        ))}
+                        {overdueLoans.length === 0 ? <li className="text-slate-500">Sem emprestimos em atraso.</li> : null}
                     </ul>
                 </section>
             </div>

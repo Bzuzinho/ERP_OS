@@ -44,7 +44,7 @@ export default function PortalDashboard({
 
             <div className="mt-8 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                    Ações rápidas
+                    Acoes rapidas
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                     {actions.map((action) => (
@@ -61,7 +61,8 @@ export default function PortalDashboard({
 
             <div className="mt-8 grid gap-4 lg:grid-cols-2">
                 <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                    <p cAgenda
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+                        Agenda
                     </p>
                     <h2 className="mt-3 text-xl font-semibold text-stone-950">Proximas marcacoes</h2>
                     <ul className="mt-3 space-y-2 text-sm text-stone-700">
@@ -84,8 +85,7 @@ export default function PortalDashboard({
                                 {reservation.space?.name ?? '-'} • {reservation.purpose} • {new Date(reservation.start_at).toLocaleString()} - {new Date(reservation.end_at).toLocaleString()} • {reservation.status}
                             </li>
                         ))}
-                        {upcomingReservations.length === 0 ? <li className="text-stone-500">Sem reserva
-                        {upcomingEvents.length === 0 ? <li className="text-stone-500">Sem marcacoes futuras.</li> : null}
+                        {upcomingReservations.length === 0 ? <li className="text-stone-500">Sem reservas futuras.</li> : null}
                     </ul>
                 </section>
             </div>

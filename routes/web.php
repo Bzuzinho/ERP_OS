@@ -10,6 +10,17 @@ use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\EventParticipantController as AdminEventParticipantController;
 use App\Http\Controllers\Admin\EventStatusController as AdminEventStatusController;
+use App\Http\Controllers\Admin\InventoryBreakageController as AdminInventoryBreakageController;
+use App\Http\Controllers\Admin\InventoryBreakageResolutionController as AdminInventoryBreakageResolutionController;
+use App\Http\Controllers\Admin\InventoryCategoryController as AdminInventoryCategoryController;
+use App\Http\Controllers\Admin\InventoryItemController as AdminInventoryItemController;
+use App\Http\Controllers\Admin\InventoryItemStatusController as AdminInventoryItemStatusController;
+use App\Http\Controllers\Admin\InventoryLoanController as AdminInventoryLoanController;
+use App\Http\Controllers\Admin\InventoryLoanReturnController as AdminInventoryLoanReturnController;
+use App\Http\Controllers\Admin\InventoryLocationController as AdminInventoryLocationController;
+use App\Http\Controllers\Admin\InventoryMovementController as AdminInventoryMovementController;
+use App\Http\Controllers\Admin\InventoryRestockApprovalController as AdminInventoryRestockApprovalController;
+use App\Http\Controllers\Admin\InventoryRestockRequestController as AdminInventoryRestockRequestController;
 use App\Http\Controllers\Admin\MeetingMinuteApprovalController as AdminMeetingMinuteApprovalController;
 use App\Http\Controllers\Admin\MeetingMinuteController as AdminMeetingMinuteController;
 use App\Http\Controllers\Admin\SpaceCleaningRecordController as AdminSpaceCleaningRecordController;
@@ -120,6 +131,41 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::resource('space-cleaning', AdminSpaceCleaningRecordController::class)
             ->parameters(['space-cleaning' => 'spaceCleaning']);
         Route::post('space-cleaning/{spaceCleaning}/complete', [AdminSpaceCleaningStatusController::class, 'complete'])->name('space-cleaning.complete');
+
+        Route::get('inventory', fn () => to_route('admin.inventory-items.index'))->name('inventory.index');
+
+        Route::resource('inventory-categories', AdminInventoryCategoryController::class)
+            ->except(['show'])
+            ->parameters(['inventory-categories' => 'inventoryCategory']);
+
+        Route::resource('inventory-locations', AdminInventoryLocationController::class)
+            ->except(['show'])
+            ->parameters(['inventory-locations' => 'inventoryLocation']);
+
+        Route::resource('inventory-items', AdminInventoryItemController::class)
+            ->parameters(['inventory-items' => 'inventoryItem']);
+        Route::patch('inventory-items/{inventoryItem}/status', [AdminInventoryItemStatusController::class, 'update'])->name('inventory-items.status.update');
+
+        Route::resource('inventory-movements', AdminInventoryMovementController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->parameters(['inventory-movements' => 'inventoryMovement']);
+
+        Route::resource('inventory-loans', AdminInventoryLoanController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->parameters(['inventory-loans' => 'inventoryLoan']);
+        Route::post('inventory-loans/{inventoryLoan}/return', AdminInventoryLoanReturnController::class)->name('inventory-loans.return');
+
+        Route::resource('inventory-restock-requests', AdminInventoryRestockRequestController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->parameters(['inventory-restock-requests' => 'inventoryRestockRequest']);
+        Route::post('inventory-restock-requests/{inventoryRestockRequest}/approve', [AdminInventoryRestockApprovalController::class, 'approve'])->name('inventory-restock-requests.approve');
+        Route::post('inventory-restock-requests/{inventoryRestockRequest}/reject', [AdminInventoryRestockApprovalController::class, 'reject'])->name('inventory-restock-requests.reject');
+        Route::post('inventory-restock-requests/{inventoryRestockRequest}/complete', [AdminInventoryRestockApprovalController::class, 'complete'])->name('inventory-restock-requests.complete');
+
+        Route::resource('inventory-breakages', AdminInventoryBreakageController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->parameters(['inventory-breakages' => 'inventoryBreakage']);
+        Route::post('inventory-breakages/{inventoryBreakage}/resolve', AdminInventoryBreakageResolutionController::class)->name('inventory-breakages.resolve');
     });
 
 Route::middleware(['auth'])

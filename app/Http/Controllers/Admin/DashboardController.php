@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\InventoryBreakage;
+use App\Models\InventoryItem;
+use App\Models\InventoryLoan;
+use App\Models\InventoryRestockRequest;
 use App\Models\Space;
 use App\Models\SpaceCleaningRecord;
 use App\Models\SpaceMaintenanceRecord;
@@ -46,6 +50,28 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $lowStockItems = InventoryItem::query()
+            ->with(['category:id,name'])
+            ->whereNotNull('minimum_stock')
+            ->whereColumn('current_stock', '<', 'minimum_stock')
+            ->orderBy('current_stock')
+            ->limit(8)
+            ->get();
+
+        $overdueLoans = InventoryLoan::query()
+            ->with(['item:id,name,sku', 'borrowerUser:id,name', 'borrowerContact:id,name'])
+            ->where(function ($query) {
+                $query->where('status', 'overdue')
+                    ->orWhere(function ($activeQuery) {
+                        $activeQuery->where('status', 'active')
+                            ->whereNotNull('expected_return_at')
+                            ->where('expected_return_at', '<', now());
+                    });
+            })
+            ->orderBy('expected_return_at')
+            ->limit(8)
+            ->get();
+
         return Inertia::render('Admin/Dashboard/Index', [
             'stats' => [
                 ['label' => 'Espacos ativos', 'value' => Space::query()->where('is_active', true)->count()],
@@ -53,11 +79,24 @@ class DashboardController extends Controller
                 ['label' => 'Reservas pendentes', 'value' => SpaceReservation::query()->where('status', 'requested')->count()],
                 ['label' => 'Manutencoes abertas', 'value' => SpaceMaintenanceRecord::query()->whereIn('status', ['pending', 'scheduled', 'in_progress'])->count()],
                 ['label' => 'Limpezas pendentes', 'value' => SpaceCleaningRecord::query()->whereIn('status', ['pending', 'scheduled', 'in_progress'])->count()],
+                ['label' => 'Itens ativos', 'value' => InventoryItem::query()->where('is_active', true)->count()],
+                ['label' => 'Stock baixo', 'value' => InventoryItem::query()->whereNotNull('minimum_stock')->whereColumn('current_stock', '<', 'minimum_stock')->count()],
+                ['label' => 'Emprestimos ativos', 'value' => InventoryLoan::query()->whereIn('status', ['active', 'overdue'])->count()],
+                ['label' => 'Emprestimos em atraso', 'value' => InventoryLoan::query()->where(function ($query) {
+                    $query->where('status', 'overdue')
+                        ->orWhere(function ($activeQuery) {
+                            $activeQuery->where('status', 'active')->whereNotNull('expected_return_at')->where('expected_return_at', '<', now());
+                        });
+                })->count()],
+                ['label' => 'Reposicoes pendentes', 'value' => InventoryRestockRequest::query()->where('status', 'requested')->count()],
+                ['label' => 'Quebras reportadas', 'value' => InventoryBreakage::query()->where('status', 'reported')->count()],
             ],
             'pendingTasks' => $pendingTasks,
             'todayEvents' => $todayEvents,
             'todayReservations' => $todayReservations,
             'pendingMaintenance' => $pendingMaintenance,
+            'lowStockItems' => $lowStockItems,
+            'overdueLoans' => $overdueLoans,
         ]);
     }
 }

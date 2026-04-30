@@ -115,6 +115,21 @@ class Ticket extends Model
         return $this->hasMany(Event::class, 'related_ticket_id');
     }
 
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class, 'related_ticket_id');
+    }
+
+    public function inventoryLoans(): HasMany
+    {
+        return $this->hasMany(InventoryLoan::class, 'related_ticket_id');
+    }
+
+    public function inventoryBreakages(): HasMany
+    {
+        return $this->hasMany(InventoryBreakage::class, 'related_ticket_id');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');
