@@ -9,7 +9,7 @@ type PortalLayoutProps = PropsWithChildren<{
 }>;
 
 const navigationItems = [
-    { label: 'O meu portal', href: '/portal', current: 'portal.dashboard', enabled: true },
+    { label: 'Dashboard', href: route('portal.dashboard'), current: 'portal.dashboard', enabled: true },
     { label: 'Pedidos', href: route('portal.tickets.index'), current: 'portal.tickets.*', enabled: true },
     { label: 'Marcacoes', href: route('portal.events.index'), current: 'portal.events.*', enabled: true },
     { label: 'Espacos', href: route('portal.spaces.index'), current: 'portal.spaces.*', enabled: true },

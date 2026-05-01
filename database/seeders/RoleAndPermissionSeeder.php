@@ -107,6 +107,15 @@ class RoleAndPermissionSeeder extends Seeder
             'planning.manage_recurring',
             'planning.execute_recurring',
             'reports.view',
+            'reports.export',
+            'reports.tickets',
+            'reports.tasks',
+            'reports.events',
+            'reports.spaces',
+            'reports.inventory',
+            'reports.hr',
+            'reports.planning',
+            'reports.documents',
             'settings.manage',
         ];
 
@@ -146,12 +155,14 @@ class RoleAndPermissionSeeder extends Seeder
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
             'hr.view', 'hr.create', 'hr.update', 'hr.delete', 'hr.manage_departments', 'hr.manage_teams', 'hr.manage_schedules', 'hr.view_attendance', 'hr.create_attendance', 'hr.validate_attendance', 'hr.view_leave', 'hr.create_leave', 'hr.approve_leave', 'hr.reject_leave', 'hr.assign_employees',
             'planning.view', 'planning.create', 'planning.update', 'planning.approve', 'planning.cancel', 'planning.complete', 'planning.delete', 'planning.manage_tasks', 'planning.manage_resources', 'planning.manage_recurring', 'planning.execute_recurring',
+            'reports.view', 'reports.export', 'reports.tickets', 'reports.tasks', 'reports.events', 'reports.spaces', 'reports.inventory', 'reports.hr', 'reports.planning', 'reports.documents',
         ]);
 
         Role::findByName('rh', 'web')->syncPermissions([
             'admin.access',
             'hr.view', 'hr.create', 'hr.update', 'hr.delete', 'hr.manage_departments', 'hr.manage_teams', 'hr.manage_schedules', 'hr.view_attendance', 'hr.create_attendance', 'hr.validate_attendance', 'hr.view_leave', 'hr.create_leave', 'hr.approve_leave', 'hr.reject_leave', 'hr.assign_employees',
             'planning.view',
+            'reports.view', 'reports.hr',
         ]);
 
         Role::findByName('executivo', 'web')->syncPermissions([
@@ -164,6 +175,7 @@ class RoleAndPermissionSeeder extends Seeder
             'spaces.view', 'spaces.approve_reservation',
             'hr.view', 'hr.approve_leave',
             'planning.view', 'planning.approve', 'planning.cancel', 'planning.complete',
+            'reports.view', 'reports.tickets', 'reports.tasks', 'reports.events', 'reports.spaces', 'reports.planning', 'reports.documents',
         ]);
 
         Role::findByName('administrativo', 'web')->syncPermissions([
@@ -178,6 +190,7 @@ class RoleAndPermissionSeeder extends Seeder
             'inventory.view', 'inventory.loan', 'inventory.return', 'inventory.restock',
             'hr.view_attendance', 'hr.create_attendance', 'hr.view_leave', 'hr.create_leave',
             'planning.view', 'planning.create', 'planning.update',
+            'reports.view', 'reports.tickets', 'reports.events', 'reports.documents',
         ]);
 
         Role::findByName('operacional', 'web')->syncPermissions([
@@ -190,6 +203,7 @@ class RoleAndPermissionSeeder extends Seeder
             'spaces.view', 'spaces.manage_maintenance',
             'inventory.view', 'inventory.move',
             'planning.view',
+            'reports.view', 'reports.tasks', 'reports.events', 'reports.spaces', 'reports.planning',
         ]);
 
         Role::findByName('manutencao', 'web')->syncPermissions([
@@ -202,12 +216,14 @@ class RoleAndPermissionSeeder extends Seeder
             'spaces.view', 'spaces.manage_maintenance', 'spaces.manage_cleaning',
             'inventory.view', 'inventory.move', 'inventory.breakage',
             'planning.view',
+            'reports.view', 'reports.tasks', 'reports.events', 'reports.spaces', 'reports.planning',
         ]);
 
         Role::findByName('armazem', 'web')->syncPermissions([
             'admin.access',
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
             'planning.view',
+            'reports.view', 'reports.inventory',
         ]);
 
         Role::findByName('cidadao', 'web')->syncPermissions([

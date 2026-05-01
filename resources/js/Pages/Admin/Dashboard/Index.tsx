@@ -1,208 +1,148 @@
+import DashboardSection from '@/Components/Reports/DashboardSection';
+import KpiCard from '@/Components/Reports/KpiCard';
+import KpiGrid from '@/Components/Reports/KpiGrid';
+import MetricList from '@/Components/Reports/MetricList';
+import StatusBreakdown from '@/Components/Reports/StatusBreakdown';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Link } from '@inertiajs/react';
-
-type Stat = {
-    label: string;
-    value: number;
-};
 
 type AdminDashboardProps = {
-    stats: Stat[];
-    hrStats: Stat[];
-    pendingLeaveRequests: { id: number; start_date: string; end_date: string; employee: { id: number; employee_number: string } | null }[];
-    pendingTasks: { id: number; title: string; status: string; assignee?: { id: number; name: string } | null }[];
-    todayEvents: { id: number; title: string; start_at: string; end_at: string; status: string }[];
-    todayReservations: { id: number; purpose: string; start_at: string; status: string; space?: { id: number; name: string } | null; contact?: { id: number; name: string } | null }[];
-    pendingMaintenance: { id: number; title: string; status: string; space?: { id: number; name: string } | null; assignee?: { id: number; name: string } | null }[];
-    lowStockItems: { id: number; name: string; sku: string | null; current_stock: number; minimum_stock: number | null }[];
-    overdueLoans: { id: number; quantity: number; expected_return_at: string | null; item?: { id: number; name: string; sku: string | null } | null; borrowerUser?: { id: number; name: string } | null; borrowerContact?: { id: number; name: string } | null }[];
-    runningPlans: { id: number; title: string; status: string; progress_percent: number; owner?: { id: number; name: string } | null }[];
-    upcomingRecurring: { id: number; title: string; next_run_at: string | null; frequency: string; operation_type: string }[];
+    data: {
+        kpis: Record<string, number | string | null>;
+        ticket_status_breakdown: Record<string, number>;
+        ticket_category_breakdown: Record<string, number>;
+        recent_tickets: Array<Record<string, unknown>>;
+        pending_tasks: Array<Record<string, unknown>>;
+        today_events: Array<Record<string, unknown>>;
+        today_reservations: Array<Record<string, unknown>>;
+        low_stock_items: Array<Record<string, unknown>>;
+        today_absences: Array<Record<string, unknown>>;
+        active_plans: Array<Record<string, unknown>>;
+        upcoming_public_activities: Array<Record<string, unknown>>;
+        meeting_minutes: Record<string, number>;
+    };
 };
 
-export default function AdminDashboard({
-    stats,
-    hrStats,
-    pendingLeaveRequests,
-    pendingTasks,
-    todayEvents,
-    todayReservations,
-    pendingMaintenance,
-    lowStockItems,
-    overdueLoans,
-    runningPlans,
-    upcomingRecurring,
-}: AdminDashboardProps) {
+export default function AdminDashboard({ data }: AdminDashboardProps) {
+    const todayAbsences = data.today_absences as Array<{ id: number; status?: string; employee?: { employee_number?: string } }>;
+
+    const primaryKpis: Array<[string, string | number | null]> = [
+        ['Pedidos em aberto', data.kpis.open_tickets],
+        ['Pedidos urgentes', data.kpis.urgent_tickets],
+        ['Pedidos atrasados', data.kpis.overdue_tickets],
+        ['Tickets fechados este mês', data.kpis.closed_tickets_this_month],
+        ['Tarefas pendentes', data.kpis.pending_tasks],
+        ['Tarefas em curso', data.kpis.in_progress_tasks],
+        ['Tarefas concluídas mês', data.kpis.done_tasks_this_month],
+        ['Eventos hoje', data.kpis.events_today],
+        ['Reservas hoje', data.kpis.reservations_today],
+        ['Reservas pendentes', data.kpis.pending_reservations],
+        ['Stock baixo', data.kpis.low_stock_items],
+        ['Empréstimos em atraso', data.kpis.overdue_loans],
+        ['Presentes hoje', data.kpis.present_employees_today],
+        ['Ausências hoje', data.kpis.absences_today],
+        ['Planos em execução', data.kpis.plans_in_execution],
+        ['Planos pendentes aprovação', data.kpis.plans_pending_approval],
+        ['Documentos ativos', data.kpis.active_documents],
+    ];
+
     return (
-        <AdminLayout
-            title="Dashboard Operacional"
-            subtitle="Visão geral da operação da junta"
-            headerActions={
-                <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-800 px-6 py-5 text-white shadow-lg">
-                    <p className="text-sm uppercase tracking-[0.22em] text-emerald-200">
-                        Sprint 2
-                    </p>
-                    <p className="mt-2 max-w-3xl text-sm text-slate-200">
-                        Painel operacional com tarefas internas e agenda ligados aos modulos de tickets e contactos.
-                    </p>
-                </div>
-            }
-        >
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {stats.map((stat) => (
-                    <section key={stat.label} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <p className="text-sm text-slate-500">{stat.label}</p>
-                        <p className="mt-4 text-4xl font-semibold text-slate-950">{stat.value}</p>
-                    </section>
+        <AdminLayout title="Dashboard Administrativo" subtitle="KPIs operacionais e visão consolidada por módulo">
+            <KpiGrid>
+                {primaryKpis.map(([label, value]) => (
+                    <KpiCard key={label} label={label} value={String(value ?? '-')} />
                 ))}
+            </KpiGrid>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <DashboardSection title="Pedidos por Estado">
+                    <StatusBreakdown values={data.ticket_status_breakdown} />
+                </DashboardSection>
+                <DashboardSection title="Pedidos por Categoria">
+                    <StatusBreakdown values={data.ticket_category_breakdown} />
+                </DashboardSection>
             </div>
 
-            <div className="mt-8 grid gap-4 xl:grid-cols-2">
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">Recursos Humanos</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Indicadores RH</h2>
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                        {hrStats.map((stat) => (
-                            <div key={stat.label} className="rounded-2xl bg-slate-50 px-4 py-3">
-                                <p className="text-xs text-slate-500">{stat.label}</p>
-                                <p className="mt-1 text-2xl font-semibold text-slate-900">{stat.value}</p>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="mt-4 flex gap-3 text-sm">
-                        <Link href={route('admin.hr.employees.index')} className="text-slate-600 hover:text-slate-950">Funcionários →</Link>
-                        <Link href={route('admin.hr.leave-requests.index')} className="text-slate-600 hover:text-slate-950">Pedidos →</Link>
-                        <Link href={route('admin.hr.attendance.index')} className="text-slate-600 hover:text-slate-950">Presenças →</Link>
-                    </div>
-                </section>
+            <div className="mt-4 grid gap-4 xl:grid-cols-3">
+                <DashboardSection title="Pedidos Recentes">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.recent_tickets.slice(0, 8).map((ticket) => [
+                                String(ticket.reference ?? `#${ticket.id}`),
+                                String(ticket.status ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Tarefas Pendentes">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.pending_tasks.slice(0, 8).map((task) => [String(task.title ?? `#${task.id}`), String(task.status ?? '-')]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Agenda de Hoje">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.today_events.slice(0, 8).map((event) => [String(event.title ?? `#${event.id}`), String(event.status ?? '-')]),
+                        )}
+                    />
+                </DashboardSection>
+            </div>
 
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">RH</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Pedidos de Ausência Pendentes</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {pendingLeaveRequests.map((req) => (
-                            <li key={req.id}>
-                                <Link href={route('admin.hr.leave-requests.show', req.id)} className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-slate-700 hover:bg-slate-100">
-                                    <span className="font-mono">{req.employee?.employee_number ?? '-'}</span>
-                                    <span className="text-slate-500">{req.start_date} → {req.end_date}</span>
-                                </Link>
-                            </li>
-                        ))}
-                        {pendingLeaveRequests.length === 0 && <li className="text-slate-500">Sem pedidos pendentes.</li>}
-                    </ul>
-                </section>
+            <div className="mt-4 grid gap-4 xl:grid-cols-3">
+                <DashboardSection title="Reservas de Hoje">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.today_reservations.slice(0, 8).map((reservation) => [
+                                String(reservation.purpose ?? `#${reservation.id}`),
+                                String(reservation.status ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Alertas de Stock">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.low_stock_items.slice(0, 8).map((item) => [
+                                String(item.name ?? `#${item.id}`),
+                                `${String(item.current_stock ?? '-')} / min ${String(item.minimum_stock ?? '-')}`,
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Ausências de Hoje">
+                    <MetricList
+                        values={Object.fromEntries(
+                            todayAbsences.slice(0, 8).map((absence) => [
+                                String(absence.employee?.employee_number ?? `#${absence.id}`),
+                                String(absence.status ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Operacao</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Tarefas Pendentes</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {pendingTasks.map((task) => (
-                            <li key={task.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-                                {task.title} • {task.status} • {task.assignee?.name ?? 'Sem responsavel'}
-                            </li>
-                        ))}
-                        {pendingTasks.length === 0 ? <li className="text-slate-500">Sem tarefas pendentes.</li> : null}
-                    </ul>
-                </section>
-
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Reservas</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Reservas de Hoje</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {todayReservations.map((reservation) => (
-                            <li key={reservation.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-                                {reservation.space?.name ?? '-'} • {reservation.purpose} • {new Date(reservation.start_at).toLocaleTimeString()} • {reservation.status}
-                            </li>
-                        ))}
-                        {todayReservations.length === 0 ? <li className="text-slate-500">Sem reservas hoje.</li> : null}
-                    </ul>
-                </section>
-            </div>
-
-            <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Agenda</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Agenda de Hoje</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {todayEvents.map((event) => (
-                            <li key={event.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-                                {event.title} • {new Date(event.start_at).toLocaleTimeString()} - {new Date(event.end_at).toLocaleTimeString()} • {event.status}
-                            </li>
-                        ))}
-                        {todayEvents.length === 0 ? <li className="text-slate-500">Sem eventos hoje.</li> : null}
-                    </ul>
-                </section>
-
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Manutencao</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Manutencoes Pendentes</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {pendingMaintenance.map((maintenance) => (
-                            <li key={maintenance.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-                                {maintenance.space?.name ?? '-'} • {maintenance.title} • {maintenance.status}
-                            </li>
-                        ))}
-                        {pendingMaintenance.length === 0 ? <li className="text-slate-500">Sem manutencoes pendentes.</li> : null}
-                    </ul>
-                </section>
-
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Stock Baixo</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Itens Criticos</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {lowStockItems.map((item) => (
-                            <li key={item.id} className="rounded-xl bg-amber-50 px-3 py-2 text-amber-900">
-                                {item.name} ({item.sku ?? 'sem sku'}) • {item.current_stock} / min {item.minimum_stock ?? '-'}
-                            </li>
-                        ))}
-                        {lowStockItems.length === 0 ? <li className="text-slate-500">Sem itens com stock baixo.</li> : null}
-                    </ul>
-                </section>
-            </div>
-
-            <div className="mt-4 grid gap-4 xl:grid-cols-1">
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-700">Emprestimos</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Emprestimos em Atraso</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {overdueLoans.map((loan) => (
-                            <li key={loan.id} className="rounded-xl bg-rose-50 px-3 py-2 text-rose-900">
-                                {loan.item?.name ?? '-'} • {loan.borrowerUser?.name ?? loan.borrowerContact?.name ?? '-'} • {loan.quantity} • devolucao prevista {loan.expected_return_at ? new Date(loan.expected_return_at).toLocaleDateString() : '-'}
-                            </li>
-                        ))}
-                        {overdueLoans.length === 0 ? <li className="text-slate-500">Sem emprestimos em atraso.</li> : null}
-                    </ul>
-                </section>
-            </div>
-
-            <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Planeamento</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Planos em Execução</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {runningPlans.map((plan) => (
-                            <li key={plan.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-                                {plan.title} • {plan.status} • {plan.progress_percent}%
-                            </li>
-                        ))}
-                        {runningPlans.length === 0 ? <li className="text-slate-500">Sem planos em execução.</li> : null}
-                    </ul>
-                </section>
-
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Planeamento</p>
-                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Próximas Recorrências</h2>
-                    <ul className="mt-4 space-y-2 text-sm">
-                        {upcomingRecurring.map((operation) => (
-                            <li key={operation.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-                                {operation.title} • {operation.operation_type} • {operation.next_run_at ? new Date(operation.next_run_at).toLocaleString() : '-'}
-                            </li>
-                        ))}
-                        {upcomingRecurring.length === 0 ? <li className="text-slate-500">Sem recorrências agendadas.</li> : null}
-                    </ul>
-                </section>
+                <DashboardSection title="Planos em Execução">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.active_plans.slice(0, 8).map((plan) => [
+                                String(plan.title ?? `#${plan.id}`),
+                                `${String(plan.status ?? '-')} (${String(plan.progress_percent ?? 0)}%)`,
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Atividades Públicas Próximas">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.upcoming_public_activities.slice(0, 8).map((activity) => [
+                                String(activity.title ?? `#${activity.id}`),
+                                String(activity.plan_type ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
             </div>
         </AdminLayout>
     );

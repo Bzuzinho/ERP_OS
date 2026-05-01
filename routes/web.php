@@ -23,6 +23,8 @@ use App\Http\Controllers\Admin\InventoryRestockApprovalController as AdminInvent
 use App\Http\Controllers\Admin\InventoryRestockRequestController as AdminInventoryRestockRequestController;
 use App\Http\Controllers\Admin\MeetingMinuteApprovalController as AdminMeetingMinuteApprovalController;
 use App\Http\Controllers\Admin\MeetingMinuteController as AdminMeetingMinuteController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\ReportExportController as AdminReportExportController;
 use App\Http\Controllers\Admin\SpaceCleaningRecordController as AdminSpaceCleaningRecordController;
 use App\Http\Controllers\Admin\SpaceCleaningStatusController as AdminSpaceCleaningStatusController;
 use App\Http\Controllers\Admin\SpaceController as AdminSpaceController;
@@ -167,6 +169,39 @@ Route::middleware(['auth', 'permission:admin.access'])
             ->only(['index', 'create', 'store', 'show'])
             ->parameters(['inventory-breakages' => 'inventoryBreakage']);
         Route::post('inventory-breakages/{inventoryBreakage}/resolve', AdminInventoryBreakageResolutionController::class)->name('inventory-breakages.resolve');
+
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [AdminReportController::class, 'index'])
+                ->middleware('permission:reports.view')
+                ->name('index');
+            Route::get('/tickets', [AdminReportController::class, 'tickets'])
+                ->middleware('permission:reports.tickets')
+                ->name('tickets');
+            Route::get('/tasks', [AdminReportController::class, 'tasks'])
+                ->middleware('permission:reports.tasks')
+                ->name('tasks');
+            Route::get('/events', [AdminReportController::class, 'events'])
+                ->middleware('permission:reports.events')
+                ->name('events');
+            Route::get('/spaces', [AdminReportController::class, 'spaces'])
+                ->middleware('permission:reports.spaces')
+                ->name('spaces');
+            Route::get('/inventory', [AdminReportController::class, 'inventory'])
+                ->middleware('permission:reports.inventory')
+                ->name('inventory');
+            Route::get('/hr', [AdminReportController::class, 'hr'])
+                ->middleware('permission:reports.hr')
+                ->name('hr');
+            Route::get('/planning', [AdminReportController::class, 'planning'])
+                ->middleware('permission:reports.planning')
+                ->name('planning');
+            Route::get('/documents', [AdminReportController::class, 'documents'])
+                ->middleware('permission:reports.documents')
+                ->name('documents');
+            Route::get('/export', AdminReportExportController::class)
+                ->middleware('permission:reports.export')
+                ->name('export');
+        });
 
         // HR Routes
         require __DIR__.'/admin/hr.php';

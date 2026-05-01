@@ -1,109 +1,102 @@
+import DashboardSection from '@/Components/Reports/DashboardSection';
+import KpiCard from '@/Components/Reports/KpiCard';
+import KpiGrid from '@/Components/Reports/KpiGrid';
+import MetricList from '@/Components/Reports/MetricList';
 import PortalLayout from '@/Layouts/PortalLayout';
 
-type Stat = {
-    label: string;
-    value: number;
-};
-
 type PortalDashboardProps = {
-    stats: Stat[];
-    actions: string[];
-    upcomingEvents: { id: number; title: string; start_at: string; end_at: string; status: string }[];
-    upcomingReservations: { id: number; purpose: string; start_at: string; end_at: string; status: string; space?: { id: number; name: string } | null }[];
-    upcomingPublicActivities: { id: number; title: string; start_date: string; end_date: string | null; plan_type: string; status: string }[];
+    data: {
+        kpis: Record<string, number>;
+        tickets: {
+            active: Array<Record<string, unknown>>;
+            recent_updates: Array<Record<string, unknown>>;
+        };
+        events: Array<Record<string, unknown>>;
+        reservations: Array<Record<string, unknown>>;
+        documents: Array<Record<string, unknown>>;
+        public_plans: Array<Record<string, unknown>>;
+    };
 };
 
-export default function PortalDashboard({
-    stats,
-    actions,
-    upcomingEvents,
-    upcomingReservations,
-    upcomingPublicActivities,
-}: PortalDashboardProps) {
+export default function PortalDashboard({ data }: PortalDashboardProps) {
     return (
-        <PortalLayout
-            title="O meu portal"
-            subtitle="Acompanhe os seus pedidos, reservas e documentos"
-            headerActions={
-                <div className="rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5 text-white shadow-lg">
-                    <p className="text-sm uppercase tracking-[0.22em] text-amber-100">
-                        Sprint 2
-                    </p>
-                    <p className="mt-2 max-w-2xl text-sm text-amber-50">
-                        Portal com visao de pedidos ativos e agenda futura associada aos seus contactos e participacoes.
-                    </p>
-                </div>
-            }
-        >
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {stats.map((stat) => (
-                    <section key={stat.label} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                        <p className="text-sm text-stone-500">{stat.label}</p>
-                        <p className="mt-4 text-4xl font-semibold text-stone-950">{stat.value}</p>
-                    </section>
-                ))}
+        <PortalLayout title="Dashboard" subtitle="A sua atividade no portal em tempo real">
+            <KpiGrid>
+                <KpiCard label="Os meus pedidos ativos" value={data.kpis.my_active_tickets} />
+                <KpiCard label="Aguardando resposta" value={data.kpis.waiting_tickets} />
+                <KpiCard label="Próximas marcações" value={data.kpis.upcoming_events} />
+                <KpiCard label="Próximas reservas" value={data.kpis.upcoming_reservations} />
+                <KpiCard label="Documentos disponíveis" value={data.kpis.available_documents} />
+            </KpiGrid>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <DashboardSection title="Os meus pedidos ativos">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.tickets.active.slice(0, 8).map((ticket) => [
+                                String(ticket.reference ?? `#${ticket.id}`),
+                                String(ticket.status ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Últimos pedidos atualizados">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.tickets.recent_updates.slice(0, 8).map((ticket) => [
+                                String(ticket.reference ?? `#${ticket.id}`),
+                                String(ticket.updated_at ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
             </div>
 
-            <div className="mt-8 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                    Acoes rapidas
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                    {actions.map((action) => (
-                        <button
-                            key={action}
-                            type="button"
-                            className="rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-stone-700"
-                        >
-                            {action}
-                        </button>
-                    ))}
-                </div>
+            <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <DashboardSection title="Próximas marcações/eventos associados">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.events.slice(0, 8).map((event) => [
+                                String(event.title ?? `#${event.id}`),
+                                String(event.start_at ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Próximas reservas">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.reservations.slice(0, 8).map((reservation) => [
+                                String(reservation.purpose ?? `#${reservation.id}`),
+                                String(reservation.start_at ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
             </div>
 
-            <div className="mt-8 grid gap-4 lg:grid-cols-2">
-                <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                        Agenda
-                    </p>
-                    <h2 className="mt-3 text-xl font-semibold text-stone-950">Proximas marcacoes</h2>
-                    <ul className="mt-3 space-y-2 text-sm text-stone-700">
-                        {upcomingEvents.map((event) => (
-                            <li key={event.id} className="rounded-xl bg-stone-50 px-3 py-2">
-                                {event.title} • {new Date(event.start_at).toLocaleString()} - {new Date(event.end_at).toLocaleString()} • {event.status}
-                            </li>
-                        ))}
-                        {upcomingEvents.length === 0 ? <li className="text-stone-500">Sem marcacoes futuras.</li> : null}
-                    </ul>
-                </section>
-                <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                        Reservas
-                    </p>
-                    <h2 className="mt-3 text-xl font-semibold text-stone-950">Proximas reservas</h2>
-                    <ul className="mt-3 space-y-2 text-sm text-stone-700">
-                        {upcomingReservations.map((reservation) => (
-                            <li key={reservation.id} className="rounded-xl bg-stone-50 px-3 py-2">
-                                {reservation.space?.name ?? '-'} • {reservation.purpose} • {new Date(reservation.start_at).toLocaleString()} - {new Date(reservation.end_at).toLocaleString()} • {reservation.status}
-                            </li>
-                        ))}
-                        {upcomingReservations.length === 0 ? <li className="text-stone-500">Sem reservas futuras.</li> : null}
-                    </ul>
-                </section>
+            <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <DashboardSection title="Documentos disponíveis">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.documents.slice(0, 8).map((document) => [
+                                String(document.title ?? `#${document.id}`),
+                                String(document.visibility ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
+                <DashboardSection title="Atividades públicas próximas">
+                    <MetricList
+                        values={Object.fromEntries(
+                            data.public_plans.slice(0, 8).map((plan) => [
+                                String(plan.title ?? `#${plan.id}`),
+                                String(plan.start_date ?? '-'),
+                            ]),
+                        )}
+                    />
+                </DashboardSection>
             </div>
-
-            <section className="mt-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Atividades públicas</p>
-                <h2 className="mt-3 text-xl font-semibold text-stone-950">Próximas atividades</h2>
-                <ul className="mt-3 space-y-2 text-sm text-stone-700">
-                    {upcomingPublicActivities.map((activity) => (
-                        <li key={activity.id} className="rounded-xl bg-stone-50 px-3 py-2">
-                            {activity.title} • {activity.plan_type} • {activity.start_date}{activity.end_date ? ` - ${activity.end_date}` : ''} • {activity.status}
-                        </li>
-                    ))}
-                    {upcomingPublicActivities.length === 0 ? <li className="text-stone-500">Sem atividades públicas futuras.</li> : null}
-                </ul>
-            </section>
         </PortalLayout>
     );
 }

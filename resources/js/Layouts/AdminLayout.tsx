@@ -9,7 +9,7 @@ type AdminLayoutProps = PropsWithChildren<{
 }>;
 
 const navigationItems = [
-    { label: 'Dashboard', href: '/admin', current: 'admin.dashboard', enabled: true },
+    { label: 'Dashboard', href: route('admin.dashboard'), current: 'admin.dashboard', enabled: true },
     { label: 'Utilizadores', href: '#', current: '', enabled: false },
     { label: 'Contactos', href: route('admin.contacts.index'), current: 'admin.contacts.*', enabled: true },
     { label: 'Pedidos', href: route('admin.tickets.index'), current: 'admin.tickets.*', enabled: true },
@@ -23,7 +23,7 @@ const navigationItems = [
     { label: 'RH', href: route('admin.hr.employees.index'), current: 'admin.hr.*', enabled: true },
     { label: 'Planeamento', href: route('admin.operational-plans.index'), current: 'admin.operational-plans.*', enabled: true },
     { label: 'Recorrências', href: route('admin.recurring-operations.index'), current: 'admin.recurring-operations.*', enabled: true },
-    { label: 'Relatórios', href: '#', current: '', enabled: false },
+    { label: 'Relatórios', href: route('admin.reports.index'), current: 'admin.reports.*', enabled: true },
     { label: 'Configurações', href: '#', current: '', enabled: false },
 ];
 
