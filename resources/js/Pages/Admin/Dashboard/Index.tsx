@@ -1,4 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import { Link } from '@inertiajs/react';
 
 type Stat = {
     label: string;
@@ -7,6 +8,8 @@ type Stat = {
 
 type AdminDashboardProps = {
     stats: Stat[];
+    hrStats: Stat[];
+    pendingLeaveRequests: { id: number; start_date: string; end_date: string; employee: { id: number; employee_number: string } | null }[];
     pendingTasks: { id: number; title: string; status: string; assignee?: { id: number; name: string } | null }[];
     todayEvents: { id: number; title: string; start_at: string; end_at: string; status: string }[];
     todayReservations: { id: number; purpose: string; start_at: string; status: string; space?: { id: number; name: string } | null; contact?: { id: number; name: string } | null }[];
@@ -17,6 +20,8 @@ type AdminDashboardProps = {
 
 export default function AdminDashboard({
     stats,
+    hrStats,
+    pendingLeaveRequests,
     pendingTasks,
     todayEvents,
     todayReservations,
@@ -49,6 +54,42 @@ export default function AdminDashboard({
             </div>
 
             <div className="mt-8 grid gap-4 xl:grid-cols-2">
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">Recursos Humanos</p>
+                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Indicadores RH</h2>
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                        {hrStats.map((stat) => (
+                            <div key={stat.label} className="rounded-2xl bg-slate-50 px-4 py-3">
+                                <p className="text-xs text-slate-500">{stat.label}</p>
+                                <p className="mt-1 text-2xl font-semibold text-slate-900">{stat.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-4 flex gap-3 text-sm">
+                        <Link href={route('admin.hr.employees.index')} className="text-slate-600 hover:text-slate-950">Funcionários →</Link>
+                        <Link href={route('admin.hr.leave-requests.index')} className="text-slate-600 hover:text-slate-950">Pedidos →</Link>
+                        <Link href={route('admin.hr.attendance.index')} className="text-slate-600 hover:text-slate-950">Presenças →</Link>
+                    </div>
+                </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">RH</p>
+                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Pedidos de Ausência Pendentes</h2>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        {pendingLeaveRequests.map((req) => (
+                            <li key={req.id}>
+                                <Link href={route('admin.hr.leave-requests.show', req.id)} className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-slate-700 hover:bg-slate-100">
+                                    <span className="font-mono">{req.employee?.employee_number ?? '-'}</span>
+                                    <span className="text-slate-500">{req.start_date} → {req.end_date}</span>
+                                </Link>
+                            </li>
+                        ))}
+                        {pendingLeaveRequests.length === 0 && <li className="text-slate-500">Sem pedidos pendentes.</li>}
+                    </ul>
+                </section>
+            </div>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-2">
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Operacao</p>
                     <h2 className="mt-3 text-xl font-semibold text-slate-950">Tarefas Pendentes</h2>

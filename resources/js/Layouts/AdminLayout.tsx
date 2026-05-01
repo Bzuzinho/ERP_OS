@@ -20,7 +20,7 @@ const navigationItems = [
     { label: 'Atas', href: route('admin.meeting-minutes.index'), current: 'admin.meeting-minutes.*', enabled: true },
     { label: 'Espacos', href: route('admin.spaces.index'), current: 'admin.spaces.*', enabled: true },
     { label: 'Recursos Materiais', href: route('admin.inventory-items.index'), current: 'admin.inventory*', enabled: true },
-    { label: 'RH', href: '#', current: '', enabled: false },
+    { label: 'RH', href: route('admin.hr.employees.index'), current: 'admin.hr.*', enabled: true },
     { label: 'Planeamento', href: '#', current: '', enabled: false },
     { label: 'Relatórios', href: '#', current: '', enabled: false },
     { label: 'Configurações', href: '#', current: '', enabled: false },

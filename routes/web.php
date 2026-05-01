@@ -166,6 +166,9 @@ Route::middleware(['auth', 'permission:admin.access'])
             ->only(['index', 'create', 'store', 'show'])
             ->parameters(['inventory-breakages' => 'inventoryBreakage']);
         Route::post('inventory-breakages/{inventoryBreakage}/resolve', AdminInventoryBreakageResolutionController::class)->name('inventory-breakages.resolve');
+
+        // HR Routes
+        require __DIR__.'/admin/hr.php';
     });
 
 Route::middleware(['auth'])

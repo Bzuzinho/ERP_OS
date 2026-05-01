@@ -180,6 +180,11 @@ class User extends Authenticatable
         return $this->hasMany(InventoryBreakage::class, 'resolved_by');
     }
 
+    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Employee::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

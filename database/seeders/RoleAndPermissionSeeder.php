@@ -84,8 +84,17 @@ class RoleAndPermissionSeeder extends Seeder
             'hr.create',
             'hr.update',
             'hr.delete',
-            'hr.approve_leave',
+            'hr.manage_departments',
+            'hr.manage_teams',
+            'hr.manage_schedules',
+            'hr.view_attendance',
+            'hr.create_attendance',
             'hr.validate_attendance',
+            'hr.view_leave',
+            'hr.create_leave',
+            'hr.approve_leave',
+            'hr.reject_leave',
+            'hr.assign_employees',
             'planning.view',
             'planning.create',
             'planning.update',
@@ -129,6 +138,12 @@ class RoleAndPermissionSeeder extends Seeder
             'meeting_minutes.view', 'meeting_minutes.create', 'meeting_minutes.update', 'meeting_minutes.approve', 'meeting_minutes.delete',
             'spaces.view', 'spaces.create', 'spaces.update', 'spaces.delete', 'spaces.reserve', 'spaces.approve_reservation', 'spaces.cancel_reservation', 'spaces.manage_maintenance', 'spaces.manage_cleaning',
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
+            'hr.view', 'hr.create', 'hr.update', 'hr.delete', 'hr.manage_departments', 'hr.manage_teams', 'hr.manage_schedules', 'hr.view_attendance', 'hr.create_attendance', 'hr.validate_attendance', 'hr.view_leave', 'hr.create_leave', 'hr.approve_leave', 'hr.reject_leave', 'hr.assign_employees',
+        ]);
+
+        Role::findByName('rh', 'web')->syncPermissions([
+            'admin.access',
+            'hr.view', 'hr.create', 'hr.update', 'hr.delete', 'hr.manage_departments', 'hr.manage_teams', 'hr.manage_schedules', 'hr.view_attendance', 'hr.create_attendance', 'hr.validate_attendance', 'hr.view_leave', 'hr.create_leave', 'hr.approve_leave', 'hr.reject_leave', 'hr.assign_employees',
         ]);
 
         Role::findByName('executivo', 'web')->syncPermissions([
@@ -139,6 +154,7 @@ class RoleAndPermissionSeeder extends Seeder
             'documents.view', 'documents.download', 'documents.manage_access', 'documents.approve',
             'meeting_minutes.view', 'meeting_minutes.approve',
             'spaces.view', 'spaces.approve_reservation',
+            'hr.view', 'hr.approve_leave',
         ]);
 
         Role::findByName('administrativo', 'web')->syncPermissions([
@@ -151,6 +167,7 @@ class RoleAndPermissionSeeder extends Seeder
             'meeting_minutes.view', 'meeting_minutes.create', 'meeting_minutes.update',
             'spaces.view', 'spaces.create', 'spaces.update', 'spaces.reserve', 'spaces.cancel_reservation',
             'inventory.view', 'inventory.loan', 'inventory.return', 'inventory.restock',
+            'hr.view_attendance', 'hr.create_attendance', 'hr.view_leave', 'hr.create_leave',
         ]);
 
         Role::findByName('operacional', 'web')->syncPermissions([

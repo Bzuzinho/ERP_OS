@@ -110,4 +110,16 @@ class Task extends Model
     {
         return $this->morphMany(Attachment::class, 'attachable');
     }
+
+    public function employeeAssignments(): HasMany
+    {
+        return $this->hasMany(EmployeeTaskAssignment::class);
+    }
+
+    public function assignedEmployees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Employee::class, 'employee_task_assignments')
+            ->withPivot('role', 'assigned_at', 'removed_at', 'is_active')
+            ->withTimestamps();
+    }
 }

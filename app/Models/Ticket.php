@@ -95,6 +95,11 @@ class Ticket extends Model
         return $this->belongsTo(User::class, 'closed_by');
     }
 
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     public function statusHistories(): HasMany
     {
         return $this->hasMany(TicketStatusHistory::class);

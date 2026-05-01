@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
+use App\Models\Employee;
 use App\Models\Event;
 use App\Models\InventoryBreakage;
 use App\Models\InventoryItem;
 use App\Models\InventoryLoan;
 use App\Models\InventoryRestockRequest;
+use App\Models\LeaveRequest;
 use App\Models\Space;
 use App\Models\SpaceCleaningRecord;
 use App\Models\SpaceMaintenanceRecord;
 use App\Models\SpaceReservation;
 use App\Models\Task;
+use App\Models\Team;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -91,6 +95,20 @@ class DashboardController extends Controller
                 ['label' => 'Reposicoes pendentes', 'value' => InventoryRestockRequest::query()->where('status', 'requested')->count()],
                 ['label' => 'Quebras reportadas', 'value' => InventoryBreakage::query()->where('status', 'reported')->count()],
             ],
+            'hrStats' => [
+                ['label' => 'Funcionários ativos', 'value' => Employee::query()->where('organization_id', auth()->user()->organization_id)->where('is_active', true)->count()],
+                ['label' => 'Presentes hoje', 'value' => AttendanceRecord::query()->where('organization_id', auth()->user()->organization_id)->whereDate('date', now()->toDateString())->where('status', 'present')->count()],
+                ['label' => 'Ausentes hoje', 'value' => AttendanceRecord::query()->where('organization_id', auth()->user()->organization_id)->whereDate('date', now()->toDateString())->whereIn('status', ['absent', 'sick_leave', 'vacation'])->count()],
+                ['label' => 'Pedidos ausência pendentes', 'value' => LeaveRequest::query()->where('organization_id', auth()->user()->organization_id)->where('status', 'requested')->count()],
+                ['label' => 'Equipas ativas', 'value' => Team::query()->where('organization_id', auth()->user()->organization_id)->where('is_active', true)->count()],
+            ],
+            'pendingLeaveRequests' => LeaveRequest::query()
+                ->where('organization_id', auth()->user()->organization_id)
+                ->where('status', 'requested')
+                ->with('employee:id,employee_number')
+                ->orderBy('start_date')
+                ->limit(5)
+                ->get(),
             'pendingTasks' => $pendingTasks,
             'todayEvents' => $todayEvents,
             'todayReservations' => $todayReservations,

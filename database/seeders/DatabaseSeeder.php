@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
             InventoryCategorySeeder::class,
             InventoryLocationSeeder::class,
             InventoryItemSeeder::class,
+            DepartmentSeeder::class,
+            AbsenceTypeSeeder::class,
+            TeamSeeder::class,
             SuperAdminSeeder::class,
         ]);
     }
