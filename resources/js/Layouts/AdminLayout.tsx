@@ -21,7 +21,8 @@ const navigationItems = [
     { label: 'Espacos', href: route('admin.spaces.index'), current: 'admin.spaces.*', enabled: true },
     { label: 'Recursos Materiais', href: route('admin.inventory-items.index'), current: 'admin.inventory*', enabled: true },
     { label: 'RH', href: route('admin.hr.employees.index'), current: 'admin.hr.*', enabled: true },
-    { label: 'Planeamento', href: '#', current: '', enabled: false },
+    { label: 'Planeamento', href: route('admin.operational-plans.index'), current: 'admin.operational-plans.*', enabled: true },
+    { label: 'Recorrências', href: route('admin.recurring-operations.index'), current: 'admin.recurring-operations.*', enabled: true },
     { label: 'Relatórios', href: '#', current: '', enabled: false },
     { label: 'Configurações', href: '#', current: '', enabled: false },
 ];

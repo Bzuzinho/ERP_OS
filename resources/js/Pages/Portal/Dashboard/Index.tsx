@@ -10,6 +10,7 @@ type PortalDashboardProps = {
     actions: string[];
     upcomingEvents: { id: number; title: string; start_at: string; end_at: string; status: string }[];
     upcomingReservations: { id: number; purpose: string; start_at: string; end_at: string; status: string; space?: { id: number; name: string } | null }[];
+    upcomingPublicActivities: { id: number; title: string; start_date: string; end_date: string | null; plan_type: string; status: string }[];
 };
 
 export default function PortalDashboard({
@@ -17,6 +18,7 @@ export default function PortalDashboard({
     actions,
     upcomingEvents,
     upcomingReservations,
+    upcomingPublicActivities,
 }: PortalDashboardProps) {
     return (
         <PortalLayout
@@ -89,6 +91,19 @@ export default function PortalDashboard({
                     </ul>
                 </section>
             </div>
+
+            <section className="mt-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Atividades públicas</p>
+                <h2 className="mt-3 text-xl font-semibold text-stone-950">Próximas atividades</h2>
+                <ul className="mt-3 space-y-2 text-sm text-stone-700">
+                    {upcomingPublicActivities.map((activity) => (
+                        <li key={activity.id} className="rounded-xl bg-stone-50 px-3 py-2">
+                            {activity.title} • {activity.plan_type} • {activity.start_date}{activity.end_date ? ` - ${activity.end_date}` : ''} • {activity.status}
+                        </li>
+                    ))}
+                    {upcomingPublicActivities.length === 0 ? <li className="text-stone-500">Sem atividades públicas futuras.</li> : null}
+                </ul>
+            </section>
         </PortalLayout>
     );
 }

@@ -40,4 +40,14 @@ class Department extends Model
     {
         return $this->hasMany(Team::class);
     }
+
+    public function operationalPlans(): HasMany
+    {
+        return $this->hasMany(OperationalPlan::class);
+    }
+
+    public function recurringOperations(): HasMany
+    {
+        return $this->hasMany(RecurringOperation::class);
+    }
 }

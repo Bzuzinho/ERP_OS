@@ -88,6 +88,11 @@ class InventoryItem extends Model
         return $this->hasMany(InventoryBreakage::class);
     }
 
+    public function operationalPlanResources(): HasMany
+    {
+        return $this->hasMany(OperationalPlanResource::class);
+    }
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

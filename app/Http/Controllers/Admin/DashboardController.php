@@ -17,6 +17,7 @@ use App\Models\SpaceMaintenanceRecord;
 use App\Models\SpaceReservation;
 use App\Models\Task;
 use App\Models\Team;
+use App\Services\Planning\OperationalPlanningDashboardService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,7 +26,7 @@ class DashboardController extends Controller
     /**
      * Display the admin dashboard.
      */
-    public function __invoke(): Response
+    public function __invoke(OperationalPlanningDashboardService $planningDashboard): Response
     {
         $pendingTasks = Task::query()
             ->with(['assignee:id,name'])
@@ -76,6 +77,10 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
+        $planningStats = $planningDashboard->adminStats(auth()->user());
+        $runningPlans = $planningDashboard->runningPlans(auth()->user());
+        $upcomingRecurring = $planningDashboard->upcomingRecurring(auth()->user());
+
         return Inertia::render('Admin/Dashboard/Index', [
             'stats' => [
                 ['label' => 'Espacos ativos', 'value' => Space::query()->where('is_active', true)->count()],
@@ -94,6 +99,12 @@ class DashboardController extends Controller
                 })->count()],
                 ['label' => 'Reposicoes pendentes', 'value' => InventoryRestockRequest::query()->where('status', 'requested')->count()],
                 ['label' => 'Quebras reportadas', 'value' => InventoryBreakage::query()->where('status', 'reported')->count()],
+                ['label' => 'Planos ativos', 'value' => $planningStats['planos_ativos']],
+                ['label' => 'Planos pendentes aprovação', 'value' => $planningStats['planos_pendentes_aprovacao']],
+                ['label' => 'Planos em execução', 'value' => $planningStats['planos_em_execucao']],
+                ['label' => 'Planos concluídos mês', 'value' => $planningStats['planos_concluidos_mes']],
+                ['label' => 'Recorrências ativas', 'value' => $planningStats['recorrencias_ativas']],
+                ['label' => 'Operações recorrentes falhadas', 'value' => $planningStats['operacoes_recorrentes_falhadas']],
             ],
             'hrStats' => [
                 ['label' => 'Funcionários ativos', 'value' => Employee::query()->where('organization_id', auth()->user()->organization_id)->where('is_active', true)->count()],
@@ -115,6 +126,8 @@ class DashboardController extends Controller
             'pendingMaintenance' => $pendingMaintenance,
             'lowStockItems' => $lowStockItems,
             'overdueLoans' => $overdueLoans,
+            'runningPlans' => $runningPlans,
+            'upcomingRecurring' => $upcomingRecurring,
         ]);
     }
 }

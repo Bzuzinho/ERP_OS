@@ -18,6 +18,12 @@ use App\Models\InventoryLocation;
 use App\Models\InventoryMovement;
 use App\Models\InventoryRestockRequest;
 use App\Models\MeetingMinute;
+use App\Models\OperationalPlan;
+use App\Models\OperationalPlanParticipant;
+use App\Models\OperationalPlanResource;
+use App\Models\OperationalPlanTask;
+use App\Models\RecurringOperation;
+use App\Models\RecurringOperationRun;
 use App\Models\Space;
 use App\Models\SpaceCleaningRecord;
 use App\Models\SpaceMaintenanceRecord;
@@ -40,6 +46,12 @@ use App\Policies\InventoryLocationPolicy;
 use App\Policies\InventoryMovementPolicy;
 use App\Policies\InventoryRestockRequestPolicy;
 use App\Policies\MeetingMinutePolicy;
+use App\Policies\OperationalPlanParticipantPolicy;
+use App\Policies\OperationalPlanPolicy;
+use App\Policies\OperationalPlanResourcePolicy;
+use App\Policies\OperationalPlanTaskPolicy;
+use App\Policies\RecurringOperationPolicy;
+use App\Policies\RecurringOperationRunPolicy;
 use App\Policies\SpaceCleaningRecordPolicy;
 use App\Policies\SpaceMaintenanceRecordPolicy;
 use App\Policies\SpacePolicy;
@@ -87,6 +99,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(InventoryLoan::class, InventoryLoanPolicy::class);
         Gate::policy(InventoryRestockRequest::class, InventoryRestockRequestPolicy::class);
         Gate::policy(InventoryBreakage::class, InventoryBreakagePolicy::class);
+        Gate::policy(OperationalPlan::class, OperationalPlanPolicy::class);
+        Gate::policy(OperationalPlanTask::class, OperationalPlanTaskPolicy::class);
+        Gate::policy(OperationalPlanParticipant::class, OperationalPlanParticipantPolicy::class);
+        Gate::policy(OperationalPlanResource::class, OperationalPlanResourcePolicy::class);
+        Gate::policy(RecurringOperation::class, RecurringOperationPolicy::class);
+        Gate::policy(RecurringOperationRun::class, RecurringOperationRunPolicy::class);
 
         Vite::prefetch(concurrency: 3);
     }

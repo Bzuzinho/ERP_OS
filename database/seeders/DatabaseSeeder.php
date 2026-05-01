@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             AbsenceTypeSeeder::class,
             TeamSeeder::class,
+            OperationalPlanSeeder::class,
+            RecurringOperationSeeder::class,
             SuperAdminSeeder::class,
         ]);
     }

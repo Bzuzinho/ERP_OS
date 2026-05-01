@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -121,5 +122,17 @@ class Task extends Model
         return $this->belongsToMany(Employee::class, 'employee_task_assignments')
             ->withPivot('role', 'assigned_at', 'removed_at', 'is_active')
             ->withTimestamps();
+    }
+
+    public function operationalPlans(): BelongsToMany
+    {
+        return $this->belongsToMany(OperationalPlan::class, 'operational_plan_tasks')
+            ->withPivot(['position', 'is_milestone', 'weight'])
+            ->withTimestamps();
+    }
+
+    public function recurringOperationRun(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(RecurringOperationRun::class, 'generated_task_id');
     }
 }

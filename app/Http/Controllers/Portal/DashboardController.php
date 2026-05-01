@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\SpaceReservation;
 use App\Models\Ticket;
+use App\Services\Planning\OperationalPlanningDashboardService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,7 +15,7 @@ class DashboardController extends Controller
     /**
      * Display the portal dashboard.
      */
-    public function __invoke(): Response
+    public function __invoke(OperationalPlanningDashboardService $planningDashboard): Response
     {
         $user = request()->user();
         $contactIds = $user->contacts()->pluck('id');
@@ -44,6 +45,8 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $upcomingPublicActivities = $planningDashboard->upcomingPublicActivities();
+
         return Inertia::render('Portal/Dashboard/Index', [
             'stats' => [
                 ['label' => 'Pedidos ativos', 'value' => Ticket::query()->whereIn('contact_id', $contactIds)->whereNotIn('status', ['resolved', 'closed'])->count()],
@@ -59,6 +62,7 @@ class DashboardController extends Controller
             ],
             'upcomingEvents' => $upcomingEvents,
             'upcomingReservations' => $upcomingReservations,
+            'upcomingPublicActivities' => $upcomingPublicActivities,
         ]);
     }
 }

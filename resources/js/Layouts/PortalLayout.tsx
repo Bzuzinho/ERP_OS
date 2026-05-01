@@ -15,6 +15,7 @@ const navigationItems = [
     { label: 'Espacos', href: route('portal.spaces.index'), current: 'portal.spaces.*', enabled: true },
     { label: 'Reservas', href: route('portal.space-reservations.index'), current: 'portal.space-reservations.*', enabled: true },
     { label: 'Documentos', href: route('portal.documents.index'), current: 'portal.documents.*', enabled: true },
+    { label: 'Atividades', href: route('portal.operational-plans.index'), current: 'portal.operational-plans.*', enabled: true },
     { label: 'Notificações', href: '#', current: '', enabled: false },
     { label: 'Perfil', href: route('profile.edit'), current: 'profile.edit', enabled: true },
 ];

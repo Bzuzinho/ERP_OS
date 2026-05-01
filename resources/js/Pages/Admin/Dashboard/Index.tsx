@@ -16,6 +16,8 @@ type AdminDashboardProps = {
     pendingMaintenance: { id: number; title: string; status: string; space?: { id: number; name: string } | null; assignee?: { id: number; name: string } | null }[];
     lowStockItems: { id: number; name: string; sku: string | null; current_stock: number; minimum_stock: number | null }[];
     overdueLoans: { id: number; quantity: number; expected_return_at: string | null; item?: { id: number; name: string; sku: string | null } | null; borrowerUser?: { id: number; name: string } | null; borrowerContact?: { id: number; name: string } | null }[];
+    runningPlans: { id: number; title: string; status: string; progress_percent: number; owner?: { id: number; name: string } | null }[];
+    upcomingRecurring: { id: number; title: string; next_run_at: string | null; frequency: string; operation_type: string }[];
 };
 
 export default function AdminDashboard({
@@ -28,6 +30,8 @@ export default function AdminDashboard({
     pendingMaintenance,
     lowStockItems,
     overdueLoans,
+    runningPlans,
+    upcomingRecurring,
 }: AdminDashboardProps) {
     return (
         <AdminLayout
@@ -169,6 +173,34 @@ export default function AdminDashboard({
                             </li>
                         ))}
                         {overdueLoans.length === 0 ? <li className="text-slate-500">Sem emprestimos em atraso.</li> : null}
+                    </ul>
+                </section>
+            </div>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Planeamento</p>
+                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Planos em Execução</h2>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        {runningPlans.map((plan) => (
+                            <li key={plan.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
+                                {plan.title} • {plan.status} • {plan.progress_percent}%
+                            </li>
+                        ))}
+                        {runningPlans.length === 0 ? <li className="text-slate-500">Sem planos em execução.</li> : null}
+                    </ul>
+                </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Planeamento</p>
+                    <h2 className="mt-3 text-xl font-semibold text-slate-950">Próximas Recorrências</h2>
+                    <ul className="mt-4 space-y-2 text-sm">
+                        {upcomingRecurring.map((operation) => (
+                            <li key={operation.id} className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
+                                {operation.title} • {operation.operation_type} • {operation.next_run_at ? new Date(operation.next_run_at).toLocaleString() : '-'}
+                            </li>
+                        ))}
+                        {upcomingRecurring.length === 0 ? <li className="text-slate-500">Sem recorrências agendadas.</li> : null}
                     </ul>
                 </section>
             </div>

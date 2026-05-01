@@ -99,7 +99,13 @@ class RoleAndPermissionSeeder extends Seeder
             'planning.create',
             'planning.update',
             'planning.approve',
+            'planning.cancel',
+            'planning.complete',
             'planning.delete',
+            'planning.manage_tasks',
+            'planning.manage_resources',
+            'planning.manage_recurring',
+            'planning.execute_recurring',
             'reports.view',
             'settings.manage',
         ];
@@ -139,11 +145,13 @@ class RoleAndPermissionSeeder extends Seeder
             'spaces.view', 'spaces.create', 'spaces.update', 'spaces.delete', 'spaces.reserve', 'spaces.approve_reservation', 'spaces.cancel_reservation', 'spaces.manage_maintenance', 'spaces.manage_cleaning',
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
             'hr.view', 'hr.create', 'hr.update', 'hr.delete', 'hr.manage_departments', 'hr.manage_teams', 'hr.manage_schedules', 'hr.view_attendance', 'hr.create_attendance', 'hr.validate_attendance', 'hr.view_leave', 'hr.create_leave', 'hr.approve_leave', 'hr.reject_leave', 'hr.assign_employees',
+            'planning.view', 'planning.create', 'planning.update', 'planning.approve', 'planning.cancel', 'planning.complete', 'planning.delete', 'planning.manage_tasks', 'planning.manage_resources', 'planning.manage_recurring', 'planning.execute_recurring',
         ]);
 
         Role::findByName('rh', 'web')->syncPermissions([
             'admin.access',
             'hr.view', 'hr.create', 'hr.update', 'hr.delete', 'hr.manage_departments', 'hr.manage_teams', 'hr.manage_schedules', 'hr.view_attendance', 'hr.create_attendance', 'hr.validate_attendance', 'hr.view_leave', 'hr.create_leave', 'hr.approve_leave', 'hr.reject_leave', 'hr.assign_employees',
+            'planning.view',
         ]);
 
         Role::findByName('executivo', 'web')->syncPermissions([
@@ -155,6 +163,7 @@ class RoleAndPermissionSeeder extends Seeder
             'meeting_minutes.view', 'meeting_minutes.approve',
             'spaces.view', 'spaces.approve_reservation',
             'hr.view', 'hr.approve_leave',
+            'planning.view', 'planning.approve', 'planning.cancel', 'planning.complete',
         ]);
 
         Role::findByName('administrativo', 'web')->syncPermissions([
@@ -168,6 +177,7 @@ class RoleAndPermissionSeeder extends Seeder
             'spaces.view', 'spaces.create', 'spaces.update', 'spaces.reserve', 'spaces.cancel_reservation',
             'inventory.view', 'inventory.loan', 'inventory.return', 'inventory.restock',
             'hr.view_attendance', 'hr.create_attendance', 'hr.view_leave', 'hr.create_leave',
+            'planning.view', 'planning.create', 'planning.update',
         ]);
 
         Role::findByName('operacional', 'web')->syncPermissions([
@@ -179,6 +189,7 @@ class RoleAndPermissionSeeder extends Seeder
             'meeting_minutes.view',
             'spaces.view', 'spaces.manage_maintenance',
             'inventory.view', 'inventory.move',
+            'planning.view',
         ]);
 
         Role::findByName('manutencao', 'web')->syncPermissions([
@@ -190,11 +201,13 @@ class RoleAndPermissionSeeder extends Seeder
             'meeting_minutes.view',
             'spaces.view', 'spaces.manage_maintenance', 'spaces.manage_cleaning',
             'inventory.view', 'inventory.move', 'inventory.breakage',
+            'planning.view',
         ]);
 
         Role::findByName('armazem', 'web')->syncPermissions([
             'admin.access',
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
+            'planning.view',
         ]);
 
         Role::findByName('cidadao', 'web')->syncPermissions([

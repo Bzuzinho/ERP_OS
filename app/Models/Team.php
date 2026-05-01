@@ -49,4 +49,14 @@ class Team extends Model
             ->withPivot('role', 'joined_at', 'left_at', 'is_active')
             ->withTimestamps();
     }
+
+    public function operationalPlans(): HasMany
+    {
+        return $this->hasMany(OperationalPlan::class);
+    }
+
+    public function recurringOperations(): HasMany
+    {
+        return $this->hasMany(RecurringOperation::class);
+    }
 }

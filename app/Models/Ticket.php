@@ -120,6 +120,11 @@ class Ticket extends Model
         return $this->hasMany(Event::class, 'related_ticket_id');
     }
 
+    public function operationalPlans(): HasMany
+    {
+        return $this->hasMany(OperationalPlan::class, 'related_ticket_id');
+    }
+
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class, 'related_ticket_id');

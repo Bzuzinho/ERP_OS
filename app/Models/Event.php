@@ -115,4 +115,9 @@ class Event extends Model
             ->withPivot('role', 'assigned_at', 'removed_at', 'is_active')
             ->withTimestamps();
     }
+
+    public function recurringOperationRun(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(RecurringOperationRun::class, 'generated_event_id');
+    }
 }

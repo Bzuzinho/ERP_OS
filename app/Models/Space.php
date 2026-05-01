@@ -72,6 +72,16 @@ class Space extends Model
         return $this->hasMany(InventoryMovement::class, 'related_space_id');
     }
 
+    public function operationalPlans(): HasMany
+    {
+        return $this->hasMany(OperationalPlan::class, 'related_space_id');
+    }
+
+    public function recurringOperations(): HasMany
+    {
+        return $this->hasMany(RecurringOperation::class, 'related_space_id');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

@@ -45,6 +45,7 @@ use App\Http\Controllers\Portal\DocumentController as PortalDocumentController;
 use App\Http\Controllers\Portal\DocumentDownloadController as PortalDocumentDownloadController;
 use App\Http\Controllers\Portal\EventController as PortalEventController;
 use App\Http\Controllers\Portal\MeetingMinuteController as PortalMeetingMinuteController;
+use App\Http\Controllers\Portal\OperationalPlanController as PortalOperationalPlanController;
 use App\Http\Controllers\Portal\SpaceController as PortalSpaceController;
 use App\Http\Controllers\Portal\SpaceReservationCancellationController as PortalSpaceReservationCancellationController;
 use App\Http\Controllers\Portal\SpaceReservationController as PortalSpaceReservationController;
@@ -169,6 +170,9 @@ Route::middleware(['auth', 'permission:admin.access'])
 
         // HR Routes
         require __DIR__.'/admin/hr.php';
+
+        // Planning Routes
+        require __DIR__.'/admin/planning.php';
     });
 
 Route::middleware(['auth'])
@@ -200,6 +204,10 @@ Route::middleware(['auth'])
             ->only(['index', 'create', 'store', 'show'])
             ->parameters(['space-reservations' => 'spaceReservation']);
         Route::post('space-reservations/{spaceReservation}/cancel', PortalSpaceReservationCancellationController::class)->name('space-reservations.cancel');
+
+        Route::resource('operational-plans', PortalOperationalPlanController::class)
+            ->only(['index', 'show'])
+            ->parameters(['operational-plans' => 'operationalPlan']);
     });
 
 Route::middleware('auth')->group(function () {
