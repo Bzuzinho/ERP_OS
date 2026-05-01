@@ -19,7 +19,7 @@ class SpaceKpiService
     {
         $normalized = $this->filters->normalize($filters);
 
-        $reservationBase = SpaceReservation::query()->where('organization_id', $user->organization_id);
+        $reservationBase = SpaceReservation::query()->where('space_reservations.organization_id', $user->organization_id);
         $this->filters->applyDateRange($reservationBase, $normalized, 'start_at');
         $reservationBase
             ->when($normalized['status'], fn ($q, $value) => $q->where('status', $value))
@@ -34,8 +34,8 @@ class SpaceKpiService
             'reservations_rejected' => (clone $reservationBase)->where('status', 'rejected')->count(),
             'occupancy_by_space' => (clone $reservationBase)
                 ->leftJoin('spaces', 'spaces.id', '=', 'space_reservations.space_id')
-                ->selectRaw('COALESCE(spaces.name, "Sem espaço") as label, COUNT(*) as total')
-                ->groupBy('label')
+                ->selectRaw('COALESCE(spaces.name, \'Sem espaço\') as label, COUNT(*) as total')
+                ->groupBy('spaces.name')
                 ->pluck('total', 'label')
                 ->toArray(),
             'open_maintenance' => SpaceMaintenanceRecord::query()->where('organization_id', $user->organization_id)->whereIn('status', ['pending', 'scheduled', 'in_progress'])->count(),

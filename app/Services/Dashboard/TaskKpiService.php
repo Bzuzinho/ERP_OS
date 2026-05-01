@@ -31,7 +31,7 @@ class TaskKpiService
             'in_progress' => (clone $base)->where('status', 'in_progress')->count(),
             'done' => (clone $base)->where('status', 'done')->count(),
             'overdue' => (clone $base)->whereNotNull('due_date')->whereDate('due_date', '<', now()->toDateString())->whereNotIn('status', ['done', 'cancelled'])->count(),
-            'by_assignee' => (clone $base)->leftJoin('users', 'users.id', '=', 'tasks.assigned_to')->selectRaw('COALESCE(users.name, "Sem responsavel") as label, COUNT(*) as total')->groupBy('label')->pluck('total', 'label')->toArray(),
+            'by_assignee' => (clone $base)->leftJoin('users', 'users.id', '=', 'tasks.assigned_to')->selectRaw('COALESCE(users.name, \'Sem responsavel\') as label, COUNT(*) as total')->groupBy('users.name')->pluck('total', 'label')->toArray(),
             'by_priority' => (clone $base)->selectRaw('priority, COUNT(*) as total')->groupBy('priority')->pluck('total', 'priority')->toArray(),
             'by_status' => (clone $base)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status')->toArray(),
         ];

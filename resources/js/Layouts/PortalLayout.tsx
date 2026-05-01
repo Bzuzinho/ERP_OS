@@ -1,6 +1,6 @@
 import type { PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import type { PropsWithChildren, ReactNode } from 'react';
+import { type PropsWithChildren, type ReactNode, useEffect, useState } from 'react';
 
 type PortalLayoutProps = PropsWithChildren<{
     title: string;
@@ -10,13 +10,11 @@ type PortalLayoutProps = PropsWithChildren<{
 
 const navigationItems = [
     { label: 'Dashboard', href: route('portal.dashboard'), current: 'portal.dashboard', enabled: true },
-    { label: 'Pedidos', href: route('portal.tickets.index'), current: 'portal.tickets.*', enabled: true },
-    { label: 'Marcacoes', href: route('portal.events.index'), current: 'portal.events.*', enabled: true },
-    { label: 'Espacos', href: route('portal.spaces.index'), current: 'portal.spaces.*', enabled: true },
+    { label: 'Os meus pedidos', href: route('portal.tickets.index'), current: 'portal.tickets.*', enabled: true },
+    { label: 'Marcações / Agenda', href: route('portal.events.index'), current: 'portal.events.*', enabled: true },
     { label: 'Reservas', href: route('portal.space-reservations.index'), current: 'portal.space-reservations.*', enabled: true },
     { label: 'Documentos', href: route('portal.documents.index'), current: 'portal.documents.*', enabled: true },
     { label: 'Atividades', href: route('portal.operational-plans.index'), current: 'portal.operational-plans.*', enabled: true },
-    { label: 'Notificações', href: '#', current: '', enabled: false },
     { label: 'Perfil', href: route('profile.edit'), current: 'profile.edit', enabled: true },
 ];
 
@@ -26,8 +24,15 @@ export default function PortalLayout({
     subtitle,
     headerActions,
 }: PortalLayoutProps) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, flash } = usePage<PageProps>().props;
     const user = auth.user;
+    const [flashVisible, setFlashVisible] = useState(true);
+
+    useEffect(() => {
+        setFlashVisible(true);
+        const timer = setTimeout(() => setFlashVisible(false), 5000);
+        return () => clearTimeout(timer);
+    }, [flash]);
 
     return (
         <div className="min-h-screen bg-stone-50 text-stone-900">
@@ -41,7 +46,7 @@ export default function PortalLayout({
                                 JuntaOS Portal
                             </Link>
                             <h1 className="mt-2 text-3xl font-semibold text-stone-950">{title}</h1>
-                            <p className="mt-2 max-w-2xl text-sm text-stone-600">{subtitle}</p>
+                            {subtitle ? <p className="mt-2 max-w-2xl text-sm text-stone-600">{subtitle}</p> : null}
                         </div>
 
                         <div className="flex flex-col items-start gap-3 rounded-2xl border border-stone-200 bg-stone-100 px-4 py-3 text-sm text-stone-600 shadow-sm lg:items-end">
@@ -53,6 +58,9 @@ export default function PortalLayout({
                                         Administração
                                     </Link>
                                 ) : null}
+                                <Link href={route('profile.edit')} className="font-medium text-stone-700 transition hover:text-stone-950">
+                                    Perfil
+                                </Link>
                                 <Link href={route('logout')} method="post" as="button" className="font-medium text-rose-700 transition hover:text-rose-900">
                                     Terminar sessão
                                 </Link>
@@ -94,6 +102,18 @@ export default function PortalLayout({
             </div>
 
             <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+                {flash?.success && flashVisible ? (
+                    <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        <span>{flash.success}</span>
+                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-amber-600 hover:text-amber-900">✕</button>
+                    </div>
+                ) : null}
+                {flash?.error && flashVisible ? (
+                    <div className="mb-6 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                        <span>{flash.error}</span>
+                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-rose-600 hover:text-rose-900">✕</button>
+                    </div>
+                ) : null}
                 {headerActions ? <div className="mb-6">{headerActions}</div> : null}
                 {children}
             </main>

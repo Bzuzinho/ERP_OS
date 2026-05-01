@@ -10,7 +10,12 @@ class DocumentAccessService
 {
     public function canView(User $user, Document $document): bool
     {
-        if ($user->hasRole('super_admin') || $user->can('documents.view')) {
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        // Admin users with view permission can see all documents regardless of visibility
+        if ($user->can('admin.access') && $user->can('documents.view')) {
             return true;
         }
 
@@ -35,7 +40,12 @@ class DocumentAccessService
 
     public function canDownload(User $user, Document $document): bool
     {
-        if ($user->hasRole('super_admin') || $user->can('documents.download')) {
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        // Admin users with download permission bypass visibility checks
+        if ($user->can('admin.access') && $user->can('documents.download')) {
             return true;
         }
 

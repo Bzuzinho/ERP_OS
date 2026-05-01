@@ -49,6 +49,10 @@ class HandleInertiaRequests extends Middleware
                     'accessAdmin' => $user?->can('admin.access') ?? false,
                 ],
             ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
         ];
     }
 }

@@ -18,7 +18,7 @@ class DocumentKpiService
     {
         $normalized = $this->filters->normalize($filters);
 
-        $base = Document::query()->where('organization_id', $user->organization_id);
+        $base = Document::query()->where('documents.organization_id', $user->organization_id);
         $this->filters->applyDateRange($base, $normalized);
 
         $base
@@ -32,8 +32,8 @@ class DocumentKpiService
             'active_documents' => (clone $base)->where('is_active', true)->count(),
             'by_type' => (clone $base)
                 ->leftJoin('document_types', 'document_types.id', '=', 'documents.document_type_id')
-                ->selectRaw('COALESCE(document_types.name, "Sem tipo") as label, COUNT(*) as total')
-                ->groupBy('label')
+                ->selectRaw('COALESCE(document_types.name, \'Sem tipo\') as label, COUNT(*) as total')
+                ->groupBy('document_types.name')
                 ->pluck('total', 'label')
                 ->toArray(),
             'restricted' => (clone $base)->where('visibility', 'restricted')->count(),

@@ -1,6 +1,6 @@
 import type { PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import type { PropsWithChildren, ReactNode } from 'react';
+import { type PropsWithChildren, type ReactNode, useEffect, useState } from 'react';
 
 type AdminLayoutProps = PropsWithChildren<{
     title: string;
@@ -10,19 +10,16 @@ type AdminLayoutProps = PropsWithChildren<{
 
 const navigationItems = [
     { label: 'Dashboard', href: route('admin.dashboard'), current: 'admin.dashboard', enabled: true },
-    { label: 'Utilizadores', href: '#', current: '', enabled: false },
-    { label: 'Contactos', href: route('admin.contacts.index'), current: 'admin.contacts.*', enabled: true },
     { label: 'Pedidos', href: route('admin.tickets.index'), current: 'admin.tickets.*', enabled: true },
+    { label: 'Munícipes / Entidades', href: route('admin.contacts.index'), current: 'admin.contacts.*', enabled: true },
     { label: 'Tarefas', href: route('admin.tasks.index'), current: 'admin.tasks.*', enabled: true },
     { label: 'Agenda', href: route('admin.events.index'), current: 'admin.events.*', enabled: true },
-    { label: 'Documentos', href: route('admin.documents.index'), current: 'admin.documents.*', enabled: true },
-    { label: 'Tipos Doc.', href: route('admin.document-types.index'), current: 'admin.document-types.*', enabled: true },
-    { label: 'Atas', href: route('admin.meeting-minutes.index'), current: 'admin.meeting-minutes.*', enabled: true },
-    { label: 'Espacos', href: route('admin.spaces.index'), current: 'admin.spaces.*', enabled: true },
-    { label: 'Recursos Materiais', href: route('admin.inventory-items.index'), current: 'admin.inventory*', enabled: true },
-    { label: 'RH', href: route('admin.hr.employees.index'), current: 'admin.hr.*', enabled: true },
     { label: 'Planeamento', href: route('admin.operational-plans.index'), current: 'admin.operational-plans.*', enabled: true },
-    { label: 'Recorrências', href: route('admin.recurring-operations.index'), current: 'admin.recurring-operations.*', enabled: true },
+    { label: 'Espaços', href: route('admin.spaces.index'), current: 'admin.spaces.*', enabled: true },
+    { label: 'Recursos Materiais', href: route('admin.inventory-items.index'), current: 'admin.inventory*', enabled: true },
+    { label: 'Recursos Humanos', href: route('admin.hr.employees.index'), current: 'admin.hr.*', enabled: true },
+    { label: 'Documentos', href: route('admin.documents.index'), current: 'admin.documents.*', enabled: true },
+    { label: 'Atas', href: route('admin.meeting-minutes.index'), current: 'admin.meeting-minutes.*', enabled: true },
     { label: 'Relatórios', href: route('admin.reports.index'), current: 'admin.reports.*', enabled: true },
     { label: 'Configurações', href: '#', current: '', enabled: false },
 ];
@@ -33,8 +30,15 @@ export default function AdminLayout({
     subtitle,
     headerActions,
 }: AdminLayoutProps) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, flash } = usePage<PageProps>().props;
     const user = auth.user;
+    const [flashVisible, setFlashVisible] = useState(true);
+
+    useEffect(() => {
+        setFlashVisible(true);
+        const timer = setTimeout(() => setFlashVisible(false), 5000);
+        return () => clearTimeout(timer);
+    }, [flash]);
 
     return (
         <div className="min-h-screen bg-slate-100 text-slate-900">
@@ -48,7 +52,7 @@ export default function AdminLayout({
                                 JuntaOS Admin
                             </Link>
                             <h1 className="mt-2 text-3xl font-semibold text-slate-950">{title}</h1>
-                            <p className="mt-2 max-w-2xl text-sm text-slate-600">{subtitle}</p>
+                            {subtitle ? <p className="mt-2 max-w-2xl text-sm text-slate-600">{subtitle}</p> : null}
                         </div>
 
                         <div className="flex flex-col items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 shadow-sm lg:items-end">
@@ -102,6 +106,18 @@ export default function AdminLayout({
             </div>
 
             <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                {flash?.success && flashVisible ? (
+                    <div className="mb-6 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                        <span>{flash.success}</span>
+                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-emerald-600 hover:text-emerald-900">✕</button>
+                    </div>
+                ) : null}
+                {flash?.error && flashVisible ? (
+                    <div className="mb-6 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                        <span>{flash.error}</span>
+                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-rose-600 hover:text-rose-900">✕</button>
+                    </div>
+                ) : null}
                 {headerActions ? <div className="mb-6">{headerActions}</div> : null}
                 {children}
             </main>

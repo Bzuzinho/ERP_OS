@@ -13,6 +13,11 @@ export type User = {
     } | null;
 };
 
+export type Flash = {
+    success?: string | null;
+    error?: string | null;
+};
+
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> =
     T &
     InertiaPageProps & {
@@ -22,4 +27,5 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
                 accessAdmin: boolean;
             };
         };
+        flash?: Flash;
     };

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AttachmentDownloadController as AdminAttachmentDownloadController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocumentAccessRuleController as AdminDocumentAccessRuleController;
 use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
@@ -42,6 +43,7 @@ use App\Http\Controllers\Admin\TicketAttachmentController as AdminTicketAttachme
 use App\Http\Controllers\Admin\TicketCommentController as AdminTicketCommentController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\TicketStatusController as AdminTicketStatusController;
+use App\Http\Controllers\Portal\AttachmentDownloadController as PortalAttachmentDownloadController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
 use App\Http\Controllers\Portal\DocumentController as PortalDocumentController;
 use App\Http\Controllers\Portal\DocumentDownloadController as PortalDocumentDownloadController;
@@ -88,6 +90,7 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::patch('tickets/{ticket}/assign', [AdminTicketController::class, 'assign'])->name('tickets.assign');
         Route::post('tickets/{ticket}/comments', [AdminTicketCommentController::class, 'store'])->name('tickets.comments.store');
         Route::post('tickets/{ticket}/attachments', [AdminTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
+        Route::get('attachments/{attachment}/download', AdminAttachmentDownloadController::class)->name('attachments.download');
 
         Route::resource('tasks', AdminTaskController::class);
         Route::patch('tasks/{task}/status', [AdminTaskStatusController::class, 'update'])->name('tasks.status.update');
@@ -220,6 +223,7 @@ Route::middleware(['auth'])
             ->only(['index', 'create', 'store', 'show']);
         Route::post('tickets/{ticket}/comments', [PortalTicketCommentController::class, 'store'])->name('tickets.comments.store');
         Route::post('tickets/{ticket}/attachments', [PortalTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
+        Route::get('attachments/{attachment}/download', PortalAttachmentDownloadController::class)->name('attachments.download');
 
         Route::resource('events', PortalEventController::class)
             ->only(['index', 'show']);

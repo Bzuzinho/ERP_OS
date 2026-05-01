@@ -33,8 +33,8 @@ class HrKpiService
             'employees_by_department' => Employee::query()
                 ->where('employees.organization_id', $user->organization_id)
                 ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
-                ->selectRaw('COALESCE(departments.name, "Sem departamento") as label, COUNT(*) as total')
-                ->groupBy('label')
+                ->selectRaw('COALESCE(departments.name, \'Sem departamento\') as label, COUNT(*) as total')
+                ->groupBy('departments.name')
                 ->pluck('total', 'label')
                 ->toArray(),
         ];

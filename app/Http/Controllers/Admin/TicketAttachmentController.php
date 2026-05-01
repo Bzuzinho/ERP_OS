@@ -14,14 +14,14 @@ class TicketAttachmentController extends Controller
         $this->authorize('view', $ticket);
 
         $file = $request->file('file');
-        $path = $file->store('tickets/attachments', 'public');
+        $path = $file->store('tickets/attachments', 'local');
 
         $ticket->attachments()->create([
             'organization_id' => $ticket->organization_id,
             'uploaded_by' => $request->user()->id,
             'file_path' => $path,
             'file_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getClientMimeType(),
+            'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'visibility' => $request->validated('visibility') ?? 'internal',
         ]);

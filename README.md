@@ -1,33 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# JuntaOS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma de gestão municipal para Juntas de Freguesia e autarquias locais.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Laravel 11** + **Inertia.js** + **React 19** + **TypeScript**
+- **Tailwind CSS**
+- **Spatie Laravel Permission**
+- **PostgreSQL / Neon** (produção) ou **SQLite** (desenvolvimento local)
+- **Vite** (bundler)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Módulos implementados
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Módulo | Área |
+|---|---|
+| CRM Municipal (Contactos/Munícipes) | Admin |
+| Pedidos / Tickets | Admin + Portal |
+| Tarefas | Admin |
+| Agenda / Eventos | Admin + Portal |
+| Documentos / Atas | Admin + Portal |
+| Espaços / Reservas | Admin + Portal |
+| Recursos Materiais (Inventário) | Admin |
+| Recursos Humanos | Admin |
+| Planeamento Operacional | Admin + Portal |
+| Relatórios | Admin |
+| Dashboards | Admin + Portal |
+| Exportação CSV | Admin |
 
-## Learning Laravel
+## Requisitos locais
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3+
+- Composer
+- Node.js 20+
+- SQLite (incluído no PHP) ou PostgreSQL
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalação local (Windows)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+```powershell
+git clone https://github.com/SEU_ORG/ERP_OS.git juntaos
+cd juntaos
+composer install
+npm install
+cp .env.example .env
+# Editar .env: DB_CONNECTION=sqlite
+New-Item -ItemType File -Path database\database.sqlite
+php artisan key:generate
+php artisan migrate:fresh --seed
+```
+
+Arrancar:
+
+```powershell
+# Terminal 1
+php artisan serve
+
+# Terminal 2
+npm run dev
+```
+
+Ver [docs/local-development-windows.md](docs/local-development-windows.md) para guia detalhado.
+
+## Credenciais de demo
+
+| Campo | Valor |
+|---|---|
+| Email | `admin@juntaos.local` |
+| Password | `password` |
+
+## Instalação com PostgreSQL/Neon
+
+Ver [docs/database-neon.md](docs/database-neon.md).
+
+## Deploy em Oracle Cloud VM
+
+Ver [docs/deploy-oracle-vm.md](docs/deploy-oracle-vm.md).
+
+## Comandos de validação
+
+```bash
+php artisan migrate:fresh --seed
+npm run build
+php artisan test
+php artisan route:list | head -40
+php artisan config:clear && php artisan route:clear && php artisan view:clear
+```
+
+## Estrutura de áreas
+
+- `/admin` — Área de administração (requer permissão `admin.access`)
+- `/portal` — Portal do munícipe (requer autenticação)
+- `/login` — Autenticação
+
+
 
 ## Agentic Development
 

@@ -18,7 +18,12 @@ class StoreAttachmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'max:10240'],
+            'file' => [
+                'required',
+                'file',
+                'max:10240',
+                'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,webp,txt',
+            ],
             'visibility' => ['nullable', Rule::in(['internal', 'public'])],
         ];
     }
