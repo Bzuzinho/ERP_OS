@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             OrganizationSeeder::class,
             RoleAndPermissionSeeder::class,
             SuperAdminSeeder::class,
+            DemoUsersSeeder::class,
             DocumentTypeSeeder::class,
             SpaceSeeder::class,
             InventoryCategorySeeder::class,

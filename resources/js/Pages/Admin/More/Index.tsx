@@ -82,7 +82,7 @@ export default function AdminMoreIndex() {
                         items: [
                             { label: 'Perfil', href: route('profile.edit'), tone: 'slate', icon: userIcon },
                             { label: 'Notificações', href: route('admin.dashboard'), tone: 'blue', icon: bellIcon },
-                            { label: 'Configurações', href: route('profile.edit'), tone: 'slate', icon: gearIcon },
+                            { label: 'Configurações', href: route('admin.settings.index'), tone: 'slate', icon: gearIcon },
                             { label: 'Ajuda e suporte', href: route('admin.dashboard'), tone: 'amber', icon: circleIcon },
                         ],
                     },

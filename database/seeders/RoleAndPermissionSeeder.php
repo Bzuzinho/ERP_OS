@@ -18,10 +18,16 @@ class RoleAndPermissionSeeder extends Seeder
 
         $permissions = [
             'admin.access',
+            'settings.view',
+            'settings.update',
             'users.view',
             'users.create',
             'users.update',
             'users.delete',
+            'users.manage_roles',
+            'users.reset_password',
+            'roles.view',
+            'roles.update',
             'contacts.view',
             'contacts.create',
             'contacts.update',
@@ -116,7 +122,6 @@ class RoleAndPermissionSeeder extends Seeder
             'reports.hr',
             'reports.planning',
             'reports.documents',
-            'settings.manage',
         ];
 
         foreach ($permissions as $permission) {
@@ -144,6 +149,9 @@ class RoleAndPermissionSeeder extends Seeder
         Role::findByName('super_admin', 'web')->syncPermissions(Permission::all());
         Role::findByName('admin_junta', 'web')->syncPermissions([
             'admin.access',
+            'settings.view',
+            'users.view', 'users.create', 'users.update', 'users.delete', 'users.manage_roles', 'users.reset_password',
+            'roles.view',
             'contacts.view', 'contacts.create', 'contacts.update', 'contacts.delete',
             'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close', 'tickets.delete',
             'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete', 'tasks.delete',

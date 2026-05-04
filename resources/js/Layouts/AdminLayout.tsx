@@ -111,7 +111,7 @@ const desktopNavigationItems = [
     { label: 'Recursos Humanos', href: route('admin.hr.employees.index'), activePatterns: ['admin.hr.*'], icon: iconUsers },
     { label: 'Planeamento', href: route('admin.operational-plans.index'), activePatterns: ['admin.operational-plans.*'], icon: iconCalendar },
     { label: 'Relatórios', href: route('admin.reports.index'), activePatterns: ['admin.reports.*'], icon: iconDashboard },
-    { label: 'Configurações', href: route('profile.edit'), activePatterns: ['profile.edit'], icon: iconSettings },
+    { label: 'Configurações', href: route('admin.settings.index'), activePatterns: ['admin.settings.*'], icon: iconSettings },
 ];
 
 const mobileNavigationItems = [
@@ -128,6 +128,8 @@ const detailBackRoutes: Record<string, string> = {
     'Admin/Tasks/': 'admin.tasks.index',
     'Admin/Documents/': 'admin.documents.index',
     'Admin/Spaces/': 'admin.spaces.index',
+    'Admin/Settings/Users/': 'admin.settings.users.index',
+    'Admin/Settings/Roles/': 'admin.settings.roles.index',
 };
 
 export default function AdminLayout({

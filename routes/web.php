@@ -212,6 +212,9 @@ Route::middleware(['auth', 'permission:admin.access'])
 
         // Planning Routes
         require __DIR__.'/admin/planning.php';
+
+        // Settings Routes
+        require __DIR__.'/admin/settings.php';
     });
 
 Route::middleware(['auth'])

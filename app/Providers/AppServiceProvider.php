@@ -58,6 +58,10 @@ use App\Policies\SpacePolicy;
 use App\Policies\SpaceReservationPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TicketPolicy;
+use App\Models\User;
+use App\Policies\UserPolicy;
+use App\Policies\RolePolicy;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -105,6 +109,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(OperationalPlanResource::class, OperationalPlanResourcePolicy::class);
         Gate::policy(RecurringOperation::class, RecurringOperationPolicy::class);
         Gate::policy(RecurringOperationRun::class, RecurringOperationRunPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
 
         Vite::prefetch(concurrency: 3);
     }
