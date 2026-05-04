@@ -76,6 +76,7 @@ class OperationalPlanController extends Controller
 
     public function show(OperationalPlan $operationalPlan): Response
     {
+        $this->authorize('viewAny', OperationalPlan::class);
         $this->authorize('view', $operationalPlan);
 
         $operationalPlan->load([

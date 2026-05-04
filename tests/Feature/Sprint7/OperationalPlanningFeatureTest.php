@@ -283,6 +283,10 @@ class OperationalPlanningFeatureTest extends TestCase
             'created_by' => User::factory()->create(['organization_id' => $user->organization_id])->id,
         ]);
 
+        $this->actingAs($user)->get(route('admin.operational-plans.show', $plan))->assertForbidden();
+
+        $user->givePermissionTo('planning.view');
+
         $this->actingAs($user)->get(route('admin.operational-plans.show', $plan))->assertOk();
         $this->actingAs($user)->get(route('admin.recurring-operations.index'))->assertForbidden();
     }

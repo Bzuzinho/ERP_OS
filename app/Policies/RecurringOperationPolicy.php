@@ -14,12 +14,12 @@ class RecurringOperationPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('planning.view') || $user->can('planning.manage_recurring');
+        return $user->can('planning.manage_recurring');
     }
 
     public function view(User $user, RecurringOperation $recurringOperation): bool
     {
-        return $user->can('planning.view') || $user->can('planning.manage_recurring');
+        return $user->can('planning.manage_recurring');
     }
 
     public function create(User $user): bool
