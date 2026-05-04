@@ -39,6 +39,7 @@ function Invoke-NativeCommand {
         [string]$ErrorMessage
     )
 
+    $global:LASTEXITCODE = 0
     & $Script
 
     if ($LASTEXITCODE -ne 0) {
@@ -125,12 +126,27 @@ else {
 $remoteScript = @"
 set -e
 cd '$VmProjectPath'
+
+git restore --worktree --staged \
+    bootstrap/cache/.gitignore \
+    storage/app/.gitignore \
+    storage/app/private/.gitignore \
+    storage/app/public/.gitignore \
+    storage/framework/.gitignore \
+    storage/framework/cache/.gitignore \
+    storage/framework/cache/data/.gitignore \
+    storage/framework/sessions/.gitignore \
+    storage/framework/testing/.gitignore \
+    storage/framework/views/.gitignore \
+    storage/logs/.gitignore || true
+
 git pull origin $Branch
 composer install --no-dev --optimize-autoloader
 composer dump-autoload --optimize
 php artisan migrate --force
 sudo chown -R ubuntu:www-data '$VmProjectPath'
-sudo chmod -R 775 storage bootstrap/cache
+sudo find storage bootstrap/cache -type d -exec chmod 775 {} +
+sudo find storage bootstrap/cache -type f -exec chmod 664 {} +
 php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
