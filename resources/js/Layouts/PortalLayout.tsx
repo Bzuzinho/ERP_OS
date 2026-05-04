@@ -1,4 +1,7 @@
 import type { PageProps } from '@/types';
+import AppCard from '@/Components/App/AppCard';
+import AppShell from '@/Components/App/AppShell';
+import PageHeader from '@/Components/App/PageHeader';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren, type ReactNode, useEffect, useState } from 'react';
 
@@ -8,15 +11,98 @@ type PortalLayoutProps = PropsWithChildren<{
     headerActions?: ReactNode;
 }>;
 
-const navigationItems = [
-    { label: 'Dashboard', href: route('portal.dashboard'), current: 'portal.dashboard', enabled: true },
-    { label: 'Os meus pedidos', href: route('portal.tickets.index'), current: 'portal.tickets.*', enabled: true },
-    { label: 'Marcações / Agenda', href: route('portal.events.index'), current: 'portal.events.*', enabled: true },
-    { label: 'Reservas', href: route('portal.space-reservations.index'), current: 'portal.space-reservations.*', enabled: true },
-    { label: 'Documentos', href: route('portal.documents.index'), current: 'portal.documents.*', enabled: true },
-    { label: 'Atividades', href: route('portal.operational-plans.index'), current: 'portal.operational-plans.*', enabled: true },
-    { label: 'Perfil', href: route('profile.edit'), current: 'profile.edit', enabled: true },
+const iconClass = 'h-5 w-5';
+
+const iconDashboard = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 4h7v7H4z" />
+        <path d="M13 4h7v4h-7z" />
+        <path d="M13 10h7v10h-7z" />
+        <path d="M4 13h7v7H4z" />
+    </svg>
+);
+
+const iconTicket = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 8.5a2.5 2.5 0 012.5-2.5h11A2.5 2.5 0 0120 8.5v2a2 2 0 000 4v2a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 16.5v-2a2 2 0 000-4z" />
+    </svg>
+);
+
+const iconCalendar = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M8 3v4" />
+        <path d="M16 3v4" />
+        <path d="M3 10h18" />
+    </svg>
+);
+
+const iconTask = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M9 11l2 2 4-4" />
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+    </svg>
+);
+
+const iconFolder = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+    </svg>
+);
+
+const iconBuilding = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 20h16" />
+        <path d="M6 20V7l6-3 6 3v13" />
+        <path d="M9 10h1" />
+        <path d="M14 10h1" />
+        <path d="M9 14h1" />
+        <path d="M14 14h1" />
+    </svg>
+);
+
+const iconSettings = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.56V21a2 2 0 01-4 0v-.09a1.7 1.7 0 00-1-1.56 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.7 1.7 0 005 15a1.7 1.7 0 00-1.56-1H3.3a2 2 0 010-4h.09A1.7 1.7 0 005 8.44a1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 012.83-2.83l.06.06A1.7 1.7 0 009.44 4a1.7 1.7 0 001-1.56V2.3a2 2 0 014 0v.09a1.7 1.7 0 001 1.56 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 012.83 2.83l-.06.06A1.7 1.7 0 0019 8.44a1.7 1.7 0 001.56 1h.14a2 2 0 010 4h-.09A1.7 1.7 0 0019.4 15z" />
+    </svg>
+);
+
+const desktopNavigationItems = [
+    { label: 'Dashboard', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
+    { label: 'Pedidos', href: route('portal.tickets.index'), activePatterns: ['portal.tickets.*'], icon: iconTicket },
+    { label: 'Agenda', href: route('portal.events.index'), activePatterns: ['portal.events.*'], icon: iconCalendar },
+    { label: 'Documentos', href: route('portal.documents.index'), activePatterns: ['portal.documents.*'], icon: iconFolder },
+    {
+        label: 'Espaços',
+        href: route('portal.space-reservations.index'),
+        activePatterns: ['portal.space-reservations.*', 'portal.spaces.*'],
+        icon: iconBuilding,
+    },
+    {
+        label: 'Atividades',
+        href: route('portal.operational-plans.index'),
+        activePatterns: ['portal.operational-plans.*'],
+        icon: iconCalendar,
+    },
+    { label: 'Configurações', href: route('profile.edit'), activePatterns: ['profile.edit'], icon: iconSettings },
+    { label: 'Mais', href: route('portal.more.index'), activePatterns: ['portal.more.*'], icon: iconSettings },
 ];
+
+const mobileNavigationItems = [
+    { label: 'Dashboard', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
+    { label: 'Pedidos', href: route('portal.tickets.index'), activePatterns: ['portal.tickets.*'], icon: iconTicket },
+    { label: 'Agenda', href: route('portal.events.index'), activePatterns: ['portal.events.*'], icon: iconCalendar },
+    { label: 'Tarefas', href: route('portal.dashboard'), activePatterns: ['portal.tasks.*'], icon: iconTask },
+    { label: 'Mais', href: route('portal.more.index'), activePatterns: ['portal.more.*'], icon: iconSettings },
+];
+
+const detailBackRoutes: Record<string, string> = {
+    'Portal/Tickets/': 'portal.tickets.index',
+    'Portal/Events/': 'portal.events.index',
+    'Portal/Documents/': 'portal.documents.index',
+    'Portal/SpaceReservations/': 'portal.space-reservations.index',
+};
 
 export default function PortalLayout({
     children,
@@ -25,8 +111,18 @@ export default function PortalLayout({
     headerActions,
 }: PortalLayoutProps) {
     const { auth, flash } = usePage<PageProps>().props;
+    const page = usePage<PageProps>();
     const user = auth.user;
     const [flashVisible, setFlashVisible] = useState(true);
+    const isDetailPage = /\/(Show|Edit|Create)$/.test(page.component);
+
+    let mobileBackHref = route('portal.dashboard');
+    for (const [componentPrefix, routeName] of Object.entries(detailBackRoutes)) {
+        if (page.component.startsWith(componentPrefix)) {
+            mobileBackHref = route(routeName);
+            break;
+        }
+    }
 
     useEffect(() => {
         setFlashVisible(true);
@@ -35,88 +131,54 @@ export default function PortalLayout({
     }, [flash]);
 
     return (
-        <div className="min-h-screen bg-stone-50 text-stone-900">
+        <AppShell
+            title={title}
+            subtitle={subtitle}
+            organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
+            desktopNav={desktopNavigationItems}
+            mobileNav={mobileNavigationItems}
+            showBackOnMobile={isDetailPage}
+            mobileBackHref={mobileBackHref}
+        >
             <Head title={title} />
-
-            <div className="border-b border-stone-200 bg-white/95 backdrop-blur">
-                <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                            <Link href="/portal" className="text-sm font-semibold uppercase tracking-[0.24em] text-amber-700">
-                                JuntaOS Portal
-                            </Link>
-                            <h1 className="mt-2 text-3xl font-semibold text-stone-950">{title}</h1>
-                            {subtitle ? <p className="mt-2 max-w-2xl text-sm text-stone-600">{subtitle}</p> : null}
+            <div className="mb-4 hidden lg:block">
+                <PageHeader
+                    title={title}
+                    subtitle={subtitle}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            {auth.can.accessAdmin ? (
+                                <Link href={route('admin.dashboard')} className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    Administração
+                                </Link>
+                            ) : null}
+                            {headerActions}
                         </div>
-
-                        <div className="flex flex-col items-start gap-3 rounded-2xl border border-stone-200 bg-stone-100 px-4 py-3 text-sm text-stone-600 shadow-sm lg:items-end">
-                            <div className="font-medium text-stone-900">{user?.name}</div>
-                            <div>{user?.email}</div>
-                            <div className="flex gap-3">
-                                {auth.can.accessAdmin ? (
-                                    <Link href="/admin" className="font-medium text-stone-700 transition hover:text-stone-950">
-                                        Administração
-                                    </Link>
-                                ) : null}
-                                <Link href={route('profile.edit')} className="font-medium text-stone-700 transition hover:text-stone-950">
-                                    Perfil
-                                </Link>
-                                <Link href={route('logout')} method="post" as="button" className="font-medium text-rose-700 transition hover:text-rose-900">
-                                    Terminar sessão
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    <nav className="flex flex-wrap gap-2">
-                        {navigationItems.map((item) => {
-                            const isCurrent = item.current ? route().current(item.current) : false;
-
-                            if (!item.enabled) {
-                                return (
-                                    <span
-                                        key={item.label}
-                                        className="rounded-full border border-dashed border-stone-300 px-4 py-2 text-sm text-stone-400"
-                                    >
-                                        {item.label}
-                                    </span>
-                                );
-                            }
-
-                            return (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    className={
-                                        isCurrent
-                                            ? 'rounded-full bg-amber-600 px-4 py-2 text-sm font-medium text-white'
-                                            : 'rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-950'
-                                    }
-                                >
-                                    {item.label}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-                </div>
+                    }
+                />
             </div>
 
-            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-                {flash?.success && flashVisible ? (
-                    <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <div className="mb-4 lg:hidden">{headerActions}</div>
+
+            {flash?.success && flashVisible ? (
+                <AppCard className="mb-4 border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
+                    <div className="flex items-start justify-between gap-2">
                         <span>{flash.success}</span>
-                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-amber-600 hover:text-amber-900">✕</button>
+                        <button onClick={() => setFlashVisible(false)} className="text-blue-600 hover:text-blue-800">x</button>
                     </div>
-                ) : null}
-                {flash?.error && flashVisible ? (
-                    <div className="mb-6 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                </AppCard>
+            ) : null}
+
+            {flash?.error && flashVisible ? (
+                <AppCard className="mb-4 border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                    <div className="flex items-start justify-between gap-2">
                         <span>{flash.error}</span>
-                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-rose-600 hover:text-rose-900">✕</button>
+                        <button onClick={() => setFlashVisible(false)} className="text-rose-600 hover:text-rose-800">x</button>
                     </div>
-                ) : null}
-                {headerActions ? <div className="mb-6">{headerActions}</div> : null}
-                {children}
-            </main>
-        </div>
+                </AppCard>
+            ) : null}
+
+            {children}
+        </AppShell>
     );
 }

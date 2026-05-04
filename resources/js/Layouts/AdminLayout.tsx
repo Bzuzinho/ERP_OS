@@ -1,4 +1,7 @@
 import type { PageProps } from '@/types';
+import AppCard from '@/Components/App/AppCard';
+import AppShell from '@/Components/App/AppShell';
+import PageHeader from '@/Components/App/PageHeader';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren, type ReactNode, useEffect, useState } from 'react';
 
@@ -8,21 +11,124 @@ type AdminLayoutProps = PropsWithChildren<{
     headerActions?: ReactNode;
 }>;
 
-const navigationItems = [
-    { label: 'Dashboard', href: route('admin.dashboard'), current: 'admin.dashboard', enabled: true },
-    { label: 'Pedidos', href: route('admin.tickets.index'), current: 'admin.tickets.*', enabled: true },
-    { label: 'Munícipes / Entidades', href: route('admin.contacts.index'), current: 'admin.contacts.*', enabled: true },
-    { label: 'Tarefas', href: route('admin.tasks.index'), current: 'admin.tasks.*', enabled: true },
-    { label: 'Agenda', href: route('admin.events.index'), current: 'admin.events.*', enabled: true },
-    { label: 'Planeamento', href: route('admin.operational-plans.index'), current: 'admin.operational-plans.*', enabled: true },
-    { label: 'Espaços', href: route('admin.spaces.index'), current: 'admin.spaces.*', enabled: true },
-    { label: 'Recursos Materiais', href: route('admin.inventory-items.index'), current: 'admin.inventory*', enabled: true },
-    { label: 'Recursos Humanos', href: route('admin.hr.employees.index'), current: 'admin.hr.*', enabled: true },
-    { label: 'Documentos', href: route('admin.documents.index'), current: 'admin.documents.*', enabled: true },
-    { label: 'Atas', href: route('admin.meeting-minutes.index'), current: 'admin.meeting-minutes.*', enabled: true },
-    { label: 'Relatórios', href: route('admin.reports.index'), current: 'admin.reports.*', enabled: true },
-    { label: 'Configurações', href: '#', current: '', enabled: false },
+const iconClass = 'h-5 w-5';
+
+const iconDashboard = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 4h7v7H4z" />
+        <path d="M13 4h7v4h-7z" />
+        <path d="M13 10h7v10h-7z" />
+        <path d="M4 13h7v7H4z" />
+    </svg>
+);
+
+const iconTicket = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 8.5a2.5 2.5 0 012.5-2.5h11A2.5 2.5 0 0120 8.5v2a2 2 0 000 4v2a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 16.5v-2a2 2 0 000-4z" />
+    </svg>
+);
+
+const iconCalendar = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M8 3v4" />
+        <path d="M16 3v4" />
+        <path d="M3 10h18" />
+    </svg>
+);
+
+const iconTask = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M9 11l2 2 4-4" />
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+    </svg>
+);
+
+const iconUsers = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M16 19a4 4 0 00-8 0" />
+        <circle cx="12" cy="11" r="3" />
+        <path d="M22 19a4 4 0 00-3-3.87" />
+        <path d="M2 19a4 4 0 013-3.87" />
+    </svg>
+);
+
+const iconFolder = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+    </svg>
+);
+
+const iconMinutes = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M7 4h10" />
+        <rect x="5" y="4" width="14" height="16" rx="2" />
+        <path d="M9 9h6" />
+        <path d="M9 13h6" />
+    </svg>
+);
+
+const iconBuilding = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 20h16" />
+        <path d="M6 20V7l6-3 6 3v13" />
+        <path d="M9 10h1" />
+        <path d="M14 10h1" />
+        <path d="M9 14h1" />
+        <path d="M14 14h1" />
+    </svg>
+);
+
+const iconArchive = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="4" rx="1" />
+        <path d="M5 8h14v11a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
+    </svg>
+);
+
+const iconSettings = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.56V21a2 2 0 01-4 0v-.09a1.7 1.7 0 00-1-1.56 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.7 1.7 0 005 15a1.7 1.7 0 00-1.56-1H3.3a2 2 0 010-4h.09A1.7 1.7 0 005 8.44a1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 012.83-2.83l.06.06A1.7 1.7 0 009.44 4a1.7 1.7 0 001-1.56V2.3a2 2 0 014 0v.09a1.7 1.7 0 001 1.56 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 012.83 2.83l-.06.06A1.7 1.7 0 0019 8.44a1.7 1.7 0 001.56 1h.14a2 2 0 010 4h-.09A1.7 1.7 0 0019.4 15z" />
+    </svg>
+);
+
+const desktopNavigationItems = [
+    { label: 'Dashboard', href: route('admin.dashboard'), activePatterns: ['admin.dashboard'], icon: iconDashboard },
+    { label: 'Pedidos', href: route('admin.tickets.index'), activePatterns: ['admin.tickets.*'], icon: iconTicket },
+    { label: 'Munícipes / Entidades', href: route('admin.contacts.index'), activePatterns: ['admin.contacts.*'], icon: iconUsers },
+    { label: 'Agenda', href: route('admin.events.index'), activePatterns: ['admin.events.*'], icon: iconCalendar },
+    { label: 'Tarefas', href: route('admin.tasks.index'), activePatterns: ['admin.tasks.*'], icon: iconTask },
+    { label: 'Documentos', href: route('admin.documents.index'), activePatterns: ['admin.documents.*'], icon: iconFolder },
+    { label: 'Atas', href: route('admin.meeting-minutes.index'), activePatterns: ['admin.meeting-minutes.*'], icon: iconMinutes },
+    { label: 'Espaços', href: route('admin.spaces.index'), activePatterns: ['admin.spaces.*', 'admin.space-*'], icon: iconBuilding },
+    {
+        label: 'Recursos Materiais',
+        href: route('admin.inventory-items.index'),
+        activePatterns: ['admin.inventory*'],
+        icon: iconArchive,
+    },
+    { label: 'Recursos Humanos', href: route('admin.hr.employees.index'), activePatterns: ['admin.hr.*'], icon: iconUsers },
+    { label: 'Planeamento', href: route('admin.operational-plans.index'), activePatterns: ['admin.operational-plans.*'], icon: iconCalendar },
+    { label: 'Relatórios', href: route('admin.reports.index'), activePatterns: ['admin.reports.*'], icon: iconDashboard },
+    { label: 'Configurações', href: route('profile.edit'), activePatterns: ['profile.edit'], icon: iconSettings },
 ];
+
+const mobileNavigationItems = [
+    { label: 'Dashboard', href: route('admin.dashboard'), activePatterns: ['admin.dashboard'], icon: iconDashboard },
+    { label: 'Pedidos', href: route('admin.tickets.index'), activePatterns: ['admin.tickets.*'], icon: iconTicket },
+    { label: 'Agenda', href: route('admin.events.index'), activePatterns: ['admin.events.*'], icon: iconCalendar },
+    { label: 'Tarefas', href: route('admin.tasks.index'), activePatterns: ['admin.tasks.*'], icon: iconTask },
+    { label: 'Mais', href: route('admin.more.index'), activePatterns: ['admin.more.*'], icon: iconSettings },
+];
+
+const detailBackRoutes: Record<string, string> = {
+    'Admin/Tickets/': 'admin.tickets.index',
+    'Admin/Events/': 'admin.events.index',
+    'Admin/Tasks/': 'admin.tasks.index',
+    'Admin/Documents/': 'admin.documents.index',
+    'Admin/Spaces/': 'admin.spaces.index',
+};
 
 export default function AdminLayout({
     children,
@@ -31,8 +137,18 @@ export default function AdminLayout({
     headerActions,
 }: AdminLayoutProps) {
     const { auth, flash } = usePage<PageProps>().props;
+    const page = usePage<PageProps>();
     const user = auth.user;
     const [flashVisible, setFlashVisible] = useState(true);
+    const isDetailPage = /\/(Show|Edit|Create)$/.test(page.component);
+
+    let mobileBackHref = route('admin.dashboard');
+    for (const [componentPrefix, routeName] of Object.entries(detailBackRoutes)) {
+        if (page.component.startsWith(componentPrefix)) {
+            mobileBackHref = route(routeName);
+            break;
+        }
+    }
 
     useEffect(() => {
         setFlashVisible(true);
@@ -41,86 +157,54 @@ export default function AdminLayout({
     }, [flash]);
 
     return (
-        <div className="min-h-screen bg-slate-100 text-slate-900">
+        <AppShell
+            title={title}
+            subtitle={subtitle}
+            organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
+            desktopNav={desktopNavigationItems}
+            mobileNav={mobileNavigationItems}
+            showBackOnMobile={isDetailPage}
+            mobileBackHref={mobileBackHref}
+        >
             <Head title={title} />
-
-            <div className="border-b border-slate-200 bg-white">
-                <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                            <Link href="/admin" className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-700">
-                                JuntaOS Admin
-                            </Link>
-                            <h1 className="mt-2 text-3xl font-semibold text-slate-950">{title}</h1>
-                            {subtitle ? <p className="mt-2 max-w-2xl text-sm text-slate-600">{subtitle}</p> : null}
-                        </div>
-
-                        <div className="flex flex-col items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 shadow-sm lg:items-end">
-                            <div className="font-medium text-slate-900">{user?.name}</div>
-                            <div>{user?.organization?.name ?? 'Sem organização atribuída'}</div>
-                            <div className="flex gap-3">
-                                <Link href="/portal" className="font-medium text-slate-700 transition hover:text-slate-950">
+            <div className="mb-4 hidden lg:block">
+                <PageHeader
+                    title={title}
+                    subtitle={subtitle}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            {auth.can.accessAdmin ? (
+                                <Link href={route('portal.dashboard')} className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     Portal
                                 </Link>
-                                <Link href={route('profile.edit')} className="font-medium text-slate-700 transition hover:text-slate-950">
-                                    Perfil
-                                </Link>
-                                <Link href={route('logout')} method="post" as="button" className="font-medium text-rose-700 transition hover:text-rose-900">
-                                    Terminar sessão
-                                </Link>
-                            </div>
+                            ) : null}
+                            {headerActions}
                         </div>
-                    </div>
-
-                    <nav className="flex flex-wrap gap-2">
-                        {navigationItems.map((item) => {
-                            const isCurrent = item.current ? route().current(item.current) : false;
-
-                            if (!item.enabled) {
-                                return (
-                                    <span
-                                        key={item.label}
-                                        className="rounded-full border border-dashed border-slate-300 px-4 py-2 text-sm text-slate-400"
-                                    >
-                                        {item.label}
-                                    </span>
-                                );
-                            }
-
-                            return (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    className={
-                                        isCurrent
-                                            ? 'rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white'
-                                            : 'rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950'
-                                    }
-                                >
-                                    {item.label}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-                </div>
+                    }
+                />
             </div>
 
-            <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                {flash?.success && flashVisible ? (
-                    <div className="mb-6 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div className="mb-4 lg:hidden">{headerActions}</div>
+
+            {flash?.success && flashVisible ? (
+                <AppCard className="mb-4 border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                    <div className="flex items-start justify-between gap-2">
                         <span>{flash.success}</span>
-                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-emerald-600 hover:text-emerald-900">✕</button>
+                        <button onClick={() => setFlashVisible(false)} className="text-emerald-600 hover:text-emerald-800">x</button>
                     </div>
-                ) : null}
-                {flash?.error && flashVisible ? (
-                    <div className="mb-6 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                </AppCard>
+            ) : null}
+
+            {flash?.error && flashVisible ? (
+                <AppCard className="mb-4 border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                    <div className="flex items-start justify-between gap-2">
                         <span>{flash.error}</span>
-                        <button onClick={() => setFlashVisible(false)} className="ml-4 text-rose-600 hover:text-rose-900">✕</button>
+                        <button onClick={() => setFlashVisible(false)} className="text-rose-600 hover:text-rose-800">x</button>
                     </div>
-                ) : null}
-                {headerActions ? <div className="mb-6">{headerActions}</div> : null}
-                {children}
-            </main>
-        </div>
+                </AppCard>
+            ) : null}
+
+            {children}
+        </AppShell>
     );
 }

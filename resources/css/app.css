@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		--app-primary: #2563eb;
+		--app-primary-strong: #0f62fe;
+		--app-bg: #f8fafc;
+		--app-card: #ffffff;
+		--app-border: #e5e7eb;
+		--app-text-primary: #0f172a;
+		--app-text-secondary: #64748b;
+	}
+
+	html,
+	body,
+	#app {
+		min-height: 100%;
+	}
+
+	body {
+		background: var(--app-bg);
+		color: var(--app-text-primary);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+}

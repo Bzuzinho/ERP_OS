@@ -57,18 +57,18 @@ use App\Http\Controllers\Portal\TicketAttachmentController as PortalTicketAttach
 use App\Http\Controllers\Portal\TicketCommentController as PortalTicketCommentController;
 use App\Http\Controllers\Portal\TicketController as PortalTicketController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+Route::get('/', function (Request $request) {
+    if (!$request->user()) {
+        return to_route('login');
+    }
+
+    return $request->user()->can('admin.access')
+        ? to_route('admin.dashboard')
+        : to_route('portal.dashboard');
 });
 
 Route::get('/dashboard', function (Request $request) {
@@ -82,6 +82,7 @@ Route::middleware(['auth', 'permission:admin.access'])
     ->name('admin.')
     ->group(function () {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
+        Route::get('/more', fn () => Inertia::render('Admin/More/Index'))->name('more.index');
 
         Route::resource('contacts', AdminContactController::class);
 
@@ -218,6 +219,7 @@ Route::middleware(['auth'])
     ->name('portal.')
     ->group(function () {
         Route::get('/', PortalDashboardController::class)->name('dashboard');
+        Route::get('/more', fn () => Inertia::render('Portal/More/Index'))->name('more.index');
 
         Route::resource('tickets', PortalTicketController::class)
             ->only(['index', 'create', 'store', 'show']);

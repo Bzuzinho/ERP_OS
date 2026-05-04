@@ -1,7 +1,8 @@
-import DashboardSection from '@/Components/Reports/DashboardSection';
-import KpiCard from '@/Components/Reports/KpiCard';
-import KpiGrid from '@/Components/Reports/KpiGrid';
-import MetricList from '@/Components/Reports/MetricList';
+import AppBadge from '@/Components/App/AppBadge';
+import AppCard from '@/Components/App/AppCard';
+import EmptyState from '@/Components/App/EmptyState';
+import KpiCard from '@/Components/App/KpiCard';
+import SectionTitle from '@/Components/App/SectionTitle';
 import PortalLayout from '@/Layouts/PortalLayout';
 
 type PortalDashboardProps = {
@@ -21,81 +22,71 @@ type PortalDashboardProps = {
 export default function PortalDashboard({ data }: PortalDashboardProps) {
     return (
         <PortalLayout title="Dashboard" subtitle="A sua atividade no portal em tempo real">
-            <KpiGrid>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
                 <KpiCard label="Os meus pedidos ativos" value={data.kpis.my_active_tickets} />
                 <KpiCard label="Aguardando resposta" value={data.kpis.waiting_tickets} />
                 <KpiCard label="Próximas marcações" value={data.kpis.upcoming_events} />
                 <KpiCard label="Próximas reservas" value={data.kpis.upcoming_reservations} />
                 <KpiCard label="Documentos disponíveis" value={data.kpis.available_documents} />
-            </KpiGrid>
+            </div>
 
-            <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <DashboardSection title="Os meus pedidos ativos">
-                    <MetricList
-                        values={Object.fromEntries(
-                            data.tickets.active.slice(0, 8).map((ticket) => [
-                                String(ticket.reference ?? `#${ticket.id}`),
-                                String(ticket.status ?? '-'),
-                            ]),
-                        )}
-                    />
-                </DashboardSection>
-                <DashboardSection title="Últimos pedidos atualizados">
-                    <MetricList
-                        values={Object.fromEntries(
-                            data.tickets.recent_updates.slice(0, 8).map((ticket) => [
-                                String(ticket.reference ?? `#${ticket.id}`),
-                                String(ticket.updated_at ?? '-'),
-                            ]),
-                        )}
-                    />
-                </DashboardSection>
+            <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                <AppCard>
+                    <SectionTitle title="Os meus pedidos ativos" subtitle="Acompanhe as suas ocorrências" />
+                    <div className="mt-4 space-y-3">
+                        {data.tickets.active.slice(0, 6).map((ticket) => (
+                            <div key={String(ticket.id)} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-blue-700">{String(ticket.reference ?? `#${ticket.id}`)}</p>
+                                    <p className="text-xs text-slate-500">{String(ticket.title ?? '-')}</p>
+                                </div>
+                                <AppBadge tone="blue">{String(ticket.status ?? '-')}</AppBadge>
+                            </div>
+                        ))}
+                        {data.tickets.active.length === 0 ? <EmptyState title="Sem pedidos ativos" /> : null}
+                    </div>
+                </AppCard>
+
+                <AppCard>
+                    <SectionTitle title="Agenda" subtitle="Próximas marcações e eventos" />
+                    <div className="mt-4 space-y-3">
+                        {data.events.slice(0, 6).map((event) => (
+                            <div key={String(event.id)} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                <p className="text-sm font-semibold text-slate-900">{String(event.title ?? `#${event.id}`)}</p>
+                                <p className="mt-1 text-xs text-slate-500">{String(event.start_at ?? '-')}</p>
+                            </div>
+                        ))}
+                        {data.events.length === 0 ? <EmptyState title="Sem eventos próximos" /> : null}
+                    </div>
+                </AppCard>
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <DashboardSection title="Próximas marcações/eventos associados">
-                    <MetricList
-                        values={Object.fromEntries(
-                            data.events.slice(0, 8).map((event) => [
-                                String(event.title ?? `#${event.id}`),
-                                String(event.start_at ?? '-'),
-                            ]),
-                        )}
-                    />
-                </DashboardSection>
-                <DashboardSection title="Próximas reservas">
-                    <MetricList
-                        values={Object.fromEntries(
-                            data.reservations.slice(0, 8).map((reservation) => [
-                                String(reservation.purpose ?? `#${reservation.id}`),
-                                String(reservation.start_at ?? '-'),
-                            ]),
-                        )}
-                    />
-                </DashboardSection>
-            </div>
+                <AppCard>
+                    <SectionTitle title="Documentos disponíveis" subtitle="Ficheiros partilhados pela junta" />
+                    <div className="mt-4 space-y-3">
+                        {data.documents.slice(0, 6).map((document) => (
+                            <div key={String(document.id)} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                <p className="text-sm font-semibold text-slate-900">{String(document.title ?? `#${document.id}`)}</p>
+                                <AppBadge tone="indigo">{String(document.visibility ?? '-')}</AppBadge>
+                            </div>
+                        ))}
+                        {data.documents.length === 0 ? <EmptyState title="Sem documentos" /> : null}
+                    </div>
+                </AppCard>
 
-            <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <DashboardSection title="Documentos disponíveis">
-                    <MetricList
-                        values={Object.fromEntries(
-                            data.documents.slice(0, 8).map((document) => [
-                                String(document.title ?? `#${document.id}`),
-                                String(document.visibility ?? '-'),
-                            ]),
-                        )}
-                    />
-                </DashboardSection>
-                <DashboardSection title="Atividades públicas próximas">
-                    <MetricList
-                        values={Object.fromEntries(
-                            data.public_plans.slice(0, 8).map((plan) => [
-                                String(plan.title ?? `#${plan.id}`),
-                                String(plan.start_date ?? '-'),
-                            ]),
-                        )}
-                    />
-                </DashboardSection>
+                <AppCard>
+                    <SectionTitle title="Atividades públicas" subtitle="Próximas ações no território" />
+                    <div className="mt-4 space-y-3">
+                        {data.public_plans.slice(0, 6).map((plan) => (
+                            <div key={String(plan.id)} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                                <p className="text-sm font-semibold text-slate-900">{String(plan.title ?? `#${plan.id}`)}</p>
+                                <p className="mt-1 text-xs text-slate-500">{String(plan.start_date ?? '-')}</p>
+                            </div>
+                        ))}
+                        {data.public_plans.length === 0 ? <EmptyState title="Sem atividades" /> : null}
+                    </div>
+                </AppCard>
             </div>
         </PortalLayout>
     );

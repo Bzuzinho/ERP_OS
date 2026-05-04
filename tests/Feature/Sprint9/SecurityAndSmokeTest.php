@@ -43,7 +43,7 @@ class SecurityAndSmokeTest extends TestCase
 
     public function test_pagina_home_responde(): void
     {
-        $this->get('/')->assertOk();
+        $this->get('/')->assertRedirect(route('login'));
     }
 
     public function test_pagina_login_responde(): void

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             OrganizationSeeder::class,
             RoleAndPermissionSeeder::class,
+            SuperAdminSeeder::class,
             DocumentTypeSeeder::class,
             SpaceSeeder::class,
             InventoryCategorySeeder::class,
@@ -27,7 +28,7 @@ class DatabaseSeeder extends Seeder
             TeamSeeder::class,
             OperationalPlanSeeder::class,
             RecurringOperationSeeder::class,
-            SuperAdminSeeder::class,
+            DemoDataSeeder::class,
         ]);
     }
 }
