@@ -33,7 +33,7 @@ export default function PortalTicketsCreate({ contacts, priorities }: Props) {
 
     return (
         <PortalLayout title="Novo pedido" subtitle="Submeta um pedido ao atendimento municipal">
-            <form onSubmit={submit} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+            <form onSubmit={submit} className="space-y-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-6">
                 <div className="grid gap-4 md:grid-cols-2">
                     <input value={form.data.title} onChange={(event) => form.setData('title', event.target.value)} placeholder="Assunto" className="rounded-xl border border-stone-300 px-3 py-2 text-sm md:col-span-2" />
                     <textarea value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} placeholder="Descreva o pedido" className="min-h-28 rounded-xl border border-stone-300 px-3 py-2 text-sm md:col-span-2" />

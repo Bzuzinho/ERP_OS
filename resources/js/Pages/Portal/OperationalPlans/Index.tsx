@@ -10,12 +10,12 @@ export default function PortalOperationalPlansIndex({ plans, filters, types }: {
     return (
         <PortalLayout title="Atividades Públicas" subtitle="Acompanhe atividades e ações no território">
             <div className="grid gap-3 rounded-2xl border border-stone-200 bg-white p-4 md:grid-cols-3">
-                <select value={filters.plan_type ?? ''} onChange={(e) => onFilterChange('plan_type', e.target.value)} className="rounded-lg border-stone-300">
+                <select value={filters.plan_type ?? ''} onChange={(e) => onFilterChange('plan_type', e.target.value)} className="w-full rounded-lg border-stone-300 px-3 py-2.5 text-sm">
                     <option value="">Tipo</option>
                     {types.map((type) => <option key={type} value={type}>{type}</option>)}
                 </select>
-                <input type="date" value={filters.start_date ?? ''} onChange={(e) => onFilterChange('start_date', e.target.value)} className="rounded-lg border-stone-300" />
-                <input type="date" value={filters.end_date ?? ''} onChange={(e) => onFilterChange('end_date', e.target.value)} className="rounded-lg border-stone-300" />
+                <input type="date" value={filters.start_date ?? ''} onChange={(e) => onFilterChange('start_date', e.target.value)} className="w-full rounded-lg border-stone-300 px-3 py-2.5 text-sm" />
+                <input type="date" value={filters.end_date ?? ''} onChange={(e) => onFilterChange('end_date', e.target.value)} className="w-full rounded-lg border-stone-300 px-3 py-2.5 text-sm" />
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

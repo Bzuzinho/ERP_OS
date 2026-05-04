@@ -27,7 +27,7 @@ export default function PortalSpaceReservationsShow({ reservation, canCancel }: 
                 <div className="mt-2"><SpaceReservationStatusBadge status={reservation.status} /></div>
                 <p className="mt-2">{reservation.notes ?? '-'}</p>
             </section>
-            {canCancel ? <button onClick={() => cancelForm.post(route('portal.space-reservations.cancel', reservation.id))} className="mt-4 rounded-lg bg-rose-700 px-3 py-2 text-xs font-medium text-white">Cancelar reserva</button> : null}
+            {canCancel ? <button onClick={() => cancelForm.post(route('portal.space-reservations.cancel', reservation.id))} className="mt-4 w-full rounded-xl bg-rose-700 px-4 py-3 text-sm font-semibold text-white active:bg-rose-800 sm:w-auto">Cancelar reserva</button> : null}
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
                 <p className="mb-2 font-semibold text-stone-900">Historico</p>
                 <SpaceReservationTimeline approvals={reservation.approvals ?? []} />

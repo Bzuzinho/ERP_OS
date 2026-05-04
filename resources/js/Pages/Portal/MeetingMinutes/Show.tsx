@@ -18,7 +18,7 @@ type Props = { meetingMinute: Minute };
 export default function PortalMeetingMinuteShow({ meetingMinute: minute }: Props) {
     return (
         <PortalLayout title={minute.title}>
-            <div className="max-w-2xl rounded-2xl border border-stone-200 bg-white p-6 space-y-4">
+            <div className="w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-4 space-y-4 sm:p-6">
                 <div className="flex gap-2">
                     <MeetingMinuteStatusBadge status={minute.status} />
                 </div>
