@@ -69,7 +69,18 @@ export default function Index({ events, dayList, filters, statuses, eventTypes }
     };
 
     return (
-        <AdminLayout title="Agenda" subtitle="Reuniões, visitas e marcações">
+        <AdminLayout
+            title="Agenda"
+            subtitle="Reuniões, visitas e marcações"
+            headerActions={
+                <Link
+                    href={route('admin.events.create')}
+                    className="hidden rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 lg:inline-flex"
+                >
+                    Novo agendamento
+                </Link>
+            }
+        >
             <Head title="Agenda" />
             <div className="space-y-6">
                 <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden">
@@ -170,7 +181,7 @@ export default function Index({ events, dayList, filters, statuses, eventTypes }
                 </div>
             </div>
 
-            <FloatingActionButton href={route('admin.events.create')} label="Novo evento" />
+            <FloatingActionButton href={route('admin.events.create')} label="Novo agendamento" />
         </AdminLayout>
     );
 }
