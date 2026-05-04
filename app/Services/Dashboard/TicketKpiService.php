@@ -56,7 +56,7 @@ class TicketKpiService
             'overdue' => $overdue,
             'average_close_hours' => $averageCloseHours ? round((float) $averageCloseHours, 2) : null,
             'by_status' => (clone $base)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status')->toArray(),
-            'by_category' => (clone $base)->selectRaw('COALESCE(category, "sem_categoria") as label, COUNT(*) as total')->groupBy('label')->pluck('total', 'label')->toArray(),
+            'by_category' => (clone $base)->selectRaw("COALESCE(category, 'sem_categoria') as label, COUNT(*) as total")->groupBy('label')->pluck('total', 'label')->toArray(),
             'by_source' => (clone $base)->selectRaw('source, COUNT(*) as total')->groupBy('source')->pluck('total', 'source')->toArray(),
             'by_assignee' => (clone $base)->leftJoin('users', 'users.id', '=', 'tickets.assigned_to')->selectRaw('COALESCE(users.name, \'Sem responsavel\') as label, COUNT(*) as total')->groupBy('users.name')->pluck('total', 'label')->toArray(),
         ];
