@@ -163,6 +163,7 @@ export default function AdminLayout({
             title={title}
             subtitle={subtitle}
             organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
+            organizationLogoUrl={user?.organization?.logo_path ? `/storage/${user.organization.logo_path}` : null}
             desktopNav={desktopNavigationItems}
             mobileNav={mobileNavigationItems}
             showBackOnMobile={isDetailPage}

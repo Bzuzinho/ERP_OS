@@ -24,8 +24,12 @@ use App\Http\Controllers\Admin\InventoryRestockApprovalController as AdminInvent
 use App\Http\Controllers\Admin\InventoryRestockRequestController as AdminInventoryRestockRequestController;
 use App\Http\Controllers\Admin\MeetingMinuteApprovalController as AdminMeetingMinuteApprovalController;
 use App\Http\Controllers\Admin\MeetingMinuteController as AdminMeetingMinuteController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\NotificationReadController as AdminNotificationReadController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\ReportExportController as AdminReportExportController;
+use App\Http\Controllers\Admin\ServiceAreaController as AdminServiceAreaController;
+use App\Http\Controllers\Admin\ServiceAreaUserController as AdminServiceAreaUserController;
 use App\Http\Controllers\Admin\SpaceCleaningRecordController as AdminSpaceCleaningRecordController;
 use App\Http\Controllers\Admin\SpaceCleaningStatusController as AdminSpaceCleaningStatusController;
 use App\Http\Controllers\Admin\SpaceController as AdminSpaceController;
@@ -49,6 +53,8 @@ use App\Http\Controllers\Portal\DocumentController as PortalDocumentController;
 use App\Http\Controllers\Portal\DocumentDownloadController as PortalDocumentDownloadController;
 use App\Http\Controllers\Portal\EventController as PortalEventController;
 use App\Http\Controllers\Portal\MeetingMinuteController as PortalMeetingMinuteController;
+use App\Http\Controllers\Portal\NotificationController as PortalNotificationController;
+use App\Http\Controllers\Portal\NotificationReadController as PortalNotificationReadController;
 use App\Http\Controllers\Portal\OperationalPlanController as PortalOperationalPlanController;
 use App\Http\Controllers\Portal\SpaceController as PortalSpaceController;
 use App\Http\Controllers\Portal\SpaceReservationCancellationController as PortalSpaceReservationCancellationController;
@@ -85,6 +91,14 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::get('/more', fn () => Inertia::render('Admin/More/Index'))->name('more.index');
 
         Route::resource('contacts', AdminContactController::class);
+
+        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/mark-all-read', [AdminNotificationReadController::class, 'markAll'])->name('notifications.mark-all-read');
+        Route::post('notifications/{notificationRecipient}/mark-read', [AdminNotificationReadController::class, 'store'])->name('notifications.mark-read');
+
+        Route::resource('service-areas', AdminServiceAreaController::class)->parameters(['service-areas' => 'serviceArea']);
+        Route::post('service-areas/{serviceArea}/users', [AdminServiceAreaUserController::class, 'store'])->name('service-areas.users.store');
+        Route::delete('service-areas/{serviceArea}/users/{userId}', [AdminServiceAreaUserController::class, 'destroy'])->name('service-areas.users.destroy');
 
         Route::resource('tickets', AdminTicketController::class);
         Route::patch('tickets/{ticket}/status', [AdminTicketStatusController::class, 'update'])->name('tickets.status.update');
@@ -226,6 +240,9 @@ Route::middleware(['auth'])
 
         Route::resource('tickets', PortalTicketController::class)
             ->only(['index', 'create', 'store', 'show']);
+        Route::get('notifications', [PortalNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/mark-all-read', [PortalNotificationReadController::class, 'markAll'])->name('notifications.mark-all-read');
+        Route::post('notifications/{notificationRecipient}/mark-read', [PortalNotificationReadController::class, 'store'])->name('notifications.mark-read');
         Route::post('tickets/{ticket}/comments', [PortalTicketCommentController::class, 'store'])->name('tickets.comments.store');
         Route::post('tickets/{ticket}/attachments', [PortalTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
         Route::get('attachments/{attachment}/download', PortalAttachmentDownloadController::class)->name('attachments.download');

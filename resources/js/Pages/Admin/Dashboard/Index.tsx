@@ -44,6 +44,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
             value: String(data.kpis.open_tickets ?? 0),
             trend: `${String(data.kpis.overdue_tickets ?? 0)} com prazo crítico`,
             tone: 'blue',
+            href: route('admin.tickets.index'),
             icon: (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <path d="M4 8.5a2.5 2.5 0 012.5-2.5h11A2.5 2.5 0 0120 8.5v2a2 2 0 000 4v2a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 16.5v-2a2 2 0 000-4z" />
@@ -55,6 +56,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
             value: String(data.kpis.urgent_tickets ?? 0),
             trend: 'Prioridade alta',
             tone: 'red',
+            href: route('admin.tickets.index'),
             icon: (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <path d="M12 9v4" />
@@ -68,6 +70,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
             value: String(data.kpis.reservations_today ?? 0),
             trend: `${String(data.kpis.pending_reservations ?? 0)} pendentes`,
             tone: 'green',
+            href: route('admin.space-reservations.index'),
             icon: (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -82,6 +85,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
             value: String(data.kpis.low_stock_items ?? 0),
             trend: 'Itens para reposição',
             tone: 'amber',
+            href: route('admin.inventory-items.index'),
             icon: (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <path d="M21 16V8" />
@@ -97,6 +101,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
             value: String(data.kpis.absences_today ?? 0),
             trend: `${String(data.kpis.present_employees_today ?? 0)} presentes`,
             tone: 'indigo',
+            href: route('admin.hr.attendance.index'),
             icon: (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <circle cx="12" cy="8" r="3" />
@@ -109,6 +114,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
             value: String(data.kpis.plans_in_execution ?? 0),
             trend: `${String(data.kpis.plans_pending_approval ?? 0)} em aprovação`,
             tone: 'blue',
+            href: route('admin.operational-plans.index'),
             icon: (
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <path d="M4 20h16" />
@@ -128,22 +134,24 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
 
     return (
         <AdminLayout title="Dashboard Operacional" subtitle="Visão geral da operação da junta">
-            <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {kpis.map((kpi) => (
-                    <AppCard key={kpi.label} className="rounded-2xl p-4">
-                        <div className="flex items-start justify-between gap-2">
-                            <div className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${toneStyles[kpi.tone]}`}>{kpi.icon}</div>
-                            <span className="text-[11px] text-slate-400">Hoje</span>
-                        </div>
-                        <p className="mt-3 text-[13px] font-medium text-slate-600">{kpi.label}</p>
-                        <p className="mt-1 text-3xl font-bold text-slate-950">{kpi.value}</p>
-                        <p className="mt-2 text-xs text-slate-500">{kpi.trend}</p>
-                    </AppCard>
+                    <Link key={kpi.label} href={kpi.href} className="group block focus-visible:outline-none">
+                        <AppCard className="rounded-2xl p-4 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-blue-500 group-focus-visible:ring-offset-2">
+                            <div className="flex items-start justify-between gap-2">
+                                <div className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${toneStyles[kpi.tone]}`}>{kpi.icon}</div>
+                                <span className="text-[11px] text-slate-400">Hoje</span>
+                            </div>
+                            <p className="mt-3 text-[13px] font-medium text-slate-600">{kpi.label}</p>
+                            <p className="mt-1 text-2xl font-bold text-slate-950 sm:text-3xl">{kpi.value}</p>
+                            <p className="mt-2 text-xs text-slate-500">{kpi.trend}</p>
+                        </AppCard>
+                    </Link>
                 ))}
             </div>
 
-            <div className="mt-4 grid gap-4 xl:grid-cols-3">
-                <AppCard className="xl:col-span-2">
+            <div className="mt-4 grid w-full gap-4 lg:grid-cols-3">
+                <AppCard className="lg:col-span-2">
                     <div className="mb-3 flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-slate-950">Pedidos Recentes</h2>
                         <Link href={route('admin.tickets.index')} className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
@@ -151,7 +159,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
                         </Link>
                     </div>
 
-                    <div className="hidden overflow-hidden rounded-2xl border border-slate-200 lg:block">
+                    <div className="hidden overflow-x-auto rounded-2xl border border-slate-200 xl:block">
                         <table className="min-w-full text-sm">
                             <thead className="bg-slate-50 text-left text-slate-500">
                                 <tr>
@@ -180,14 +188,18 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
                         </table>
                     </div>
 
-                    <div className="grid gap-3 lg:hidden">
+                    <div className="grid gap-3 xl:hidden">
                         {recentTickets.slice(0, 5).map((ticket) => (
                             <div key={ticket.id} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                <p className="text-sm font-semibold text-blue-700">{ticket.reference ?? `#${ticket.id}`}</p>
-                                <p className="mt-1 text-sm font-medium text-slate-900">{ticket.title ?? '-'}</p>
-                                <div className="mt-2 flex items-center gap-2">
+                                <div className="flex min-w-0 items-start justify-between gap-2">
+                                    <p className="truncate text-sm font-semibold text-blue-700">{ticket.reference ?? `#${ticket.id}`}</p>
                                     <AppBadge tone={statusTone(String(ticket.status ?? ''))}>{ticket.status ?? '-'}</AppBadge>
+                                </div>
+                                <p className="mt-1 truncate text-sm font-medium text-slate-900">{ticket.title ?? '-'}</p>
+                                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2">
                                     <AppBadge tone={statusTone(String(ticket.priority ?? ''))}>{ticket.priority ?? '-'}</AppBadge>
+                                    {ticket.assignee?.name ? <span className="truncate text-xs text-slate-500">{ticket.assignee.name}</span> : null}
+                                    {ticket.due_date ? <span className="text-xs text-slate-400">{new Date(ticket.due_date).toLocaleDateString()}</span> : null}
                                 </div>
                             </div>
                         ))}
@@ -221,7 +233,7 @@ export default function AdminDashboard({ data }: AdminDashboardProps) {
                 </AppCard>
             </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-4 grid w-full gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <AppCard>
                     <div className="mb-3 flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-slate-950">Próximas Atividades</h2>

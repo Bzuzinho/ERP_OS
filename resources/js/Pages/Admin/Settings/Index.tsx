@@ -35,6 +35,13 @@ const iconSliders = (
     </svg>
 );
 
+const iconBell = (
+    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M15 17h5l-1.5-2v-4a6.5 6.5 0 10-13 0v4L4 17h5" />
+        <path d="M10 19a2 2 0 004 0" />
+    </svg>
+);
+
 const cards = [
     {
         title: 'Utilizadores',
@@ -45,8 +52,8 @@ const cards = [
         available: true,
     },
     {
-        title: 'Perfis e Permissões',
-        description: 'Consultar e editar permissões de cada perfil.',
+        title: 'Perfis',
+        description: 'Gerir perfis e as permissões atribuídas a cada perfil.',
         icon: iconShield,
         href: route('admin.settings.roles.index'),
         color: 'indigo',
@@ -56,9 +63,9 @@ const cards = [
         title: 'Organização',
         description: 'Dados e configurações da organização.',
         icon: iconBuilding,
-        href: route('admin.settings.index'),
+        href: route('admin.settings.organization.edit'),
         color: 'emerald',
-        available: false,
+        available: true,
     },
     {
         title: 'Preferências',
@@ -67,6 +74,22 @@ const cards = [
         href: route('admin.settings.index'),
         color: 'slate',
         available: false,
+    },
+    {
+        title: 'Areas funcionais',
+        description: 'Definir responsabilidades e associar utilizadores a areas.',
+        icon: iconBuilding,
+        href: route('admin.service-areas.index'),
+        color: 'emerald',
+        available: true,
+    },
+    {
+        title: 'Alertas',
+        description: 'Consultar alertas e notificacoes internas do sistema.',
+        icon: iconBell,
+        href: route('admin.notifications.index'),
+        color: 'blue',
+        available: true,
     },
 ];
 

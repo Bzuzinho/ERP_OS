@@ -50,4 +50,9 @@ class TaskPolicy
     {
         return $user->can('tasks.delete');
     }
+
+    public function forceDelete(User $user, Task $task): bool
+    {
+        return $user->can('tasks.force_delete');
+    }
 }

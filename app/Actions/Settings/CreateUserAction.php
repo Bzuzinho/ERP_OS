@@ -21,6 +21,10 @@ class CreateUserAction
             'password'        => Hash::make($password),
             'organization_id' => $data['organization_id'] ?? null,
             'is_active'       => $data['is_active'] ?? true,
+            'nif'             => $data['nif'] ?? null,
+            'phone'           => $data['phone'] ?? null,
+            'address'         => $data['address'] ?? null,
+            'birth_date'      => $data['birth_date'] ?? null,
         ]);
 
         if (! empty($data['roles'])) {

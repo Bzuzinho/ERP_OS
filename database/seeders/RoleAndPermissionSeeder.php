@@ -38,12 +38,20 @@ class RoleAndPermissionSeeder extends Seeder
             'tickets.update',
             'tickets.close',
             'tickets.delete',
+            'notifications.view',
+            'notifications.manage',
+            'service_areas.view',
+            'service_areas.create',
+            'service_areas.update',
+            'service_areas.delete',
+            'service_areas.manage_users',
             'tasks.view',
             'tasks.create',
             'tasks.assign',
             'tasks.update',
             'tasks.complete',
             'tasks.delete',
+            'tasks.force_delete',
             'events.view',
             'events.create',
             'events.update',
@@ -150,11 +158,14 @@ class RoleAndPermissionSeeder extends Seeder
         Role::findByName('admin_junta', 'web')->syncPermissions([
             'admin.access',
             'settings.view',
+            'settings.update',
             'users.view', 'users.create', 'users.update', 'users.delete', 'users.manage_roles', 'users.reset_password',
             'roles.view',
             'contacts.view', 'contacts.create', 'contacts.update', 'contacts.delete',
             'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close', 'tickets.delete',
-            'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete', 'tasks.delete',
+            'notifications.view', 'notifications.manage',
+            'service_areas.view', 'service_areas.create', 'service_areas.update', 'service_areas.delete', 'service_areas.manage_users',
+            'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete', 'tasks.delete', 'tasks.force_delete',
             'events.view', 'events.create', 'events.update', 'events.delete',
             'documents.view', 'documents.upload', 'documents.update', 'documents.delete', 'documents.download', 'documents.manage_access', 'documents.approve',
             'document_types.view', 'document_types.create', 'document_types.update', 'document_types.delete',
@@ -176,6 +187,8 @@ class RoleAndPermissionSeeder extends Seeder
         Role::findByName('executivo', 'web')->syncPermissions([
             'admin.access',
             'tickets.view', 'tickets.create', 'tickets.assign', 'tickets.update', 'tickets.close',
+            'notifications.view',
+            'service_areas.view',
             'tasks.view', 'tasks.create', 'tasks.assign', 'tasks.update', 'tasks.complete',
             'events.view', 'events.create', 'events.update',
             'documents.view', 'documents.download', 'documents.manage_access', 'documents.approve',
@@ -190,6 +203,7 @@ class RoleAndPermissionSeeder extends Seeder
             'admin.access',
             'contacts.view', 'contacts.create', 'contacts.update',
             'tickets.view', 'tickets.create', 'tickets.update',
+            'notifications.view',
             'tasks.view', 'tasks.create', 'tasks.update', 'tasks.complete',
             'events.view', 'events.create', 'events.update',
             'documents.view', 'documents.upload', 'documents.update', 'documents.download',
@@ -204,6 +218,7 @@ class RoleAndPermissionSeeder extends Seeder
         Role::findByName('operacional', 'web')->syncPermissions([
             'admin.access',
             'tickets.view', 'tickets.update',
+            'notifications.view',
             'tasks.view', 'tasks.update', 'tasks.complete',
             'events.view',
             'documents.view',
@@ -217,6 +232,7 @@ class RoleAndPermissionSeeder extends Seeder
         Role::findByName('manutencao', 'web')->syncPermissions([
             'admin.access',
             'tickets.view', 'tickets.update',
+            'notifications.view',
             'tasks.view', 'tasks.update', 'tasks.complete',
             'events.view',
             'documents.view',
@@ -230,26 +246,32 @@ class RoleAndPermissionSeeder extends Seeder
         Role::findByName('armazem', 'web')->syncPermissions([
             'admin.access',
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete', 'inventory.move', 'inventory.loan', 'inventory.return', 'inventory.adjust', 'inventory.breakage', 'inventory.restock', 'inventory.approve_restock', 'inventory.manage_categories', 'inventory.manage_locations',
+            'notifications.view',
             'planning.view',
             'reports.view', 'reports.inventory',
         ]);
+
+        Role::findByName('rh', 'web')->givePermissionTo(['notifications.view']);
 
         Role::findByName('cidadao', 'web')->syncPermissions([
             'documents.view', 'documents.download',
             'meeting_minutes.view',
             'spaces.view', 'spaces.reserve',
+            'notifications.view',
         ]);
 
         Role::findByName('associacao', 'web')->syncPermissions([
             'documents.view', 'documents.download',
             'meeting_minutes.view',
             'spaces.view', 'spaces.reserve',
+            'notifications.view',
         ]);
 
         Role::findByName('empresa', 'web')->syncPermissions([
             'documents.view', 'documents.download',
             'meeting_minutes.view',
             'spaces.view', 'spaces.reserve',
+            'notifications.view',
         ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

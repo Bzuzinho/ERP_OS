@@ -103,12 +103,15 @@ class EventController extends Controller
     {
         $this->authorize('update', $event);
 
+        $event->load('participants.user:id,name', 'participants.contact:id,name');
+
         return Inertia::render('Admin/Events/Edit', [
             'event' => $event,
             'eventTypes' => Event::TYPES,
             'visibilities' => Event::VISIBILITIES,
             'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
             'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->limit(200)->get(),
+            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 

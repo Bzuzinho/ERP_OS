@@ -15,6 +15,11 @@ type UserDetail = {
     roles: Role[];
     updated_at: string;
     created_at: string;
+    nif?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    birth_date?: string | null;
+    avatar_path?: string | null;
 };
 
 type Can = {
@@ -127,15 +132,27 @@ export default function UsersShow({ user, effectivePermissions, can }: Props) {
             <div className="max-w-3xl space-y-5">
                 {/* Summary card */}
                 <AppCard>
-                    <div className="flex items-start justify-between gap-4 flex-wrap">
-                        <div className="space-y-1">
-                            <p className="text-lg font-bold text-slate-800">{user.name}</p>
+                    <div className="flex items-start gap-4 flex-wrap">
+                        {/* Avatar */}
+                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full bg-slate-100 border border-slate-200">
+                            {user.avatar_path ? (
+                                <img src={`/storage/${user.avatar_path}`} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                                <span className="flex h-full w-full items-center justify-center text-xl font-bold text-slate-400">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-lg font-bold text-slate-800">{user.name}</p>
+                                <AppBadge tone={user.is_active ? 'green' : 'red'}>
+                                    {user.is_active ? 'Ativo' : 'Inativo'}
+                                </AppBadge>
+                            </div>
                             <p className="text-sm text-slate-500">{user.email}</p>
                             <p className="text-sm text-slate-400">{user.organization?.name ?? '—'}</p>
                         </div>
-                        <AppBadge tone={user.is_active ? 'green' : 'red'}>
-                            {user.is_active ? 'Ativo' : 'Inativo'}
-                        </AppBadge>
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-1">
@@ -149,6 +166,35 @@ export default function UsersShow({ user, effectivePermissions, can }: Props) {
                         <span>Criado em: {new Date(user.created_at).toLocaleDateString('pt-PT')}</span>
                         <span>Atualizado em: {new Date(user.updated_at).toLocaleDateString('pt-PT')}</span>
                     </div>
+
+                    {(user.nif || user.phone || user.address || user.birth_date) && (
+                        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm border-t border-slate-100 pt-4">
+                            {user.nif && (
+                                <div>
+                                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">NIF</span>
+                                    <p className="text-slate-700">{user.nif}</p>
+                                </div>
+                            )}
+                            {user.phone && (
+                                <div>
+                                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Contacto</span>
+                                    <p className="text-slate-700">{user.phone}</p>
+                                </div>
+                            )}
+                            {user.birth_date && (
+                                <div>
+                                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Data de nascimento</span>
+                                    <p className="text-slate-700">{new Date(user.birth_date).toLocaleDateString('pt-PT')}</p>
+                                </div>
+                            )}
+                            {user.address && (
+                                <div className="col-span-2">
+                                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Morada</span>
+                                    <p className="text-slate-700">{user.address}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </AppCard>
 
                 {/* Effective permissions */}

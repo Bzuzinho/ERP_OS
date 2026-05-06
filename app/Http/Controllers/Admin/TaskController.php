@@ -97,11 +97,15 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
+        $task->load('checklists.items');
+
         return Inertia::render('Admin/Tasks/Edit', [
             'task' => $task,
             'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
             'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
+            'statuses' => Task::STATUSES,
             'priorities' => Task::PRIORITIES,
+            'canForceDelete' => request()->user()?->can('forceDelete', $task) ?? false,
         ]);
     }
 
@@ -112,8 +116,16 @@ class TaskController extends Controller
         return to_route('admin.tasks.show', $task)->with('success', 'Tarefa atualizada com sucesso.');
     }
 
-    public function destroy(Task $task): RedirectResponse
+    public function destroy(Request $request, Task $task): RedirectResponse
     {
+        if ($request->boolean('force')) {
+            $this->authorize('forceDelete', $task);
+
+            $task->forceDelete();
+
+            return to_route('admin.tasks.index')->with('success', 'Tarefa apagada definitivamente com sucesso.');
+        }
+
         $this->authorize('delete', $task);
 
         $task->delete();

@@ -22,6 +22,7 @@ class UpdateTaskRequest extends FormRequest
             'assigned_to' => ['nullable', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'status' => ['nullable', Rule::in(Task::STATUSES)],
             'priority' => ['required', Rule::in(Task::PRIORITIES)],
             'start_date' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date'],

@@ -23,6 +23,10 @@ class UpdateUserRequest extends FormRequest
             'email'           => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($target->id)],
             'organization_id' => ['nullable', 'exists:organizations,id'],
             'is_active'       => ['boolean'],
+            'nif'             => ['nullable', 'string', 'max:20'],
+            'phone'           => ['nullable', 'string', 'max:30'],
+            'address'         => ['nullable', 'string', 'max:500'],
+            'birth_date'      => ['nullable', 'date', 'before:today'],
         ];
     }
 }

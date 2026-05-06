@@ -15,7 +15,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'nif',
     'email',
     'phone',
+    'phone_secondary',
+    'fax',
+    'website',
     'address',
+    'postal_code',
+    'city',
+    'county',
+    'district',
+    'country',
+    'president_name',
+    'iban',
+    'facebook_url',
+    'instagram_url',
+    'description',
     'logo_path',
     'is_active',
 ])]
@@ -48,6 +61,16 @@ class Organization extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function serviceAreas(): HasMany
+    {
+        return $this->hasMany(ServiceArea::class);
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
     }
 
     public function events(): HasMany

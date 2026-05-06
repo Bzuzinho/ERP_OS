@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'contact_id',
     'assigned_to',
     'department_id',
+    'service_area_id',
+    'team_id',
     'category',
     'subcategory',
     'priority',
@@ -100,6 +102,21 @@ class Ticket extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function serviceArea(): BelongsTo
+    {
+        return $this->belongsTo(ServiceArea::class);
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
     public function statusHistories(): HasMany
     {
         return $this->hasMany(TicketStatusHistory::class);
@@ -158,5 +175,10 @@ class Ticket extends Model
     public function activityLogs(): MorphMany
     {
         return $this->morphMany(ActivityLog::class, 'subject');
+    }
+
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }

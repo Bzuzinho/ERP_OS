@@ -38,10 +38,11 @@ export default function Show({ task }: Props) {
                     <div className="mt-4 flex items-center gap-2">
                         <button onClick={complete} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">Concluir</button>
                         <Link href={route('admin.tasks.edit', task.id)} className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">Editar</Link>
+                        <Link href={route('admin.tasks.index')} className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-300">← Lista de tarefas</Link>
                     </div>
                 </div>
 
-                <TaskChecklist checklists={task.checklists} />
+                <TaskChecklist checklists={task.checklists} taskId={task.id} taskStatus={task.status} isEditable={true} />
             </div>
         </AdminLayout>
     );

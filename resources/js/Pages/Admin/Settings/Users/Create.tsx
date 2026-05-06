@@ -19,6 +19,10 @@ export default function UsersCreate({ organizations, roles }: Props) {
         email: '',
         password: '',
         organization_id: '',
+        nif: '',
+        phone: '',
+        address: '',
+        birth_date: '',
         roles: [] as string[],
         is_active: true,
     });
@@ -109,6 +113,58 @@ export default function UsersCreate({ organizations, roles }: Props) {
                     </AppCard>
 
                     <AppCard>
+                        <h2 className="mb-4 text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados pessoais</h2>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-slate-700">NIF</label>
+                                <input
+                                    type="text"
+                                    value={data.nif}
+                                    onChange={(e) => setData('nif', e.target.value)}
+                                    placeholder="000000000"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.nif && <p className="mt-1 text-xs text-red-600">{errors.nif}</p>}
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-slate-700">Contacto</label>
+                                <input
+                                    type="text"
+                                    value={data.phone}
+                                    onChange={(e) => setData('phone', e.target.value)}
+                                    placeholder="+351 900 000 000"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-slate-700">Data de nascimento</label>
+                                <input
+                                    type="date"
+                                    value={data.birth_date}
+                                    onChange={(e) => setData('birth_date', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.birth_date && <p className="mt-1 text-xs text-red-600">{errors.birth_date}</p>}
+                            </div>
+
+                            <div className="sm:col-span-2">
+                                <label className="mb-1 block text-sm font-medium text-slate-700">Morada</label>
+                                <textarea
+                                    value={data.address}
+                                    onChange={(e) => setData('address', e.target.value)}
+                                    rows={2}
+                                    placeholder="Rua, número, localidade"
+                                    className="w-full resize-none rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
+                            </div>
+                        </div>
+                    </AppCard>
+
+                    <AppCard>
                         <h2 className="mb-4 text-sm font-semibold text-slate-700 uppercase tracking-wide">Perfis</h2>
                         {errors.roles && <p className="mb-2 text-xs text-red-600">{errors.roles}</p>}
 
@@ -131,7 +187,7 @@ export default function UsersCreate({ organizations, roles }: Props) {
                                 ))}
                             </div>
 
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-2">Portal</p>
+                            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Portal</p>
                             <div className="flex flex-wrap gap-2">
                                 {roles.filter((r) => portalRoles.includes(r.name)).map((role) => (
                                     <button

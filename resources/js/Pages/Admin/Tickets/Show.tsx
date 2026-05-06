@@ -1,3 +1,4 @@
+import AttachmentList from '@/Components/App/AttachmentList';
 import AttachmentUploader from '@/Components/AttachmentUploader';
 import AppBadge from '@/Components/App/AppBadge';
 import AppCard from '@/Components/App/AppCard';
@@ -171,16 +172,7 @@ export default function TicketsShow({ ticket, statuses, users }: Props) {
                     <AttachmentUploader storeRoute={route('admin.tickets.attachments.store', ticket.id)} canSetVisibility />
                     <section className="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm">
                         <h3 className="text-lg font-semibold text-slate-900">Anexos</h3>
-                        <ul className="mt-3 space-y-2 text-sm">
-                            {ticket.attachments.map((attachment) => (
-                                <li key={attachment.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
-                                    <a href={`/storage/${attachment.file_path}`} target="_blank" rel="noreferrer" className="font-medium text-slate-900 hover:text-slate-700">
-                                        {attachment.file_name}
-                                    </a>
-                                    <p className="mt-1 text-xs text-slate-600">{attachment.visibility}</p>
-                                </li>
-                            ))}
-                        </ul>
+                        <AttachmentList attachments={ticket.attachments} downloadRouteName="admin.attachments.download" />
                     </section>
                 </div>
             </div>

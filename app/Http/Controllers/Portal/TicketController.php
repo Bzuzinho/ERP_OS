@@ -6,9 +6,12 @@ use App\Actions\Tickets\CreateTicketAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tickets\StoreTicketRequest;
 use App\Models\Contact;
+use App\Models\ServiceArea;
 use App\Models\Ticket;
+use App\Services\Notifications\TicketNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -50,9 +53,21 @@ class TicketController extends Controller
         ]);
     }
 
-    public function store(StoreTicketRequest $request, CreateTicketAction $createTicketAction): RedirectResponse
+    public function store(
+        StoreTicketRequest $request,
+        CreateTicketAction $createTicketAction,
+        TicketNotificationService $ticketNotificationService,
+    ): RedirectResponse
     {
         $validated = $request->validated();
+
+        $serviceAreaId = $validated['service_area_id'] ?? null;
+        if (! $serviceAreaId && ! empty($validated['category'])) {
+            $serviceAreaId = ServiceArea::query()
+                ->where('organization_id', $request->user()->organization_id)
+                ->where('slug', Str::slug((string) $validated['category']))
+                ->value('id');
+        }
 
         $ticket = $createTicketAction->execute($request->user(), [
             ...$validated,
@@ -60,7 +75,14 @@ class TicketController extends Controller
             'status' => 'novo',
             'visibility' => 'internal',
             'assigned_to' => null,
+            'service_area_id' => $serviceAreaId,
         ]);
+
+        try {
+            $ticketNotificationService->notifyTicketCreated($ticket, $request->user());
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         return to_route('portal.tickets.show', $ticket)->with('success', 'Pedido submetido com sucesso.');
     }

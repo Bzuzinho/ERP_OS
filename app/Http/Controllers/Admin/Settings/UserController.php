@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\StoreUserRequest;
 use App\Http\Requests\Settings\UpdateUserRequest;
 use App\Http\Requests\Settings\UpdateUserRolesRequest;
+use App\Http\Requests\Settings\UpdateUserAvatarRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -153,5 +154,16 @@ class UserController extends Controller
         return redirect()
             ->route('admin.settings.users.index')
             ->with('success', 'Utilizador desativado com sucesso.');
+    }
+
+    public function updateAvatar(UpdateUserAvatarRequest $request, User $user, UpdateUserAction $action): RedirectResponse
+    {
+        $this->authorize('update', $user);
+
+        $action->updateAvatar($user, $request->file('avatar'));
+
+        return redirect()
+            ->route('admin.settings.users.edit', $user)
+            ->with('success', 'Foto de perfil atualizada.');
     }
 }

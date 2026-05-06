@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'organization_id', 'is_active'])]
+#[Fillable(['name', 'email', 'password', 'organization_id', 'is_active', 'nif', 'phone', 'address', 'birth_date', 'avatar_path'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -183,6 +184,30 @@ class User extends Authenticatable
     public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Employee::class);
+    }
+
+    public function serviceAreas(): BelongsToMany
+    {
+        return $this->belongsToMany(ServiceArea::class, 'service_area_user')
+            ->withPivot('role', 'is_primary')
+            ->withTimestamps();
+    }
+
+    public function notificationRecipients(): HasMany
+    {
+        return $this->hasMany(NotificationRecipient::class);
+    }
+
+    public function notifications(): BelongsToMany
+    {
+        return $this->belongsToMany(Notification::class, 'notification_recipients')
+            ->withPivot('seen_at', 'read_at', 'archived_at')
+            ->withTimestamps();
+    }
+
+    public function unreadNotificationRecipients(): HasMany
+    {
+        return $this->notificationRecipients()->unread()->notArchived();
     }
 
     /**

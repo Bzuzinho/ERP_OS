@@ -8,8 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tickets\StoreTicketRequest;
 use App\Http\Requests\Tickets\UpdateTicketRequest;
 use App\Models\Contact;
+use App\Models\Department;
+use App\Models\ServiceArea;
+use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\Notifications\TicketNotificationService;
 use App\Services\Tickets\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,13 +60,20 @@ class TicketController extends Controller
         return Inertia::render('Admin/Tickets/Create', [
             'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
             'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
+            'serviceAreas' => ServiceArea::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
             'statuses' => Ticket::STATUSES,
             'priorities' => Ticket::PRIORITIES,
             'sources' => Ticket::SOURCES,
         ]);
     }
 
-    public function store(StoreTicketRequest $request, CreateTicketAction $createTicketAction): RedirectResponse
+    public function store(
+        StoreTicketRequest $request,
+        CreateTicketAction $createTicketAction,
+        TicketNotificationService $ticketNotificationService,
+    ): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -70,6 +81,12 @@ class TicketController extends Controller
             ...$validated,
             'status' => $validated['status'] ?? 'novo',
         ]);
+
+        try {
+            $ticketNotificationService->notifyTicketCreated($ticket, $request->user());
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         return to_route('admin.tickets.show', $ticket)->with('success', 'Pedido criado com sucesso.');
     }
@@ -82,6 +99,9 @@ class TicketController extends Controller
             'organization:id,name',
             'creator:id,name',
             'assignee:id,name',
+            'serviceArea:id,name',
+            'team:id,name',
+            'department:id,name',
             'contact:id,name,email,phone,mobile',
             'statusHistories.changedBy:id,name',
             'comments.user:id,name',
@@ -106,6 +126,9 @@ class TicketController extends Controller
             'ticket' => $ticket,
             'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
             'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
+            'serviceAreas' => ServiceArea::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
             'priorities' => Ticket::PRIORITIES,
             'sources' => Ticket::SOURCES,
         ]);
@@ -116,6 +139,9 @@ class TicketController extends Controller
         $oldValues = $ticket->only([
             'contact_id',
             'assigned_to',
+            'department_id',
+            'service_area_id',
+            'team_id',
             'category',
             'subcategory',
             'priority',
@@ -142,7 +168,12 @@ class TicketController extends Controller
         return to_route('admin.tickets.show', $ticket)->with('success', 'Pedido atualizado com sucesso.');
     }
 
-    public function assign(Request $request, Ticket $ticket, AssignTicketAction $assignTicketAction): RedirectResponse
+    public function assign(
+        Request $request,
+        Ticket $ticket,
+        AssignTicketAction $assignTicketAction,
+        TicketNotificationService $ticketNotificationService,
+    ): RedirectResponse
     {
         $this->authorize('assign', $ticket);
 
@@ -151,6 +182,12 @@ class TicketController extends Controller
         ]);
 
         $assignTicketAction->execute($ticket, $data['assigned_to'] ?? null, $request->user());
+
+        try {
+            $ticketNotificationService->notifyTicketAssigned($ticket->fresh(), $request->user());
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         return to_route('admin.tickets.show', $ticket)->with('success', 'Responsavel atualizado com sucesso.');
     }

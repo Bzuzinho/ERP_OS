@@ -22,6 +22,14 @@ class AttachmentDownloadController extends Controller
 
         abort_unless(Storage::disk('local')->exists($attachment->file_path), 404);
 
+        if ($request->boolean('inline')) {
+            return Storage::disk('local')->response(
+                $attachment->file_path,
+                $attachment->file_name,
+                ['Content-Disposition' => 'inline'],
+            );
+        }
+
         return Storage::disk('local')->download(
             $attachment->file_path,
             $attachment->file_name,

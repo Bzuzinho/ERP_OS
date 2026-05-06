@@ -34,19 +34,19 @@ class TaskChecklistItemController extends Controller
         abort_unless($checklist->task_id === $task->id && $item->task_checklist_id === $checklist->id, 404);
 
         $data = $request->validate([
-            'label' => ['required', 'string', 'max:255'],
+            'label' => ['sometimes', 'required', 'string', 'max:255'],
             'position' => ['nullable', 'integer', 'min:0'],
             'is_completed' => ['sometimes', 'boolean'],
         ]);
 
-        if (($data['is_completed'] ?? false) === true) {
-            $data['completed_at'] = now();
-            $data['completed_by'] = $request->user()->id;
-        }
-
-        if (($data['is_completed'] ?? false) === false) {
-            $data['completed_at'] = null;
-            $data['completed_by'] = null;
+        if (array_key_exists('is_completed', $data)) {
+            if ($data['is_completed'] === true) {
+                $data['completed_at'] = now();
+                $data['completed_by'] = $request->user()->id;
+            } else {
+                $data['completed_at'] = null;
+                $data['completed_by'] = null;
+            }
         }
 
         $item->update($data);

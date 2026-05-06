@@ -2,11 +2,17 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Notifications\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+    ) {
+    }
+
     /**
      * The root template that is loaded on the first page visit.
      *
@@ -39,10 +45,12 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'is_active' => $user->is_active,
+                    'avatar_path' => $user->avatar_path,
                     'organization' => $user->organization ? [
                         'id' => $user->organization->id,
                         'name' => $user->organization->name,
                         'slug' => $user->organization->slug,
+                        'logo_path' => $user->organization->logo_path,
                     ] : null,
                 ] : null,
                 'can' => [
@@ -52,6 +60,27 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+            ],
+            'notifications' => $user ? [
+                'unread_count' => $this->notificationService->getUnreadCount($user),
+                'recent' => $this->notificationService
+                    ->getRecentForUser($user, 10)
+                    ->map(fn ($recipient) => [
+                        'id' => $recipient->id,
+                        'notification_id' => $recipient->notification_id,
+                        'title' => $recipient->notification?->title,
+                        'message' => $recipient->notification?->message,
+                        'priority' => $recipient->notification?->priority ?? 'normal',
+                        'type' => $recipient->notification?->type,
+                        'action_url' => $recipient->notification?->action_url,
+                        'read_at' => $recipient->read_at?->toISOString(),
+                        'created_at' => $recipient->created_at?->toISOString(),
+                        'created_at_human' => $recipient->created_at?->diffForHumans(),
+                    ])
+                    ->values(),
+            ] : [
+                'unread_count' => 0,
+                'recent' => [],
             ],
         ];
     }

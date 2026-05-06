@@ -15,6 +15,7 @@ type AppShellProps = {
     title: string;
     subtitle?: string;
     organizationLabel: string;
+    organizationLogoUrl?: string | null;
     desktopNav: NavItem[];
     mobileNav: NavItem[];
     children: ReactNode;
@@ -26,6 +27,7 @@ export default function AppShell({
     title,
     subtitle,
     organizationLabel,
+    organizationLogoUrl,
     desktopNav,
     mobileNav,
     children,
@@ -33,7 +35,7 @@ export default function AppShell({
     mobileBackHref,
 }: AppShellProps) {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900">
+        <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
             <MobileHeader title={title} subtitle={subtitle} showBack={showBackOnMobile} backHref={mobileBackHref} />
 
             <AdminSidebar
@@ -44,11 +46,12 @@ export default function AppShell({
                     icon: item.icon,
                 }))}
                 organizationLabel={organizationLabel}
+                organizationLogoUrl={organizationLogoUrl}
             />
 
-            <div className="pb-24 lg:ml-[260px] lg:pb-0">
+            <div className="min-w-0 pb-24 lg:ml-[260px] lg:pb-0">
                 <DesktopTopbar />
-                <main className="w-full px-4 pb-8 pt-5 sm:px-6 lg:px-8 lg:pt-8">{children}</main>
+                <main className="w-full min-w-0 overflow-hidden px-4 pb-8 pt-5 sm:px-6 lg:px-8 lg:pt-8">{children}</main>
             </div>
 
             <MobileBottomNav items={mobileNav.map((item) => ({ label: item.label, href: item.href, activePatterns: item.activePatterns, icon: item.icon }))} />

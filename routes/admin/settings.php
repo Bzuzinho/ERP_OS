@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Settings\OrganizationController;
 use App\Http\Controllers\Admin\Settings\RoleController;
 use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\Settings\UserController;
@@ -30,6 +31,9 @@ Route::prefix('settings')->name('settings.')->group(function () {
 
         // Password
         Route::post('/{user}/reset-password', [UserPasswordController::class, 'reset'])->name('reset-password');
+
+        // Avatar
+        Route::post('/{user}/avatar', [UserController::class, 'updateAvatar'])->name('update-avatar');
     });
 
     // Roles
@@ -38,5 +42,12 @@ Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/{role}', [RoleController::class, 'show'])->name('show');
         Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
         Route::put('/{role}', [RoleController::class, 'update'])->name('update');
+    });
+
+    // Organization
+    Route::prefix('organization')->name('organization.')->group(function () {
+        Route::get('/edit', [OrganizationController::class, 'edit'])->name('edit');
+        Route::put('/', [OrganizationController::class, 'update'])->name('update');
+        Route::post('/logo', [OrganizationController::class, 'updateLogo'])->name('update-logo');
     });
 });

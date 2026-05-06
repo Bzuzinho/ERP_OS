@@ -1,3 +1,4 @@
+import AttachmentList from '@/Components/App/AttachmentList';
 import AttachmentUploader from '@/Components/AttachmentUploader';
 import AppBadge from '@/Components/App/AppBadge';
 import AppCard from '@/Components/App/AppCard';
@@ -100,15 +101,7 @@ export default function PortalTicketsShow({ ticket }: Props) {
                     <AttachmentUploader storeRoute={route('portal.tickets.attachments.store', ticket.id)} />
                     <section className="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm">
                         <h3 className="text-lg font-semibold text-slate-900">Anexos</h3>
-                        <ul className="mt-3 space-y-2 text-sm">
-                            {ticket.attachments.map((attachment) => (
-                                <li key={attachment.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
-                                    <a href={`/storage/${attachment.file_path}`} target="_blank" rel="noreferrer" className="font-medium text-slate-900 hover:text-slate-700">
-                                        {attachment.file_name}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+                        <AttachmentList attachments={ticket.attachments} downloadRouteName="portal.attachments.download" />
                     </section>
                 </div>
             </div>

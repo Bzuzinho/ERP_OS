@@ -20,7 +20,9 @@ class UpdateTicketRequest extends FormRequest
         return [
             'contact_id' => ['nullable', 'exists:contacts,id'],
             'assigned_to' => ['nullable', 'exists:users,id'],
-            'department_id' => ['nullable', 'integer'],
+            'department_id' => ['nullable', 'exists:departments,id'],
+            'service_area_id' => ['nullable', 'exists:service_areas,id'],
+            'team_id' => ['nullable', 'exists:teams,id'],
             'category' => ['nullable', 'string', 'max:120'],
             'subcategory' => ['nullable', 'string', 'max:120'],
             'priority' => ['required', Rule::in(Ticket::PRIORITIES)],

@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
             OperationalPlanSeeder::class,
             RecurringOperationSeeder::class,
             DemoDataSeeder::class,
+            ServiceAreaSeeder::class,
+            NotificationDemoSeeder::class,
         ]);
     }
 }

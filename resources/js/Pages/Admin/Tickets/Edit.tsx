@@ -8,6 +8,9 @@ type Ticket = {
     id: number;
     contact_id: number | null;
     assigned_to: number | null;
+    department_id: number | null;
+    service_area_id: number | null;
+    team_id: number | null;
     category: string | null;
     subcategory: string | null;
     priority: string;
@@ -23,14 +26,20 @@ type Props = {
     ticket: Ticket;
     contacts: Option[];
     users: Option[];
+    departments: Option[];
+    teams: Option[];
+    serviceAreas: Option[];
     priorities: string[];
     sources: string[];
 };
 
-export default function TicketsEdit({ ticket, contacts, users, priorities, sources }: Props) {
+export default function TicketsEdit({ ticket, contacts, users, departments, teams, serviceAreas, priorities, sources }: Props) {
     const form = useForm({
         contact_id: ticket.contact_id ? String(ticket.contact_id) : '',
         assigned_to: ticket.assigned_to ? String(ticket.assigned_to) : '',
+        department_id: ticket.department_id ? String(ticket.department_id) : '',
+        service_area_id: ticket.service_area_id ? String(ticket.service_area_id) : '',
+        team_id: ticket.team_id ? String(ticket.team_id) : '',
         category: ticket.category ?? '',
         subcategory: ticket.subcategory ?? '',
         priority: ticket.priority,
@@ -62,6 +71,18 @@ export default function TicketsEdit({ ticket, contacts, users, priorities, sourc
                     <select value={form.data.assigned_to} onChange={(event) => form.setData('assigned_to', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
                         <option value="">Sem responsavel</option>
                         {users.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                    <select value={form.data.service_area_id} onChange={(event) => form.setData('service_area_id', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Sem area funcional</option>
+                        {serviceAreas.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                    <select value={form.data.department_id} onChange={(event) => form.setData('department_id', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Sem departamento</option>
+                        {departments.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                    <select value={form.data.team_id} onChange={(event) => form.setData('team_id', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Sem equipa</option>
+                        {teams.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
                     </select>
                     <select value={form.data.priority} onChange={(event) => form.setData('priority', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
                         {priorities.map((item) => <option key={item} value={item}>{item}</option>)}

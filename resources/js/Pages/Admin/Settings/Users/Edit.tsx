@@ -1,8 +1,7 @@
 import AppBadge from '@/Components/App/AppBadge';
 import AppCard from '@/Components/App/AppCard';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import type { PageProps } from '@/types';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 type Role = { id: number; name: string };
@@ -19,8 +18,16 @@ type UserDetail = {
     created_at: string;
 };
 
+type UserProfile = UserDetail & {
+    nif?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    birth_date?: string | null;
+    avatar_path?: string | null;
+};
+
 type Props = {
-    user: UserDetail;
+    user: UserProfile;
     organizations: Organization[];
     roles: Role[];
     canManageRoles: boolean;
@@ -36,10 +43,27 @@ export default function UsersEdit({ user, organizations, roles, canManageRoles, 
         email: user.email,
         organization_id: user.organization?.id?.toString() ?? '',
         is_active: user.is_active,
+        nif: user.nif ?? '',
+        phone: user.phone ?? '',
+        address: user.address ?? '',
+        birth_date: user.birth_date ?? '',
     });
 
     const [selectedRoles, setSelectedRoles] = useState<string[]>(user.roles.map((r) => r.name));
     const [rolesProcessing, setRolesProcessing] = useState(false);
+    const [avatarProcessing, setAvatarProcessing] = useState(false);
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const form = new FormData();
+        form.append('avatar', file);
+        setAvatarProcessing(true);
+        router.post(route('admin.settings.users.update-avatar', user.id), form as any, {
+            forceFormData: true,
+            onFinish: () => setAvatarProcessing(false),
+        });
+    };
 
     const toggleRole = (name: string) => {
         if (name === 'super_admin' && !isSuperAdmin) return;
@@ -124,6 +148,55 @@ export default function UsersEdit({ user, organizations, roles, canManageRoles, 
                         </div>
                     </AppCard>
 
+                    <AppCard>
+                        <h2 className="mb-4 text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados pessoais</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">NIF</label>
+                                <input
+                                    type="text"
+                                    value={data.nif}
+                                    onChange={(e) => setData('nif', e.target.value)}
+                                    placeholder="000000000"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.nif && <p className="mt-1 text-xs text-red-600">{errors.nif}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Contacto</label>
+                                <input
+                                    type="text"
+                                    value={data.phone}
+                                    onChange={(e) => setData('phone', e.target.value)}
+                                    placeholder="+351 900 000 000"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Data de nascimento</label>
+                                <input
+                                    type="date"
+                                    value={data.birth_date}
+                                    onChange={(e) => setData('birth_date', e.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                {errors.birth_date && <p className="mt-1 text-xs text-red-600">{errors.birth_date}</p>}
+                            </div>
+                            <div className="sm:col-span-2">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Morada</label>
+                                <textarea
+                                    value={data.address}
+                                    onChange={(e) => setData('address', e.target.value)}
+                                    rows={2}
+                                    placeholder="Rua, número, localidade"
+                                    className="w-full rounded-2xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                />
+                                {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
+                            </div>
+                        </div>
+                    </AppCard>
+
                     <div className="flex justify-end gap-3">
                         <Link
                             href={route('admin.settings.users.show', user.id)}
@@ -140,6 +213,33 @@ export default function UsersEdit({ user, organizations, roles, canManageRoles, 
                         </button>
                     </div>
                 </form>
+
+                {/* Avatar upload */}
+                <AppCard>
+                    <h2 className="mb-4 text-sm font-semibold text-slate-700 uppercase tracking-wide">Foto de perfil</h2>
+                    <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-slate-100 border border-slate-200">
+                            {user.avatar_path ? (
+                                <img src={`/storage/${user.avatar_path}`} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                                <span className="flex h-full w-full items-center justify-center text-xl font-bold text-slate-400">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Carregar nova foto</label>
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={handleAvatarChange}
+                                disabled={avatarProcessing}
+                                className="block w-full text-sm text-slate-500 file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-60"
+                            />
+                            <p className="mt-1 text-xs text-slate-400">JPG, PNG ou WebP — máx. 2 MB</p>
+                        </div>
+                    </div>
+                </AppCard>
 
                 {/* Roles section */}
                 {canManageRoles && (

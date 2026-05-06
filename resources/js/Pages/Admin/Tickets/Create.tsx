@@ -7,15 +7,21 @@ type Option = { id: number; name: string };
 type Props = {
     contacts: Option[];
     users: Option[];
+    departments: Option[];
+    teams: Option[];
+    serviceAreas: Option[];
     statuses: string[];
     priorities: string[];
     sources: string[];
 };
 
-export default function TicketsCreate({ contacts, users, priorities, sources }: Props) {
+export default function TicketsCreate({ contacts, users, departments, teams, serviceAreas, priorities, sources }: Props) {
     const form = useForm({
         contact_id: '',
         assigned_to: '',
+        department_id: '',
+        service_area_id: '',
+        team_id: '',
         category: '',
         subcategory: '',
         priority: priorities[1] ?? 'normal',
@@ -47,6 +53,18 @@ export default function TicketsCreate({ contacts, users, priorities, sources }: 
                     <select value={form.data.assigned_to} onChange={(event) => form.setData('assigned_to', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
                         <option value="">Sem responsavel</option>
                         {users.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                    <select value={form.data.service_area_id} onChange={(event) => form.setData('service_area_id', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Sem area funcional</option>
+                        {serviceAreas.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                    <select value={form.data.department_id} onChange={(event) => form.setData('department_id', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Sem departamento</option>
+                        {departments.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                    <select value={form.data.team_id} onChange={(event) => form.setData('team_id', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">Sem equipa</option>
+                        {teams.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
                     </select>
                     <select value={form.data.priority} onChange={(event) => form.setData('priority', event.target.value)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">
                         {priorities.map((item) => <option key={item} value={item}>{item}</option>)}

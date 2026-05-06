@@ -1,4 +1,5 @@
 import type { PageProps } from '@/types';
+import NotificationBell from '@/Components/App/NotificationBell';
 import { Link, usePage } from '@inertiajs/react';
 
 type DesktopTopbarProps = {
@@ -25,14 +26,16 @@ export default function DesktopTopbar({ searchPlaceholder = 'Pesquisar pedidos, 
             </div>
 
             <div className="ml-4 flex items-center gap-3">
-                <button type="button" className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50">
-                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                        <path d="M15 17h5l-1.5-2v-4a6.5 6.5 0 10-13 0v4L4 17h5" />
-                        <path d="M10 19a2 2 0 004 0" />
-                    </svg>
-                    <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-600" />
-                </button>
-                <div className="h-10 w-10 rounded-full border border-slate-200 bg-slate-200" />
+                <NotificationBell />
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-200">
+                    {auth.user?.avatar_path ? (
+                        <img src={`/storage/${auth.user.avatar_path}`} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                        <span className="flex h-full w-full items-center justify-center text-sm font-bold text-slate-500">
+                            {auth.user?.name?.charAt(0).toUpperCase()}
+                        </span>
+                    )}
+                </div>
                 <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-900">{auth.user?.name}</p>
                     <p className="truncate text-xs text-slate-500">{auth.can.accessAdmin ? 'Administrador' : 'Cidadão'}</p>

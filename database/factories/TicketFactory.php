@@ -23,6 +23,8 @@ class TicketFactory extends Factory
             'contact_id' => null,
             'assigned_to' => null,
             'department_id' => null,
+            'service_area_id' => null,
+            'team_id' => null,
             'category' => fake()->optional()->word(),
             'subcategory' => fake()->optional()->word(),
             'priority' => 'normal',
