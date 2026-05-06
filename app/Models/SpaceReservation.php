@@ -95,6 +95,11 @@ class SpaceReservation extends Model
         return $this->hasMany(SpaceCleaningRecord::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class, 'related_space_reservation_id');

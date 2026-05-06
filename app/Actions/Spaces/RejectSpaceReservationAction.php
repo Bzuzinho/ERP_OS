@@ -4,13 +4,16 @@ namespace App\Actions\Spaces;
 
 use App\Models\SpaceReservation;
 use App\Models\User;
+use App\Services\Spaces\SpaceReservationNotificationService;
 use App\Services\Tickets\ActivityLogger;
 use Illuminate\Support\Facades\DB;
 
 class RejectSpaceReservationAction
 {
-    public function __construct(private readonly ActivityLogger $activityLogger)
-    {
+    public function __construct(
+        private readonly SpaceReservationNotificationService $notificationService,
+        private readonly ActivityLogger $activityLogger,
+    ) {
     }
 
     public function execute(SpaceReservation $reservation, User $performedBy, string $reason, ?string $notes = null): SpaceReservation
@@ -30,6 +33,9 @@ class RejectSpaceReservationAction
                 'old_status' => $oldStatus,
                 'new_status' => 'rejected',
             ]);
+
+            $reservation->loadMissing('organization');
+            $this->notificationService->notifyReservationRejected($reservation, $performedBy);
 
             $this->activityLogger->log(
                 subject: $reservation,

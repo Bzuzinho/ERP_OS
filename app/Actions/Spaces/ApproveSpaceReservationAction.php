@@ -5,6 +5,7 @@ namespace App\Actions\Spaces;
 use App\Models\SpaceReservation;
 use App\Models\User;
 use App\Services\Spaces\SpaceAvailabilityService;
+use App\Services\Spaces\SpaceReservationNotificationService;
 use App\Services\Spaces\SpaceReservationService;
 use App\Services\Tickets\ActivityLogger;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,7 @@ class ApproveSpaceReservationAction
     public function __construct(
         private readonly SpaceAvailabilityService $availabilityService,
         private readonly SpaceReservationService $reservationService,
+        private readonly SpaceReservationNotificationService $notificationService,
         private readonly ActivityLogger $activityLogger,
     ) {
     }
@@ -52,6 +54,9 @@ class ApproveSpaceReservationAction
 
             $this->reservationService->ensureReservationEvent($reservation, $performedBy);
             $this->reservationService->ensureCleaningRecord($reservation, $performedBy);
+            $this->reservationService->createReservationTasks($reservation, $performedBy);
+
+            $this->notificationService->notifyReservationApproved($reservation, $performedBy);
 
             $this->activityLogger->log(
                 subject: $reservation,

@@ -4,6 +4,7 @@ namespace App\Actions\Spaces;
 
 use App\Models\SpaceReservation;
 use App\Models\User;
+use App\Services\Spaces\SpaceReservationNotificationService;
 use App\Services\Spaces\SpaceReservationService;
 use App\Services\Tickets\ActivityLogger;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,7 @@ class CancelSpaceReservationAction
 {
     public function __construct(
         private readonly SpaceReservationService $reservationService,
+        private readonly SpaceReservationNotificationService $notificationService,
         private readonly ActivityLogger $activityLogger,
     ) {
     }
@@ -35,7 +37,13 @@ class CancelSpaceReservationAction
             ]);
 
             $reservation->loadMissing('event', 'organization');
+            
+            // Cancel associated event and tasks
             $this->reservationService->cancelReservationEvent($reservation, $performedBy);
+            $this->reservationService->cancelReservationTasks($reservation, $performedBy);
+
+            // Send notification
+            $this->notificationService->notifyReservationCancelled($reservation, $performedBy);
 
             $this->activityLogger->log(
                 subject: $reservation,

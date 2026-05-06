@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'organization_id',
+    'space_id',
     'title',
     'description',
     'event_type',
@@ -58,6 +59,11 @@ class Event extends Model
     public function relatedContact(): BelongsTo
     {
         return $this->belongsTo(Contact::class, 'related_contact_id');
+    }
+
+    public function space(): BelongsTo
+    {
+        return $this->belongsTo(Space::class);
     }
 
     public function participants(): HasMany

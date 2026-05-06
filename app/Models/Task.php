@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable([
     'organization_id',
     'ticket_id',
+    'space_reservation_id',
     'assigned_to',
     'created_by',
     'title',
@@ -50,6 +51,11 @@ class Task extends Model
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class);
+    }
+
+    public function spaceReservation(): BelongsTo
+    {
+        return $this->belongsTo(SpaceReservation::class);
     }
 
     public function assignee(): BelongsTo
