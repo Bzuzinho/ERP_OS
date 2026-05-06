@@ -22,7 +22,7 @@ export default function ServiceAreasEdit({ serviceArea }: Props) {
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
-        form.put(route('admin.service-areas.update', serviceArea.id));
+        form.put(route('admin.settings.service-areas.update', serviceArea.id));
     };
 
     return (
@@ -40,7 +40,7 @@ export default function ServiceAreasEdit({ serviceArea }: Props) {
 
                 <div className="flex items-center gap-3">
                     <button type="submit" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Guardar</button>
-                    <Link href={route('admin.service-areas.show', serviceArea.id)} className="text-sm text-slate-700 hover:text-slate-950">Cancelar</Link>
+                    <Link href={route('admin.settings.service-areas.show', serviceArea.id)} className="text-sm text-slate-700 hover:text-slate-950">Cancelar</Link>
                 </div>
             </form>
         </AdminLayout>

@@ -12,7 +12,7 @@ export default function ServiceAreasCreate() {
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
-        form.post(route('admin.service-areas.store'));
+        form.post(route('admin.settings.service-areas.store'));
     };
 
     return (
@@ -30,7 +30,7 @@ export default function ServiceAreasCreate() {
 
                 <div className="flex items-center gap-3">
                     <button type="submit" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Guardar</button>
-                    <Link href={route('admin.service-areas.index')} className="text-sm text-slate-700 hover:text-slate-950">Cancelar</Link>
+                    <Link href={route('admin.settings.service-areas.index')} className="text-sm text-slate-700 hover:text-slate-950">Cancelar</Link>
                 </div>
             </form>
         </AdminLayout>

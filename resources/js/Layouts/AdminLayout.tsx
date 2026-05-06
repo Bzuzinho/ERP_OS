@@ -86,6 +86,15 @@ const iconArchive = (
     </svg>
 );
 
+const iconReport = (
+    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 19h16" />
+        <path d="M7 16v-5" />
+        <path d="M12 16V9" />
+        <path d="M17 16v-8" />
+    </svg>
+);
+
 const iconSettings = (
     <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <circle cx="12" cy="12" r="3" />
@@ -110,7 +119,7 @@ const desktopNavigationItems = [
     },
     { label: 'Recursos Humanos', href: route('admin.hr.employees.index'), activePatterns: ['admin.hr.*'], icon: iconUsers },
     { label: 'Planeamento', href: route('admin.operational-plans.index'), activePatterns: ['admin.operational-plans.*'], icon: iconCalendar },
-    { label: 'Relatórios', href: route('admin.reports.index'), activePatterns: ['admin.reports.*'], icon: iconDashboard },
+    { label: 'Relatórios', href: route('admin.reports.index'), activePatterns: ['admin.reports.*'], icon: iconReport },
     { label: 'Configurações', href: route('admin.settings.index'), activePatterns: ['admin.settings.*'], icon: iconSettings },
 ];
 
@@ -144,6 +153,9 @@ export default function AdminLayout({
     const user = auth.user;
     const [flashVisible, setFlashVisible] = useState(true);
     const isDetailPage = /\/(Show|Edit|Create)$/.test(page.component);
+    const desktopNav = auth.can.accessSettings
+        ? desktopNavigationItems
+        : desktopNavigationItems.filter((item) => item.label !== 'Configurações');
 
     let mobileBackHref = route('admin.dashboard');
     for (const [componentPrefix, routeName] of Object.entries(detailBackRoutes)) {
@@ -166,7 +178,7 @@ export default function AdminLayout({
             organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
             organizationLogoUrl={user?.organization?.logo_path ? `/storage/${user.organization.logo_path}` : null}
             organizationHref={route('admin.settings.organization.edit')}
-            desktopNav={desktopNavigationItems}
+            desktopNav={desktopNav}
             mobileNav={mobileNavigationItems}
             showBackOnMobile={isDetailPage}
             mobileBackHref={mobileBackHref}

@@ -58,7 +58,7 @@ export default function AdminMoreIndex() {
     const { auth } = usePage<PageProps>().props;
     const accountItems = [
         { label: 'Perfil', href: route('profile.edit'), tone: 'slate' as const, icon: userIcon },
-        { label: 'Notificações', href: route('admin.dashboard'), tone: 'blue' as const, icon: bellIcon },
+        { label: 'Notificações', href: route('admin.notifications.index'), tone: 'blue' as const, icon: bellIcon },
         ...(auth.can.accessSettings
             ? [{ label: 'Configurações', href: route('admin.settings.index'), tone: 'slate' as const, icon: gearIcon }]
             : []),

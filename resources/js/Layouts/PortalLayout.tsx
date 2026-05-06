@@ -37,13 +37,6 @@ const iconCalendar = (
     </svg>
 );
 
-const iconTask = (
-    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-        <path d="M9 11l2 2 4-4" />
-        <rect x="3" y="4" width="18" height="16" rx="2" />
-    </svg>
-);
-
 const iconFolder = (
     <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -69,31 +62,26 @@ const iconSettings = (
 );
 
 const desktopNavigationItems = [
-    { label: 'Dashboard', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
+    { label: 'Início', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
     { label: 'Pedidos', href: route('portal.tickets.index'), activePatterns: ['portal.tickets.*'], icon: iconTicket },
     { label: 'Agenda', href: route('portal.events.index'), activePatterns: ['portal.events.*'], icon: iconCalendar },
     { label: 'Documentos', href: route('portal.documents.index'), activePatterns: ['portal.documents.*'], icon: iconFolder },
     {
-        label: 'Espaços',
+        label: 'Reservas',
         href: route('portal.space-reservations.index'),
         activePatterns: ['portal.space-reservations.*', 'portal.spaces.*'],
         icon: iconBuilding,
     },
-    {
-        label: 'Atividades',
-        href: route('portal.operational-plans.index'),
-        activePatterns: ['portal.operational-plans.*'],
-        icon: iconCalendar,
-    },
-    { label: 'Configurações', href: route('profile.edit'), activePatterns: ['profile.edit'], icon: iconSettings },
+    { label: 'Notificações', href: route('portal.notifications.index'), activePatterns: ['portal.notifications.*'], icon: iconSettings },
+    { label: 'Perfil', href: route('profile.edit'), activePatterns: ['profile.edit'], icon: iconSettings },
     { label: 'Mais', href: route('portal.more.index'), activePatterns: ['portal.more.*'], icon: iconSettings },
 ];
 
 const mobileNavigationItems = [
-    { label: 'Dashboard', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
+    { label: 'Início', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
     { label: 'Pedidos', href: route('portal.tickets.index'), activePatterns: ['portal.tickets.*'], icon: iconTicket },
     { label: 'Agenda', href: route('portal.events.index'), activePatterns: ['portal.events.*'], icon: iconCalendar },
-    { label: 'Tarefas', href: route('portal.dashboard'), activePatterns: ['portal.tasks.*'], icon: iconTask },
+    { label: 'Notificações', href: route('portal.notifications.index'), activePatterns: ['portal.notifications.*'], icon: iconSettings },
     { label: 'Mais', href: route('portal.more.index'), activePatterns: ['portal.more.*'], icon: iconSettings },
 ];
 

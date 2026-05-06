@@ -96,9 +96,18 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::post('notifications/mark-all-read', [AdminNotificationReadController::class, 'markAll'])->name('notifications.mark-all-read');
         Route::post('notifications/{notificationRecipient}/mark-read', [AdminNotificationReadController::class, 'store'])->name('notifications.mark-read');
 
-        Route::resource('service-areas', AdminServiceAreaController::class)->parameters(['service-areas' => 'serviceArea']);
-        Route::post('service-areas/{serviceArea}/users', [AdminServiceAreaUserController::class, 'store'])->name('service-areas.users.store');
-        Route::delete('service-areas/{serviceArea}/users/{userId}', [AdminServiceAreaUserController::class, 'destroy'])->name('service-areas.users.destroy');
+        Route::prefix('service-areas')->name('service-areas.')->group(function () {
+            Route::get('/', fn () => to_route('admin.settings.service-areas.index'))->name('index');
+            Route::get('/create', fn () => to_route('admin.settings.service-areas.create'))->name('create');
+            Route::get('/{serviceArea}', fn (\App\Models\ServiceArea $serviceArea) => to_route('admin.settings.service-areas.show', $serviceArea))->name('show');
+            Route::get('/{serviceArea}/edit', fn (\App\Models\ServiceArea $serviceArea) => to_route('admin.settings.service-areas.edit', $serviceArea))->name('edit');
+
+            Route::post('/', [AdminServiceAreaController::class, 'store'])->name('store');
+            Route::put('/{serviceArea}', [AdminServiceAreaController::class, 'update'])->name('update');
+            Route::delete('/{serviceArea}', [AdminServiceAreaController::class, 'destroy'])->name('destroy');
+            Route::post('/{serviceArea}/users', [AdminServiceAreaUserController::class, 'store'])->name('users.store');
+            Route::delete('/{serviceArea}/users/{userId}', [AdminServiceAreaUserController::class, 'destroy'])->name('users.destroy');
+        });
 
         Route::resource('tickets', AdminTicketController::class);
         Route::patch('tickets/{ticket}/status', [AdminTicketStatusController::class, 'update'])->name('tickets.status.update');

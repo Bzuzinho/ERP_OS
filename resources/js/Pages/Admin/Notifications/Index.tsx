@@ -33,7 +33,7 @@ const filters = [
 
 export default function AdminNotificationsIndex({ notifications, filter }: Props) {
     return (
-        <AdminLayout title="Alertas" subtitle="Notificacoes internas da plataforma">
+        <AdminLayout title="Notificações" subtitle="Notificações internas da plataforma">
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 {filters.map((item) => (
                     <Link
@@ -77,7 +77,7 @@ export default function AdminNotificationsIndex({ notifications, filter }: Props
                             markReadRoute={route('admin.notifications.mark-read', recipient.id)}
                         />
                     );
-                }) : <p className="px-2 py-4 text-sm text-slate-500">Nao existem alertas para o filtro selecionado.</p>}
+                }) : <p className="px-2 py-4 text-sm text-slate-500">Nao existem notificações para o filtro selecionado.</p>}
             </div>
         </AdminLayout>
     );

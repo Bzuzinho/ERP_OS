@@ -270,7 +270,7 @@ class Sprint12SettingsOrganizationTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('admin.service-areas.index'));
 
-        $response->assertOk();
+        $response->assertRedirect(route('admin.settings.service-areas.index'));
     }
 
     public function test_old_admin_service_areas_create_route_still_works(): void
@@ -279,7 +279,7 @@ class Sprint12SettingsOrganizationTest extends TestCase
 
         $response = $this->actingAs($admin)->get(route('admin.service-areas.create'));
 
-        $response->assertOk();
+        $response->assertRedirect(route('admin.settings.service-areas.create'));
     }
 
     // ========== Settings Index page shows correct cards ==========

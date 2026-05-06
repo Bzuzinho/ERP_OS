@@ -115,7 +115,7 @@ export default function SettingsIndex({ cards: cardPermissions }: Props) {
             soon: true,
         },
         {
-            title: 'Alertas e notificações',
+            title: 'Notificações',
             description: 'Consultar notificações e acompanhar alertas da plataforma.',
             icon: iconBell,
             href: route('admin.notifications.index'),

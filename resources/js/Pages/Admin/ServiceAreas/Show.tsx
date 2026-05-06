@@ -29,7 +29,7 @@ export default function ServiceAreasShow({ serviceArea, availableUsers }: Props)
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
-        form.post(route('admin.service-areas.users.store', serviceArea.id), {
+        form.post(route('admin.settings.service-areas.users.store', serviceArea.id), {
             onSuccess: () => form.reset('user_id', 'role', 'is_primary'),
         });
     };
@@ -40,12 +40,12 @@ export default function ServiceAreasShow({ serviceArea, availableUsers }: Props)
             subtitle="Gestao da area funcional"
             headerActions={
                 <div className="flex items-center gap-2">
-                    <Link href={route('admin.service-areas.edit', serviceArea.id)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Editar</Link>
+                    <Link href={route('admin.settings.service-areas.edit', serviceArea.id)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Editar</Link>
                     <button
                         type="button"
                         onClick={() => {
                             if (confirm('Remover esta area funcional?')) {
-                                router.delete(route('admin.service-areas.destroy', serviceArea.id));
+                                router.delete(route('admin.settings.service-areas.destroy', serviceArea.id));
                             }
                         }}
                         className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
@@ -75,7 +75,7 @@ export default function ServiceAreasShow({ serviceArea, availableUsers }: Props)
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => router.delete(route('admin.service-areas.users.destroy', { serviceArea: serviceArea.id, userId: user.id }))}
+                                    onClick={() => router.delete(route('admin.settings.service-areas.users.destroy', { serviceArea: serviceArea.id, userId: user.id }))}
                                     className="text-xs font-semibold text-rose-700 hover:text-rose-900"
                                 >
                                     Remover

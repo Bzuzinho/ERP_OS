@@ -21,7 +21,7 @@ export default function ServiceAreasIndex({ serviceAreas }: Props) {
         <AdminLayout
             title="Areas funcionais"
             subtitle="Responsabilidades e equipas transversais"
-            headerActions={<Link href={route('admin.service-areas.create')} className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Nova area</Link>}
+            headerActions={<Link href={route('admin.settings.service-areas.create')} className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Nova area</Link>}
         >
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
                 <table className="min-w-full divide-y divide-slate-200 text-sm">
@@ -38,7 +38,7 @@ export default function ServiceAreasIndex({ serviceAreas }: Props) {
                         {serviceAreas.data.map((area) => (
                             <tr key={area.id}>
                                 <td className="px-4 py-3">
-                                    <Link href={route('admin.service-areas.show', area.id)} className="font-semibold text-slate-900 hover:text-blue-700">
+                                    <Link href={route('admin.settings.service-areas.show', area.id)} className="font-semibold text-slate-900 hover:text-blue-700">
                                         {area.name}
                                     </Link>
                                 </td>

@@ -52,7 +52,7 @@ class ServiceAreaController extends Controller
             'is_active' => $data['is_active'] ?? true,
         ]);
 
-        return to_route('admin.service-areas.show', $serviceArea)->with('success', 'Area funcional criada com sucesso.');
+        return to_route('admin.settings.service-areas.show', $serviceArea)->with('success', 'Area funcional criada com sucesso.');
     }
 
     public function show(ServiceArea $serviceArea): Response
@@ -98,7 +98,7 @@ class ServiceAreaController extends Controller
             'slug' => Str::slug($data['slug'] ?? $data['name']),
         ]);
 
-        return to_route('admin.service-areas.show', $serviceArea)->with('success', 'Area funcional atualizada com sucesso.');
+        return to_route('admin.settings.service-areas.show', $serviceArea)->with('success', 'Area funcional atualizada com sucesso.');
     }
 
     public function destroy(ServiceArea $serviceArea): RedirectResponse
@@ -109,6 +109,6 @@ class ServiceAreaController extends Controller
 
         $serviceArea->delete();
 
-        return to_route('admin.service-areas.index')->with('success', 'Area funcional removida com sucesso.');
+        return to_route('admin.settings.service-areas.index')->with('success', 'Area funcional removida com sucesso.');
     }
 }

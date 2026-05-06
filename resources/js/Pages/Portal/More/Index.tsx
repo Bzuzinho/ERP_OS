@@ -38,13 +38,6 @@ const bellIcon = (
     </svg>
 );
 
-const gearIcon = (
-    <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.56V21a2 2 0 01-4 0v-.09a1.7 1.7 0 00-1-1.56 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.7 1.7 0 005 15a1.7 1.7 0 00-1.56-1H3.3a2 2 0 010-4h.09A1.7 1.7 0 005 8.44a1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 012.83-2.83l.06.06A1.7 1.7 0 009.44 4a1.7 1.7 0 001-1.56V2.3a2 2 0 014 0v.09a1.7 1.7 0 001 1.56 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 012.83 2.83l-.06.06A1.7 1.7 0 0019 8.44a1.7 1.7 0 001.56 1h.14a2 2 0 010 4h-.09A1.7 1.7 0 0019.4 15z" />
-    </svg>
-);
-
 export default function PortalMoreIndex() {
     const { auth } = usePage<PageProps>().props;
 
@@ -63,15 +56,15 @@ export default function PortalMoreIndex() {
                         title: 'Módulos',
                         items: [
                             { label: 'Documentos', href: route('portal.documents.index'), tone: 'blue', icon: docsIcon },
-                            { label: 'Espaços', href: route('portal.space-reservations.index'), tone: 'indigo', icon: spaceIcon },
+                            { label: 'Reservas', href: route('portal.space-reservations.index'), tone: 'indigo', icon: spaceIcon },
+                            { label: 'Agenda', href: route('portal.events.index'), tone: 'green', icon: circleIcon },
                         ],
                     },
                     {
                         title: 'Conta',
                         items: [
                             { label: 'Perfil', href: route('profile.edit'), tone: 'slate', icon: userIcon },
-                            { label: 'Notificações', href: route('portal.dashboard'), tone: 'blue', icon: bellIcon },
-                            { label: 'Configurações', href: route('profile.edit'), tone: 'slate', icon: gearIcon },
+                            { label: 'Notificações', href: route('portal.notifications.index'), tone: 'blue', icon: bellIcon },
                             { label: 'Ajuda e suporte', href: route('portal.dashboard'), tone: 'amber', icon: circleIcon },
                         ],
                     },

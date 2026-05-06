@@ -33,7 +33,7 @@ const filters = [
 
 export default function PortalNotificationsIndex({ notifications, filter }: Props) {
     return (
-        <PortalLayout title="Alertas" subtitle="Acompanhe os seus pedidos e avisos">
+        <PortalLayout title="Notificações" subtitle="Acompanhe os seus pedidos e avisos">
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 {filters.map((item) => (
                     <Link
@@ -77,7 +77,7 @@ export default function PortalNotificationsIndex({ notifications, filter }: Prop
                             markReadRoute={route('portal.notifications.mark-read', recipient.id)}
                         />
                     );
-                }) : <p className="px-2 py-4 text-sm text-slate-500">Nao existem alertas para o filtro selecionado.</p>}
+                }) : <p className="px-2 py-4 text-sm text-slate-500">Nao existem notificações para o filtro selecionado.</p>}
             </div>
         </PortalLayout>
     );
