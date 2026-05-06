@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Attachment;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class AttachmentPolicy
 {
@@ -37,6 +38,12 @@ class AttachmentPolicy
 
     public function delete(User $user, Attachment $attachment): bool
     {
-        return $user->can('tickets.update');
+        if (! $attachment->attachable instanceof Ticket) {
+            return false;
+        }
+
+        return $user->can('tickets.update')
+            && $user->can('view', $attachment->attachable)
+            && OrganizationScope::sameOrganization($attachment->attachable->organization_id, $user);
     }
 }

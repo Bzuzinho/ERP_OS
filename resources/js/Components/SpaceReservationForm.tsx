@@ -33,23 +33,31 @@ export default function SpaceReservationForm({ spaces, contacts, submitRoute }: 
             <div>
                 <InputLabel htmlFor="space_id" value="Espaco" />
                 <select id="space_id" value={data.space_id} onChange={(event) => setData('space_id', Number(event.target.value))} className="mt-1 w-full rounded-lg border-slate-300 text-sm">
-                    {spaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
+                    {spaces.map((space) => (
+                        <option key={space.id} value={space.id}>
+                            {space.name}
+                        </option>
+                    ))}
                 </select>
             </div>
             <div>
                 <InputLabel htmlFor="contact_id" value="Contacto" />
                 <select id="contact_id" value={data.contact_id} onChange={(event) => setData('contact_id', Number(event.target.value))} className="mt-1 w-full rounded-lg border-slate-300 text-sm">
                     <option value={0}>Sem contacto</option>
-                    {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.name}</option>)}
+                    {contacts.map((contact) => (
+                        <option key={contact.id} value={contact.id}>
+                            {contact.name}
+                        </option>
+                    ))}
                 </select>
             </div>
             <div>
-                <InputLabel htmlFor="start_at" value="Inicio" />
+                <InputLabel htmlFor="start_at" value="Data/hora inicio" />
                 <TextInput id="start_at" type="datetime-local" value={data.start_at} onChange={(event) => setData('start_at', event.target.value)} className="mt-1 block w-full" />
                 {errors.start_at ? <p className="mt-1 text-xs text-rose-700">{errors.start_at}</p> : null}
             </div>
             <div>
-                <InputLabel htmlFor="end_at" value="Fim" />
+                <InputLabel htmlFor="end_at" value="Data/hora fim" />
                 <TextInput id="end_at" type="datetime-local" value={data.end_at} onChange={(event) => setData('end_at', event.target.value)} className="mt-1 block w-full" />
                 {errors.end_at ? <p className="mt-1 text-xs text-rose-700">{errors.end_at}</p> : null}
             </div>
@@ -58,10 +66,10 @@ export default function SpaceReservationForm({ spaces, contacts, submitRoute }: 
                 <TextInput id="purpose" value={data.purpose} onChange={(event) => setData('purpose', event.target.value)} className="mt-1 block w-full" />
             </div>
             <div>
-                <InputLabel htmlFor="notes" value="Notas" />
+                <InputLabel htmlFor="notes" value="Observacoes" />
                 <textarea id="notes" value={data.notes} onChange={(event) => setData('notes', event.target.value)} className="mt-1 w-full rounded-lg border-slate-300 text-sm" rows={4} />
             </div>
-            <PrimaryButton disabled={processing}>Submeter</PrimaryButton>
+            <PrimaryButton disabled={processing}>Submeter pedido</PrimaryButton>
         </form>
     );
 }

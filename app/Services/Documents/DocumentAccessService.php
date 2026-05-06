@@ -95,7 +95,6 @@ class DocumentAccessService
         $roleNames = $user->roles->pluck('name');
 
         return $document->accessRules()
-            ->where('document_access_rules.organization_id', $document->organization_id)
             ->whereIn('permission', $permissions)
             ->where(function ($query) use ($user, $contactIds, $roleNames) {
                 $query

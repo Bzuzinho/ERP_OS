@@ -53,24 +53,20 @@ export default function PortalMoreIndex() {
                 }}
                 sections={[
                     {
-                        title: 'Módulos',
+                        title: 'Servicos',
                         items: [
                             { label: 'Documentos', href: route('portal.documents.index'), tone: 'blue', icon: docsIcon },
                             { label: 'Reservas', href: route('portal.space-reservations.index'), tone: 'indigo', icon: spaceIcon },
-                            { label: 'Agenda', href: route('portal.events.index'), tone: 'green', icon: circleIcon },
+                            { label: 'Alertas', href: route('portal.notifications.index'), tone: 'blue', icon: bellIcon },
                         ],
                     },
                     {
                         title: 'Conta',
-                        items: [
-                            { label: 'Perfil', href: route('profile.edit'), tone: 'slate', icon: userIcon },
-                            { label: 'Notificações', href: route('portal.notifications.index'), tone: 'blue', icon: bellIcon },
-                            { label: 'Ajuda e suporte', href: route('portal.dashboard'), tone: 'amber', icon: circleIcon },
-                        ],
+                        items: [{ label: 'Perfil', href: route('profile.edit'), tone: 'slate', icon: userIcon }],
                     },
                     {
-                        title: 'Sessão',
-                        items: [{ label: 'Terminar sessão', action: 'logout', tone: 'red', icon: circleIcon }],
+                        title: 'Sessao',
+                        items: [{ label: 'Sair', action: 'logout', tone: 'red', icon: circleIcon }],
                     },
                 ]}
             />

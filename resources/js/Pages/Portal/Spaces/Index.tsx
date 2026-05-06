@@ -6,10 +6,8 @@ type Props = { spaces: { data: SpaceItem[] } };
 
 export default function PortalSpacesIndex({ spaces }: Props) {
     return (
-        <PortalLayout title="Espacos" subtitle="Espacos disponiveis para pedido de reserva">
-            <div className="grid gap-3 md:grid-cols-2">
-                {spaces.data.map((space) => <SpaceCard key={space.id} space={space} showReserveButton />)}
-            </div>
+        <PortalLayout title="Reservar espaco" subtitle="Espacos disponiveis para pedido de reserva.">
+            <div className="grid gap-3 md:grid-cols-2">{spaces.data.map((space) => <SpaceCard key={space.id} space={space} showReserveButton />)}</div>
         </PortalLayout>
     );
 }

@@ -5,7 +5,7 @@ type Props = { spaces: { id: number; name: string }[]; contacts: { id: number; n
 
 export default function PortalSpaceReservationsCreate({ spaces, contacts }: Props) {
     return (
-        <PortalLayout title="Pedir Reserva" subtitle="Submeta um pedido para utilizacao de espaco">
+        <PortalLayout title="Reservar espaco" subtitle="Pedido de reserva com dados simples.">
             <SpaceReservationForm spaces={spaces} contacts={contacts} submitRoute={route('portal.space-reservations.store')} />
         </PortalLayout>
     );

@@ -40,15 +40,11 @@ class SpaceController extends Controller
             'space' => $space->only([
                 'id',
                 'name',
-                'slug',
                 'description',
                 'location_text',
                 'capacity',
                 'status',
-                'requires_approval',
                 'rules',
-                'is_public',
-                'is_active',
             ]),
         ]);
     }

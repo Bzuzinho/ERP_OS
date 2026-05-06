@@ -4,12 +4,19 @@ import { FormEvent } from 'react';
 type AttachmentUploaderProps = {
     storeRoute: string;
     canSetVisibility?: boolean;
+    defaultVisibility?: 'internal' | 'public';
+    title?: string;
 };
 
-export default function AttachmentUploader({ storeRoute, canSetVisibility = false }: AttachmentUploaderProps) {
+export default function AttachmentUploader({
+    storeRoute,
+    canSetVisibility = false,
+    defaultVisibility = 'internal',
+    title = 'Enviar anexo',
+}: AttachmentUploaderProps) {
     const form = useForm<{ file: File | null; visibility: string }>({
         file: null,
-        visibility: 'internal',
+        visibility: defaultVisibility,
     });
 
     const submit = (event: FormEvent) => {
@@ -23,7 +30,7 @@ export default function AttachmentUploader({ storeRoute, canSetVisibility = fals
 
     return (
         <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-4">
-            <h3 className="text-lg font-semibold text-slate-900">Enviar anexo</h3>
+            <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
 
             <input
                 type="file"

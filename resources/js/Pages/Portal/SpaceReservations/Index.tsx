@@ -1,4 +1,4 @@
-import SpaceReservationStatusBadge from '@/Components/SpaceReservationStatusBadge';
+import PublicReservationStatusBadge from '@/Components/Portal/PublicReservationStatusBadge';
 import PortalLayout from '@/Layouts/PortalLayout';
 import { Link } from '@inertiajs/react';
 
@@ -7,13 +7,25 @@ type Props = { reservations: { data: Reservation[] } };
 
 export default function PortalSpaceReservationsIndex({ reservations }: Props) {
     return (
-        <PortalLayout title="As minhas reservas" subtitle="Pedidos de reserva submetidos" headerActions={<Link href={route('portal.space-reservations.create')} className="flex w-full items-center justify-center rounded-xl bg-amber-600 px-4 py-3 text-sm font-semibold text-white lg:inline-flex lg:w-auto lg:py-2">Pedir reserva</Link>}>
+        <PortalLayout
+            title="Reservas"
+            subtitle="Acompanhe os seus pedidos de reserva."
+            headerActions={
+                <Link href={route('portal.space-reservations.create')} className="flex w-full items-center justify-center rounded-xl bg-amber-600 px-4 py-3 text-sm font-semibold text-white lg:inline-flex lg:w-auto lg:py-2">
+                    Reservar espaco
+                </Link>
+            }
+        >
             <div className="space-y-3">
                 {reservations.data.map((reservation) => (
                     <article key={reservation.id} className="rounded-2xl border border-stone-200 bg-white p-4 text-sm">
-                        <Link href={route('portal.space-reservations.show', reservation.id)} className="block font-semibold text-stone-900">{reservation.space?.name ?? '-'} - {reservation.purpose}</Link>
-                        <p className="mt-1 text-stone-700">{new Date(reservation.start_at).toLocaleString()} – {new Date(reservation.end_at).toLocaleString()}</p>
-                        <div className="mt-2"><SpaceReservationStatusBadge status={reservation.status} /></div>
+                        <Link href={route('portal.space-reservations.show', reservation.id)} className="block font-semibold text-stone-900">
+                            {reservation.space?.name ?? '-'} - {reservation.purpose}
+                        </Link>
+                        <p className="mt-1 text-stone-700">{new Date(reservation.start_at).toLocaleString()} - {new Date(reservation.end_at).toLocaleString()}</p>
+                        <div className="mt-2">
+                            <PublicReservationStatusBadge status={reservation.status} />
+                        </div>
                     </article>
                 ))}
             </div>

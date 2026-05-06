@@ -1,5 +1,5 @@
-import SpaceReservationStatusBadge from '@/Components/SpaceReservationStatusBadge';
-import SpaceReservationTimeline from '@/Components/SpaceReservationTimeline';
+import PublicReservationStatusBadge from '@/Components/Portal/PublicReservationStatusBadge';
+import PublicReservationTimeline from '@/Components/Portal/PublicReservationTimeline';
 import PortalLayout from '@/Layouts/PortalLayout';
 import { useForm } from '@inertiajs/react';
 
@@ -20,17 +20,23 @@ export default function PortalSpaceReservationsShow({ reservation, canCancel }: 
     const cancelForm = useForm({ cancellation_reason: '' });
 
     return (
-        <PortalLayout title="Detalhe da Reserva" subtitle={reservation.purpose}>
+        <PortalLayout title="Pedido de reserva" subtitle={reservation.purpose}>
             <section className="rounded-2xl border border-stone-200 bg-white p-4 text-sm text-stone-700">
                 <p className="font-semibold text-stone-900">{reservation.space?.name ?? '-'}</p>
                 <p>{new Date(reservation.start_at).toLocaleString()} - {new Date(reservation.end_at).toLocaleString()}</p>
-                <div className="mt-2"><SpaceReservationStatusBadge status={reservation.status} /></div>
+                <div className="mt-2">
+                    <PublicReservationStatusBadge status={reservation.status} />
+                </div>
                 <p className="mt-2">{reservation.notes ?? '-'}</p>
             </section>
-            {canCancel ? <button onClick={() => cancelForm.post(route('portal.space-reservations.cancel', reservation.id))} className="mt-4 w-full rounded-xl bg-rose-700 px-4 py-3 text-sm font-semibold text-white active:bg-rose-800 sm:w-auto">Cancelar reserva</button> : null}
+            {canCancel ? (
+                <button onClick={() => cancelForm.post(route('portal.space-reservations.cancel', reservation.id))} className="mt-4 w-full rounded-xl bg-rose-700 px-4 py-3 text-sm font-semibold text-white active:bg-rose-800 sm:w-auto">
+                    Cancelar pedido
+                </button>
+            ) : null}
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
-                <p className="mb-2 font-semibold text-stone-900">Historico</p>
-                <SpaceReservationTimeline approvals={reservation.approvals ?? []} />
+                <p className="mb-2 font-semibold text-stone-900">Atualizacoes</p>
+                <PublicReservationTimeline approvals={reservation.approvals ?? []} />
             </section>
         </PortalLayout>
     );

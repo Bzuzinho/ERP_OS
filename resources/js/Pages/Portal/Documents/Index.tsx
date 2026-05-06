@@ -1,14 +1,9 @@
-import DocumentStatusBadge from '@/Components/DocumentStatusBadge';
-import DocumentVisibilityBadge from '@/Components/DocumentVisibilityBadge';
 import PortalLayout from '@/Layouts/PortalLayout';
 import { Link } from '@inertiajs/react';
 
 type DocumentItem = {
     id: number;
     title: string;
-    visibility: string;
-    status: string;
-    current_version: number;
     created_at: string;
     type?: { id: number; name: string } | null;
     can_download: boolean;
@@ -16,24 +11,19 @@ type DocumentItem = {
 
 type Props = {
     documents: { data: DocumentItem[] };
-    filters: { search?: string };
 };
 
 export default function PortalDocumentsIndex({ documents }: Props) {
     return (
-        <PortalLayout title="Documentos">
+        <PortalLayout title="Documentos" subtitle="Documentos disponiveis para consulta.">
             <div className="space-y-3">
                 {documents.data.map((doc) => (
                     <div key={doc.id} className="rounded-2xl border border-stone-200 bg-white p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 space-y-1">
                                 <p className="font-medium text-stone-900">{doc.title}</p>
-                                <div className="flex flex-wrap gap-2">
-                                    <DocumentVisibilityBadge visibility={doc.visibility} />
-                                    <DocumentStatusBadge status={doc.status} />
-                                    {doc.type ? <span className="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-600">{doc.type.name}</span> : null}
-                                </div>
-                                <p className="text-xs text-stone-500">v{doc.current_version} • {new Date(doc.created_at).toLocaleDateString()}</p>
+                                <p className="text-xs text-stone-600">Tipo: {doc.type?.name ?? 'Documento'}</p>
+                                <p className="text-xs text-stone-500">Data: {new Date(doc.created_at).toLocaleDateString()}</p>
                             </div>
                             <div className="flex shrink-0 gap-2">
                                 <Link href={route('portal.documents.show', doc.id)} className="rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
@@ -41,16 +31,14 @@ export default function PortalDocumentsIndex({ documents }: Props) {
                                 </Link>
                                 {doc.can_download ? (
                                     <a href={route('portal.documents.download', doc.id)} className="rounded-xl bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-500">
-                                        Download
+                                        Descarregar
                                     </a>
                                 ) : null}
                             </div>
                         </div>
                     </div>
                 ))}
-                {documents.data.length === 0 ? (
-                    <p className="rounded-2xl border border-stone-200 bg-white p-6 text-center text-stone-500">Sem documentos disponíveis.</p>
-                ) : null}
+                {documents.data.length === 0 ? <p className="rounded-2xl border border-stone-200 bg-white p-6 text-center text-stone-500">Sem documentos disponiveis.</p> : null}
             </div>
         </PortalLayout>
     );

@@ -80,7 +80,7 @@ class HandleInertiaRequests extends Middleware
                         'message' => $recipient->notification?->message,
                         'priority' => $recipient->notification?->priority ?? 'normal',
                         'type' => $recipient->notification?->type,
-                        'action_url' => $recipient->notification?->action_url,
+                        'action_url' => $this->resolvePortalActionUrl($request, $recipient->notification?->action_url),
                         'read_at' => $recipient->read_at?->toISOString(),
                         'created_at' => $recipient->created_at?->toISOString(),
                         'created_at_human' => $recipient->created_at?->diffForHumans(),
@@ -91,5 +91,18 @@ class HandleInertiaRequests extends Middleware
                 'recent' => [],
             ],
         ];
+    }
+
+    private function resolvePortalActionUrl(Request $request, ?string $actionUrl): ?string
+    {
+        if (! $actionUrl) {
+            return null;
+        }
+
+        if ($request->is('portal*') && str_starts_with($actionUrl, '/admin/tickets/')) {
+            return str_replace('/admin/tickets/', '/portal/tickets/', $actionUrl);
+        }
+
+        return $actionUrl;
     }
 }

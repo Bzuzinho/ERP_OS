@@ -79,7 +79,13 @@ class SpaceReservationController extends Controller
                 'notes' => $spaceReservation->notes,
                 'space' => $spaceReservation->space,
                 'contact' => $spaceReservation->contact,
-                'approvals' => $spaceReservation->approvals,
+                'approvals' => $spaceReservation->approvals->map(fn ($approval) => [
+                    'id' => $approval->id,
+                    'action' => $approval->action,
+                    'new_status' => $approval->new_status,
+                    'notes' => $approval->notes,
+                    'created_at' => $approval->created_at,
+                ])->values(),
             ],
             'canCancel' => $request->user()->can('cancel', $spaceReservation),
         ]);

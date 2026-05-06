@@ -28,9 +28,17 @@ class EventController extends Controller
                         ->orWhereHas('contact', fn ($contactQuery) => $contactQuery->where('user_id', $user->id)));
             })
             ->whereIn('visibility', ['public', 'restricted'])
-            ->with(['relatedTicket:id,reference,title', 'relatedContact:id,name'])
             ->orderBy('start_at')
-            ->paginate(12);
+            ->paginate(12)
+            ->through(fn (Event $event) => [
+                'id' => $event->id,
+                'title' => $event->title,
+                'description' => $event->description,
+                'status' => $event->status,
+                'start_at' => $event->start_at,
+                'end_at' => $event->end_at,
+                'location_text' => $event->location_text,
+            ]);
 
         return Inertia::render('Portal/Events/Index', [
             'events' => $events,
@@ -42,10 +50,16 @@ class EventController extends Controller
         OrganizationScope::ensureModelBelongsToUserOrganization($event, request()->user());
         $this->authorize('view', $event);
 
-        $event->load(['relatedTicket:id,reference,title', 'relatedContact:id,name']);
-
         return Inertia::render('Portal/Events/Show', [
-            'event' => $event,
+            'event' => [
+                'id' => $event->id,
+                'title' => $event->title,
+                'description' => $event->description,
+                'status' => $event->status,
+                'start_at' => $event->start_at,
+                'end_at' => $event->end_at,
+                'location_text' => $event->location_text,
+            ],
         ]);
     }
 }

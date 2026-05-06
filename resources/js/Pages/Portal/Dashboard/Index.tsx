@@ -1,92 +1,78 @@
-import AppBadge from '@/Components/App/AppBadge';
 import AppCard from '@/Components/App/AppCard';
-import EmptyState from '@/Components/App/EmptyState';
 import KpiCard from '@/Components/App/KpiCard';
-import SectionTitle from '@/Components/App/SectionTitle';
 import PortalLayout from '@/Layouts/PortalLayout';
+import { Link } from '@inertiajs/react';
 
 type PortalDashboardProps = {
     data: {
         kpis: Record<string, number>;
-        tickets: {
-            active: Array<Record<string, unknown>>;
-            recent_updates: Array<Record<string, unknown>>;
-        };
-        events: Array<Record<string, unknown>>;
-        reservations: Array<Record<string, unknown>>;
-        documents: Array<Record<string, unknown>>;
-        public_plans: Array<Record<string, unknown>>;
     };
 };
 
+type JourneyCard = {
+    title: string;
+    description: string;
+    href: string;
+};
+
+const journeyCards: JourneyCard[] = [
+    {
+        title: 'Criar pedido',
+        description: 'Reporte uma situacao ou faca um pedido a Junta.',
+        href: route('portal.tickets.create'),
+    },
+    {
+        title: 'Os meus pedidos',
+        description: 'Acompanhe o estado dos pedidos que submeteu.',
+        href: route('portal.tickets.index'),
+    },
+    {
+        title: 'Agenda',
+        description: 'Consulte eventos e marcacoes disponiveis.',
+        href: route('portal.events.index'),
+    },
+    {
+        title: 'Reservas',
+        description: 'Peca ou acompanhe reservas de espacos.',
+        href: route('portal.space-reservations.index'),
+    },
+    {
+        title: 'Documentos',
+        description: 'Consulte documentos disponiveis para si.',
+        href: route('portal.documents.index'),
+    },
+    {
+        title: 'Alertas',
+        description: 'Veja notificacoes e respostas da Junta.',
+        href: route('portal.notifications.index'),
+    },
+];
+
 export default function PortalDashboard({ data }: PortalDashboardProps) {
     return (
-        <PortalLayout title="Dashboard" subtitle="A sua atividade no portal em tempo real">
+        <PortalLayout title="Inicio" subtitle="Escolha a acao que pretende realizar.">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-                <KpiCard label="Os meus pedidos ativos" value={data.kpis.my_active_tickets} />
-                <KpiCard label="Aguardando resposta" value={data.kpis.waiting_tickets} />
-                <KpiCard label="Próximas marcações" value={data.kpis.upcoming_events} />
-                <KpiCard label="Próximas reservas" value={data.kpis.upcoming_reservations} />
-                <KpiCard label="Documentos disponíveis" value={data.kpis.available_documents} />
+                <KpiCard label="Pedidos ativos" value={data.kpis.my_active_tickets ?? 0} />
+                <KpiCard label="Pedidos resolvidos" value={data.kpis.resolved_tickets ?? 0} />
+                <KpiCard label="Alertas nao lidos" value={data.kpis.unread_alerts ?? 0} />
+                <KpiCard label="Proximos eventos e reservas" value={data.kpis.upcoming_items ?? 0} />
             </div>
 
-            <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                <AppCard>
-                    <SectionTitle title="Os meus pedidos ativos" subtitle="Acompanhe as suas ocorrências" />
-                    <div className="mt-4 space-y-3">
-                        {data.tickets.active.slice(0, 6).map((ticket) => (
-                            <div key={String(ticket.id)} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                <div>
-                                    <p className="text-sm font-semibold text-blue-700">{String(ticket.reference ?? `#${ticket.id}`)}</p>
-                                    <p className="text-xs text-slate-500">{String(ticket.title ?? '-')}</p>
-                                </div>
-                                <AppBadge tone="blue">{String(ticket.status ?? '-')}</AppBadge>
-                            </div>
-                        ))}
-                        {data.tickets.active.length === 0 ? <EmptyState title="Sem pedidos ativos" /> : null}
-                    </div>
-                </AppCard>
-
-                <AppCard>
-                    <SectionTitle title="Agenda" subtitle="Próximas marcações e eventos" />
-                    <div className="mt-4 space-y-3">
-                        {data.events.slice(0, 6).map((event) => (
-                            <div key={String(event.id)} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                <p className="text-sm font-semibold text-slate-900">{String(event.title ?? `#${event.id}`)}</p>
-                                <p className="mt-1 text-xs text-slate-500">{String(event.start_at ?? '-')}</p>
-                            </div>
-                        ))}
-                        {data.events.length === 0 ? <EmptyState title="Sem eventos próximos" /> : null}
-                    </div>
-                </AppCard>
-            </div>
-
-            <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <AppCard>
-                    <SectionTitle title="Documentos disponíveis" subtitle="Ficheiros partilhados pela junta" />
-                    <div className="mt-4 space-y-3">
-                        {data.documents.slice(0, 6).map((document) => (
-                            <div key={String(document.id)} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                <p className="text-sm font-semibold text-slate-900">{String(document.title ?? `#${document.id}`)}</p>
-                                <AppBadge tone="indigo">{String(document.visibility ?? '-')}</AppBadge>
-                            </div>
-                        ))}
-                        {data.documents.length === 0 ? <EmptyState title="Sem documentos" /> : null}
-                    </div>
-                </AppCard>
-
-                <AppCard>
-                    <SectionTitle title="Atividades públicas" subtitle="Próximas ações no território" />
-                    <div className="mt-4 space-y-3">
-                        {data.public_plans.slice(0, 6).map((plan) => (
-                            <div key={String(plan.id)} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
-                                <p className="text-sm font-semibold text-slate-900">{String(plan.title ?? `#${plan.id}`)}</p>
-                                <p className="mt-1 text-xs text-slate-500">{String(plan.start_date ?? '-')}</p>
-                            </div>
-                        ))}
-                        {data.public_plans.length === 0 ? <EmptyState title="Sem atividades" /> : null}
-                    </div>
-                </AppCard>
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {journeyCards.map((card) => (
+                    <AppCard key={card.title} className="flex h-full flex-col justify-between">
+                        <div>
+                            <h2 className="text-base font-bold text-slate-900">{card.title}</h2>
+                            <p className="mt-2 text-sm text-slate-600">{card.description}</p>
+                        </div>
+                        <Link
+                            href={card.href}
+                            className="mt-5 inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+                        >
+                            Abrir
+                        </Link>
+                    </AppCard>
+                ))}
             </div>
         </PortalLayout>
     );

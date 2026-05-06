@@ -51,8 +51,12 @@ class TicketController extends Controller
                 ->select('id', 'name')
                 ->orderBy('name')
                 ->get(),
-            'priorities' => Ticket::PRIORITIES,
-            'sources' => Ticket::SOURCES,
+            'themes' => ServiceArea::query()
+                ->visibleToUser($user)
+                ->where('is_active', true)
+                ->select('id', 'name', 'slug')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -64,22 +68,33 @@ class TicketController extends Controller
     {
         $validated = $request->validated();
 
-        $serviceAreaId = $validated['service_area_id'] ?? null;
-        if (! $serviceAreaId && ! empty($validated['category'])) {
+        $serviceAreaId = null;
+        if (! empty($validated['category'])) {
             $serviceAreaId = ServiceArea::query()
                 ->where('organization_id', $request->user()->organization_id)
                 ->where('slug', Str::slug((string) $validated['category']))
                 ->value('id');
         }
 
-        $ticket = $createTicketAction->execute($request->user(), [
-            ...$validated,
-            'source' => $validated['source'] ?? 'portal',
+        $payload = [
+            'contact_id' => $validated['contact_id'] ?? null,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'category' => $validated['category'] ?? null,
+            'subcategory' => $validated['subcategory'] ?? null,
+            'location_text' => $validated['location_text'] ?? null,
+            'priority' => 'normal',
+            'source' => 'portal',
             'status' => 'novo',
             'visibility' => 'internal',
             'assigned_to' => null,
+            'department_id' => null,
+            'team_id' => null,
             'service_area_id' => $serviceAreaId,
-        ]);
+            'due_date' => null,
+        ];
+
+        $ticket = $createTicketAction->execute($request->user(), $payload);
 
         try {
             $ticketNotificationService->notifyTicketCreated($ticket, $request->user());
@@ -87,7 +102,7 @@ class TicketController extends Controller
             report($exception);
         }
 
-        return to_route('portal.tickets.show', $ticket)->with('success', 'Pedido submetido com sucesso.');
+        return to_route('portal.tickets.show', $ticket)->with('success', 'Pedido submetido com sucesso. Pode acompanhar o estado nesta pagina.');
     }
 
     public function show(Request $request, Ticket $ticket): Response
@@ -98,7 +113,7 @@ class TicketController extends Controller
         $isAdmin = $user->can('tickets.view');
 
         $ticket->load([
-            'statusHistories.changedBy:id,name',
+            'statusHistories:id,ticket_id,new_status,created_at',
             'comments' => fn ($query) => $query
                 ->with('user:id,name')
                 ->when(! $isAdmin, fn ($commentQuery) => $commentQuery->where('visibility', 'public')),
@@ -108,8 +123,19 @@ class TicketController extends Controller
         ]);
 
         return Inertia::render('Portal/Tickets/Show', [
-            'ticket' => $ticket,
-            'statuses' => Ticket::STATUSES,
+            'ticket' => [
+                'id' => $ticket->id,
+                'reference' => $ticket->reference,
+                'title' => $ticket->title,
+                'description' => $ticket->description,
+                'status' => $ticket->status,
+                'location_text' => $ticket->location_text,
+                'created_at' => $ticket->created_at,
+                'updated_at' => $ticket->updated_at,
+                'status_histories' => $ticket->statusHistories,
+                'comments' => $ticket->comments,
+                'attachments' => $ticket->attachments,
+            ],
         ]);
     }
 }

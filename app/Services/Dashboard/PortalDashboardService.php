@@ -4,6 +4,7 @@ namespace App\Services\Dashboard;
 
 use App\Models\Document;
 use App\Models\Event;
+use App\Models\NotificationRecipient;
 use App\Models\OperationalPlan;
 use App\Models\SpaceReservation;
 use App\Models\Ticket;
@@ -75,9 +76,22 @@ class PortalDashboardService
             ->limit(8)
             ->get(['id', 'title', 'plan_type', 'status', 'start_date', 'end_date']);
 
+        $activeStatuses = ['novo', 'em_analise', 'aguarda_informacao', 'encaminhado', 'em_execucao', 'agendado'];
+        $resolvedStatuses = ['resolvido', 'fechado', 'cancelado', 'indeferido'];
+
+        $unreadAlerts = NotificationRecipient::query()
+            ->where('user_id', $user->id)
+            ->whereNull('archived_at')
+            ->whereNull('read_at')
+            ->whereHas('notification', fn ($query) => $query->where('organization_id', $user->organization_id))
+            ->count();
+
         return [
             'kpis' => [
-                'my_active_tickets' => (clone $ticketsBase)->whereNotIn('status', ['resolvido', 'fechado', 'cancelado', 'indeferido'])->count(),
+                'my_active_tickets' => (clone $ticketsBase)->whereIn('status', $activeStatuses)->count(),
+                'resolved_tickets' => (clone $ticketsBase)->whereIn('status', $resolvedStatuses)->count(),
+                'unread_alerts' => $unreadAlerts,
+                'upcoming_items' => $events->count() + $reservations->count(),
                 'waiting_tickets' => (clone $ticketsBase)->whereIn('status', ['novo', 'em_analise', 'aguarda_informacao'])->count(),
                 'upcoming_events' => $events->count(),
                 'upcoming_reservations' => $reservations->count(),

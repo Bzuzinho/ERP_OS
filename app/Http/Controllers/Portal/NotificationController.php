@@ -27,6 +27,15 @@ class NotificationController extends Controller
             ->when($filter !== 'archived', fn ($query) => $query->whereNull('archived_at'))
             ->orderByDesc('created_at')
             ->paginate(15)
+            ->through(function (NotificationRecipient $recipient) {
+                $actionUrl = $recipient->notification?->action_url;
+
+                if ($actionUrl && str_starts_with($actionUrl, '/admin/tickets/')) {
+                    $recipient->notification->action_url = str_replace('/admin/tickets/', '/portal/tickets/', $actionUrl);
+                }
+
+                return $recipient;
+            })
             ->withQueryString();
 
         return Inertia::render('Portal/Notifications/Index', [

@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class CommentPolicy
 {
@@ -37,7 +38,15 @@ class CommentPolicy
 
     public function delete(User $user, Comment $comment): bool
     {
-        if ($user->can('tickets.update')) {
+        if (! $comment->commentable instanceof Ticket) {
+            return false;
+        }
+
+        if (! OrganizationScope::sameOrganization($comment->commentable->organization_id, $user)) {
+            return false;
+        }
+
+        if ($user->can('tickets.update') && $user->can('view', $comment->commentable)) {
             return true;
         }
 

@@ -2,7 +2,7 @@ import type { PageProps } from '@/types';
 import AppCard from '@/Components/App/AppCard';
 import AppShell from '@/Components/App/AppShell';
 import PageHeader from '@/Components/App/PageHeader';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { type PropsWithChildren, type ReactNode, useEffect, useState } from 'react';
 
 type PortalLayoutProps = PropsWithChildren<{
@@ -72,7 +72,7 @@ const desktopNavigationItems = [
         activePatterns: ['portal.space-reservations.*', 'portal.spaces.*'],
         icon: iconBuilding,
     },
-    { label: 'Notificações', href: route('portal.notifications.index'), activePatterns: ['portal.notifications.*'], icon: iconSettings },
+    { label: 'Alertas', href: route('portal.notifications.index'), activePatterns: ['portal.notifications.*'], icon: iconSettings },
     { label: 'Perfil', href: route('profile.edit'), activePatterns: ['profile.edit'], icon: iconSettings },
     { label: 'Mais', href: route('portal.more.index'), activePatterns: ['portal.more.*'], icon: iconSettings },
 ];
@@ -81,7 +81,7 @@ const mobileNavigationItems = [
     { label: 'Início', href: route('portal.dashboard'), activePatterns: ['portal.dashboard'], icon: iconDashboard },
     { label: 'Pedidos', href: route('portal.tickets.index'), activePatterns: ['portal.tickets.*'], icon: iconTicket },
     { label: 'Agenda', href: route('portal.events.index'), activePatterns: ['portal.events.*'], icon: iconCalendar },
-    { label: 'Notificações', href: route('portal.notifications.index'), activePatterns: ['portal.notifications.*'], icon: iconSettings },
+    { label: 'Alertas', href: route('portal.notifications.index'), activePatterns: ['portal.notifications.*'], icon: iconSettings },
     { label: 'Mais', href: route('portal.more.index'), activePatterns: ['portal.more.*'], icon: iconSettings },
 ];
 
@@ -124,7 +124,7 @@ export default function PortalLayout({
             subtitle={subtitle}
             organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
             organizationLogoUrl={user?.organization?.logo_path ? `/storage/${user.organization.logo_path}` : null}
-            organizationHref={auth.can.accessAdmin ? route('admin.settings.organization.edit') : route('profile.edit')}
+            organizationHref={route('profile.edit')}
             desktopNav={desktopNavigationItems}
             mobileNav={mobileNavigationItems}
             showBackOnMobile={isDetailPage}
@@ -132,20 +132,7 @@ export default function PortalLayout({
         >
             <Head title={title} />
             <div className="mb-4 hidden lg:block">
-                <PageHeader
-                    title={title}
-                    subtitle={subtitle}
-                    actions={
-                        <div className="flex items-center gap-2">
-                            {auth.can.accessAdmin ? (
-                                <Link href={route('admin.dashboard')} className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    Administração
-                                </Link>
-                            ) : null}
-                            {headerActions}
-                        </div>
-                    }
-                />
+                <PageHeader title={title} subtitle={subtitle} actions={<div className="flex items-center gap-2">{headerActions}</div>} />
             </div>
 
             <div className="mb-4 lg:hidden">{headerActions}</div>

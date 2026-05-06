@@ -17,9 +17,11 @@ class StoreCommentRequest extends FormRequest
 
     public function rules(): array
     {
+        $visibilityOptions = $this->routeIs('portal.*') ? ['public'] : ['internal', 'public'];
+
         return [
             'body' => ['required', 'string'],
-            'visibility' => ['nullable', Rule::in(['internal', 'public'])],
+            'visibility' => ['nullable', Rule::in($visibilityOptions)],
         ];
     }
 }

@@ -4,12 +4,23 @@ import { FormEvent } from 'react';
 type CommentBoxProps = {
     storeRoute: string;
     canSetVisibility?: boolean;
+    defaultVisibility?: 'internal' | 'public';
+    title?: string;
+    helperText?: string;
+    submitLabel?: string;
 };
 
-export default function CommentBox({ storeRoute, canSetVisibility = false }: CommentBoxProps) {
+export default function CommentBox({
+    storeRoute,
+    canSetVisibility = false,
+    defaultVisibility = 'internal',
+    title = 'Novo comentario',
+    helperText,
+    submitLabel = 'Comentar',
+}: CommentBoxProps) {
     const form = useForm({
         body: '',
-        visibility: 'internal',
+        visibility: defaultVisibility,
     });
 
     const submit = (event: FormEvent) => {
@@ -22,7 +33,8 @@ export default function CommentBox({ storeRoute, canSetVisibility = false }: Com
 
     return (
         <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-4">
-            <h3 className="text-lg font-semibold text-slate-900">Novo comentario</h3>
+            <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+            {helperText ? <p className="mt-1 text-xs text-slate-600">{helperText}</p> : null}
             <textarea
                 value={form.data.body}
                 onChange={(event) => form.setData('body', event.target.value)}
@@ -34,7 +46,7 @@ export default function CommentBox({ storeRoute, canSetVisibility = false }: Com
                 {canSetVisibility ? (
                     <select
                         value={form.data.visibility}
-                        onChange={(event) => form.setData('visibility', event.target.value)}
+                        onChange={(event) => form.setData('visibility', event.target.value as 'internal' | 'public')}
                         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
                     >
                         <option value="internal">Interno</option>
@@ -43,7 +55,7 @@ export default function CommentBox({ storeRoute, canSetVisibility = false }: Com
                 ) : null}
 
                 <button type="submit" disabled={form.processing} className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50">
-                    Comentar
+                    {submitLabel}
                 </button>
             </div>
         </form>

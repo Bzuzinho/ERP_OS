@@ -17,6 +17,8 @@ class StoreAttachmentRequest extends FormRequest
 
     public function rules(): array
     {
+        $visibilityOptions = $this->routeIs('portal.*') ? ['public'] : ['internal', 'public'];
+
         return [
             'file' => [
                 'required',
@@ -24,7 +26,7 @@ class StoreAttachmentRequest extends FormRequest
                 'max:10240',
                 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,webp,txt',
             ],
-            'visibility' => ['nullable', Rule::in(['internal', 'public'])],
+            'visibility' => ['nullable', Rule::in($visibilityOptions)],
         ];
     }
 }
