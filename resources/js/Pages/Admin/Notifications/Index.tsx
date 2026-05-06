@@ -57,6 +57,7 @@ export default function AdminNotificationsIndex({ notifications, filter }: Props
             <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-3">
                 {notifications.data.length ? notifications.data.map((recipient) => {
                     const item: NotificationPreview = {
+                        recipient_id: recipient.id,
                         id: recipient.id,
                         notification_id: recipient.notification.id,
                         title: recipient.notification.title,

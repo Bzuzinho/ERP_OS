@@ -21,6 +21,7 @@ export type Flash = {
 };
 
 export type NotificationPreview = {
+    recipient_id: number;
     id: number;
     notification_id: number;
     title: string | null;

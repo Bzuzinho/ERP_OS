@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Notification;
 use App\Models\User;
 use App\Services\Notifications\NotificationService;
 use Illuminate\Database\Seeder;
@@ -56,6 +57,19 @@ class NotificationDemoSeeder extends Seeder
         ];
 
         foreach ($demoItems as $item) {
+            $alreadyExists = Notification::query()
+                ->where('organization_id', $admin->organization_id)
+                ->where('created_by', $admin->id)
+                ->where('type', $item['type'])
+                ->where('title', $item['title'])
+                ->where('action_url', $item['action_url'])
+                ->whereHas('recipients', fn ($query) => $query->where('user_id', $admin->id))
+                ->exists();
+
+            if ($alreadyExists) {
+                continue;
+            }
+
             $notificationService->createForUsers([$admin], [
                 'organization_id' => $admin->organization_id,
                 'type' => $item['type'],

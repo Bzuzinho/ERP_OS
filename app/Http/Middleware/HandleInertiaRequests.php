@@ -66,6 +66,7 @@ class HandleInertiaRequests extends Middleware
                 'recent' => $this->notificationService
                     ->getRecentForUser($user, 10)
                     ->map(fn ($recipient) => [
+                        'recipient_id' => $recipient->id,
                         'id' => $recipient->id,
                         'notification_id' => $recipient->notification_id,
                         'title' => $recipient->notification?->title,

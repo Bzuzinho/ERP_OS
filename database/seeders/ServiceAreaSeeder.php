@@ -28,6 +28,8 @@ class ServiceAreaSeeder extends Seeder
             'Executivo',
             'Documentacao',
             'Eventos',
+            'Iluminacao Publica',
+            'Acao Social',
         ];
 
         $areas = collect($areaNames)->mapWithKeys(function (string $name) use ($organization) {
@@ -75,6 +77,21 @@ class ServiceAreaSeeder extends Seeder
                     $user->id => ['role' => null, 'is_primary' => false],
                 ]);
             }
+        }
+
+        $admin = User::query()
+            ->where('organization_id', $organization->id)
+            ->where('email', 'admin@juntaos.local')
+            ->first();
+
+        if ($admin) {
+            $areas
+                ->filter(fn (ServiceArea $area) => in_array($area->slug, ['atendimento', 'executivo'], true))
+                ->each(function (ServiceArea $area) use ($admin): void {
+                    $area->users()->syncWithoutDetaching([
+                        $admin->id => ['role' => null, 'is_primary' => false],
+                    ]);
+                });
         }
     }
 }

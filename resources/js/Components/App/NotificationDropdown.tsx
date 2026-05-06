@@ -1,3 +1,4 @@
+import EmptyState from '@/Components/App/EmptyState';
 import NotificationItem from '@/Components/App/NotificationItem';
 import type { NotificationPreview } from '@/types';
 import { Link, router } from '@inertiajs/react';
@@ -31,14 +32,15 @@ export default function NotificationDropdown({
             <div className="max-h-96 space-y-2 overflow-y-auto pr-1">
                 {recent.length ? recent.map((item) => (
                     <NotificationItem
-                        key={item.id}
+                        key={item.recipient_id}
                         item={item}
-                        markReadRoute={markReadRouteForRecipient(item.id)}
+                        markReadRoute={markReadRouteForRecipient(item.recipient_id)}
                     />
                 )) : (
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
-                        Sem alertas recentes.
-                    </div>
+                    <EmptyState
+                        title="Sem alertas recentes"
+                        description="Quando surgirem novos alertas, vao aparecer aqui."
+                    />
                 )}
             </div>
 
