@@ -12,6 +12,7 @@ use App\Http\Requests\Settings\UpdateUserRolesRequest;
 use App\Http\Requests\Settings\UpdateUserAvatarRequest;
 use App\Models\Organization;
 use App\Models\User;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,6 +25,8 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
+        $authUser = $request->user();
+
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString(); // active|inactive|''
         $type   = $request->string('type')->toString();   // internal|portal|''
@@ -32,10 +35,13 @@ class UserController extends Controller
         $portalRoles   = ['cidadao', 'associacao', 'empresa'];
 
         $users = User::query()
+            ->when(! OrganizationScope::canBypassOrganizationScope($authUser), fn ($query) => $query->where('organization_id', $authUser->organization_id))
             ->with(['organization:id,name', 'roles:id,name'])
-            ->when($search, fn ($q) => $q
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%"))
+            ->when($search, fn ($q) => $q->where(function ($searchQuery) use ($search) {
+                $searchQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            }))
             ->when($status === 'active', fn ($q) => $q->where('is_active', true))
             ->when($status === 'inactive', fn ($q) => $q->where('is_active', false))
             ->when($type === 'internal', fn ($q) => $q->whereHas('roles', fn ($r) => $r->whereIn('name', $internalRoles)))
@@ -54,7 +60,12 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $organizations = Organization::orderBy('name')->get(['id', 'name']);
+        $authUser = request()->user();
+
+        $organizations = Organization::query()
+            ->when(! OrganizationScope::canBypassOrganizationScope($authUser), fn ($query) => $query->where('id', $authUser->organization_id))
+            ->orderBy('name')
+            ->get(['id', 'name']);
         $roles         = Role::orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Admin/Settings/Users/Create', [
@@ -107,11 +118,14 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        $organizations = Organization::orderBy('name')->get(['id', 'name']);
+        $authUser = request()->user();
+        $organizations = Organization::query()
+            ->when(! OrganizationScope::canBypassOrganizationScope($authUser), fn ($query) => $query->where('id', $authUser->organization_id))
+            ->orderBy('name')
+            ->get(['id', 'name']);
         $roles         = Role::orderBy('name')->get(['id', 'name']);
         $user->load(['organization:id,name', 'roles:id,name']);
 
-        $authUser = request()->user();
         $canManageRoles = $authUser->can('manageRoles', $user);
 
         return Inertia::render('Admin/Settings/Users/Edit', [

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\SpaceReservation;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class SpaceReservationPolicy
 {
@@ -19,6 +20,10 @@ class SpaceReservationPolicy
 
     public function view(User $user, SpaceReservation $spaceReservation): bool
     {
+        if (! OrganizationScope::sameOrganization($spaceReservation->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('spaces.approve_reservation') || $user->can('spaces.cancel_reservation') || $user->can('spaces.update')) {
             return true;
         }
@@ -36,21 +41,28 @@ class SpaceReservationPolicy
 
     public function update(User $user, SpaceReservation $spaceReservation): bool
     {
-        return $user->can('spaces.update');
+        return $user->can('spaces.update')
+            && OrganizationScope::sameOrganization($spaceReservation->organization_id, $user);
     }
 
     public function delete(User $user, SpaceReservation $spaceReservation): bool
     {
-        return $user->can('spaces.delete');
+        return $user->can('spaces.delete')
+            && OrganizationScope::sameOrganization($spaceReservation->organization_id, $user);
     }
 
     public function approve(User $user, SpaceReservation $spaceReservation): bool
     {
-        return $user->can('spaces.approve_reservation');
+        return $user->can('spaces.approve_reservation')
+            && OrganizationScope::sameOrganization($spaceReservation->organization_id, $user);
     }
 
     public function cancel(User $user, SpaceReservation $spaceReservation): bool
     {
+        if (! OrganizationScope::sameOrganization($spaceReservation->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('spaces.cancel_reservation')) {
             return true;
         }

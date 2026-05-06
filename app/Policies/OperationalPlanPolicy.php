@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\OperationalPlan;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class OperationalPlanPolicy
 {
@@ -14,11 +15,16 @@ class OperationalPlanPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('planning.view');
+        return $user->can('planning.view')
+            || $user->hasAnyRole(['cidadao', 'associacao', 'empresa']);
     }
 
     public function view(User $user, OperationalPlan $operationalPlan): bool
     {
+        if (! OrganizationScope::sameOrganization($operationalPlan->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('planning.view')) {
             return true;
         }
@@ -38,11 +44,13 @@ class OperationalPlanPolicy
 
     public function update(User $user, OperationalPlan $operationalPlan): bool
     {
-        return $user->can('planning.update');
+        return $user->can('planning.update')
+            && OrganizationScope::sameOrganization($operationalPlan->organization_id, $user);
     }
 
     public function delete(User $user, OperationalPlan $operationalPlan): bool
     {
-        return $user->can('planning.delete');
+        return $user->can('planning.delete')
+            && OrganizationScope::sameOrganization($operationalPlan->organization_id, $user);
     }
 }

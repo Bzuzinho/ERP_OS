@@ -55,6 +55,8 @@ export default function PortalMoreIndex() {
                     name: auth.user?.name ?? 'Utilizador',
                     role: 'Portal',
                     organization: auth.user?.organization?.name ?? 'Junta de Freguesia Demo',
+                    avatarUrl: auth.user?.avatar_path ? `/storage/${auth.user.avatar_path}` : null,
+                    organizationLogoUrl: auth.user?.organization?.logo_path ? `/storage/${auth.user.organization.logo_path}` : null,
                 }}
                 sections={[
                     {

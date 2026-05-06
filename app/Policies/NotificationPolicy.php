@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\NotificationRecipient;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class NotificationPolicy
 {
@@ -14,7 +15,9 @@ class NotificationPolicy
 
     public function view(User $user, NotificationRecipient $recipient): bool
     {
-        return $user->can('notifications.view') && (int) $recipient->user_id === (int) $user->id;
+        return $user->can('notifications.view')
+            && (int) $recipient->user_id === (int) $user->id
+            && OrganizationScope::sameOrganization($recipient->notification?->organization_id, $user);
     }
 
     public function markRead(User $user, NotificationRecipient $recipient): bool

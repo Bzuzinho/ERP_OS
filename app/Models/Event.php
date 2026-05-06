@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Event extends Model
 {
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const TYPES = ['meeting', 'appointment', 'visit', 'activity', 'maintenance', 'assembly', 'reservation'];
 
@@ -42,11 +43,6 @@ class Event extends Model
             'start_at' => 'datetime',
             'end_at' => 'datetime',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function creator(): BelongsTo

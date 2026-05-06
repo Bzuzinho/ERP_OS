@@ -13,6 +13,7 @@ use App\Models\Task;
 use App\Models\Team;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,11 +23,15 @@ class OperationalPlanController extends Controller
 {
     public function index(Request $request): Response
     {
+        abort_unless($request->user()->can('planning.view'), 403);
         $this->authorize('viewAny', OperationalPlan::class);
+
+        $user = $request->user();
 
         $filters = $request->only(['status', 'plan_type', 'visibility', 'department_id', 'team_id', 'search', 'start_date', 'end_date']);
 
         $plans = OperationalPlan::query()
+            ->visibleToUser($user)
             ->with(['owner:id,name', 'department:id,name', 'team:id,name'])
             ->when($filters['status'] ?? null, fn ($query, $value) => $query->where('status', $value))
             ->when($filters['plan_type'] ?? null, fn ($query, $value) => $query->where('plan_type', $value))
@@ -46,8 +51,8 @@ class OperationalPlanController extends Controller
             'statuses' => OperationalPlan::STATUSES,
             'types' => OperationalPlan::TYPES,
             'visibilities' => OperationalPlan::VISIBILITIES,
-            'departments' => Department::query()->select('id', 'name')->orderBy('name')->get(),
-            'teams' => Team::query()->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -55,15 +60,17 @@ class OperationalPlanController extends Controller
     {
         $this->authorize('create', OperationalPlan::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/OperationalPlans/Create', [
             'types' => OperationalPlan::TYPES,
             'statuses' => OperationalPlan::STATUSES,
             'visibilities' => OperationalPlan::VISIBILITIES,
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
-            'departments' => Department::query()->select('id', 'name')->orderBy('name')->get(),
-            'teams' => Team::query()->select('id', 'name')->orderBy('name')->get(),
-            'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
-            'spaces' => Space::query()->select('id', 'name')->orderBy('name')->get(),
+            'users' => OrganizationScope::apply(User::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'tickets' => Ticket::query()->visibleToUser($user)->select('id', 'reference', 'title')->latest()->limit(100)->get(),
+            'spaces' => Space::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -76,8 +83,12 @@ class OperationalPlanController extends Controller
 
     public function show(OperationalPlan $operationalPlan): Response
     {
+        abort_unless(request()->user()->can('planning.view'), 403);
         $this->authorize('viewAny', OperationalPlan::class);
         $this->authorize('view', $operationalPlan);
+
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($operationalPlan, $user);
 
         $operationalPlan->load([
             'owner:id,name',
@@ -101,7 +112,7 @@ class OperationalPlanController extends Controller
             'statuses' => OperationalPlan::STATUSES,
             'types' => OperationalPlan::TYPES,
             'visibilities' => OperationalPlan::VISIBILITIES,
-            'tasks' => Task::query()->select('id', 'title', 'status')->latest()->limit(200)->get(),
+            'tasks' => OrganizationScope::apply(Task::query(), $user)->select('id', 'title', 'status')->latest()->limit(200)->get(),
         ]);
     }
 
@@ -109,22 +120,27 @@ class OperationalPlanController extends Controller
     {
         $this->authorize('update', $operationalPlan);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($operationalPlan, $user);
+
         return Inertia::render('Admin/OperationalPlans/Edit', [
             'plan' => $operationalPlan,
             'types' => OperationalPlan::TYPES,
             'statuses' => OperationalPlan::STATUSES,
             'visibilities' => OperationalPlan::VISIBILITIES,
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
-            'departments' => Department::query()->select('id', 'name')->orderBy('name')->get(),
-            'teams' => Team::query()->select('id', 'name')->orderBy('name')->get(),
-            'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
-            'spaces' => Space::query()->select('id', 'name')->orderBy('name')->get(),
+            'users' => OrganizationScope::apply(User::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'tickets' => Ticket::query()->visibleToUser($user)->select('id', 'reference', 'title')->latest()->limit(100)->get(),
+            'spaces' => Space::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
     public function update(UpdateOperationalPlanRequest $request, OperationalPlan $operationalPlan): RedirectResponse
     {
         $this->authorize('update', $operationalPlan);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($operationalPlan, $request->user());
 
         $operationalPlan->update($request->validated());
 
@@ -134,6 +150,8 @@ class OperationalPlanController extends Controller
     public function destroy(OperationalPlan $operationalPlan): RedirectResponse
     {
         $this->authorize('delete', $operationalPlan);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($operationalPlan, request()->user());
 
         $operationalPlan->delete();
 

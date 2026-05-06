@@ -107,7 +107,8 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::post('tickets/{ticket}/attachments', [AdminTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
         Route::get('attachments/{attachment}/download', AdminAttachmentDownloadController::class)->name('attachments.download');
 
-        Route::resource('tasks', AdminTaskController::class);
+        Route::resource('tasks', AdminTaskController::class)
+            ->missing(fn () => to_route('admin.tasks.index'));
         Route::patch('tasks/{task}/status', [AdminTaskStatusController::class, 'update'])->name('tasks.status.update');
         Route::post('tasks/{task}/complete', [AdminTaskController::class, 'complete'])->name('tasks.complete');
         Route::post('tasks/{task}/checklists', [AdminTaskChecklistController::class, 'store'])->name('tasks.checklists.store');

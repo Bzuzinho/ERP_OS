@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class TicketPolicy
 {
@@ -19,6 +20,10 @@ class TicketPolicy
 
     public function view(User $user, Ticket $ticket): bool
     {
+        if (! OrganizationScope::sameOrganization($ticket->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('tickets.view')) {
             return true;
         }
@@ -34,21 +39,25 @@ class TicketPolicy
 
     public function update(User $user, Ticket $ticket): bool
     {
-        return $user->can('tickets.update');
+        return $user->can('tickets.update')
+            && OrganizationScope::sameOrganization($ticket->organization_id, $user);
     }
 
     public function assign(User $user, Ticket $ticket): bool
     {
-        return $user->can('tickets.assign');
+        return $user->can('tickets.assign')
+            && OrganizationScope::sameOrganization($ticket->organization_id, $user);
     }
 
     public function close(User $user, Ticket $ticket): bool
     {
-        return $user->can('tickets.close');
+        return $user->can('tickets.close')
+            && OrganizationScope::sameOrganization($ticket->organization_id, $user);
     }
 
     public function delete(User $user, Ticket $ticket): bool
     {
-        return $user->can('tickets.delete');
+        return $user->can('tickets.delete')
+            && OrganizationScope::sameOrganization($ticket->organization_id, $user);
     }
 }

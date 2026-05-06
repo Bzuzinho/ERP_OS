@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Support\OrganizationScope;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,6 +18,7 @@ class EventController extends Controller
         $user = $request->user();
 
         $events = Event::query()
+            ->visibleToUser($user)
             ->where(function ($query) use ($user) {
                 $query
                     ->where('visibility', 'public')
@@ -37,6 +39,7 @@ class EventController extends Controller
 
     public function show(Event $event): Response
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($event, request()->user());
         $this->authorize('view', $event);
 
         $event->load(['relatedTicket:id,reference,title', 'relatedContact:id,name']);

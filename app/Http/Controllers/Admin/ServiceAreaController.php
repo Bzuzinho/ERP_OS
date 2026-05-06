@@ -7,6 +7,7 @@ use App\Http\Requests\ServiceAreas\StoreServiceAreaRequest;
 use App\Http\Requests\ServiceAreas\UpdateServiceAreaRequest;
 use App\Models\ServiceArea;
 use App\Models\User;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -20,7 +21,7 @@ class ServiceAreaController extends Controller
         $this->authorize('viewAny', ServiceArea::class);
 
         $serviceAreas = ServiceArea::query()
-            ->where('organization_id', $request->user()->organization_id)
+            ->visibleToUser($request->user())
             ->withCount(['users', 'tickets'])
             ->orderBy('name')
             ->paginate(15)
@@ -58,12 +59,14 @@ class ServiceAreaController extends Controller
     {
         $this->authorize('view', $serviceArea);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($serviceArea, request()->user());
+
         $serviceArea->load(['users:id,name,email', 'tickets:id,reference,title,status,service_area_id']);
 
         return Inertia::render('Admin/ServiceAreas/Show', [
             'serviceArea' => $serviceArea,
             'availableUsers' => User::query()
-                ->where('organization_id', request()->user()->organization_id)
+                ->tap(fn ($query) => OrganizationScope::apply($query, request()->user()))
                 ->where('is_active', true)
                 ->select('id', 'name', 'email')
                 ->orderBy('name')
@@ -75,6 +78,8 @@ class ServiceAreaController extends Controller
     {
         $this->authorize('update', $serviceArea);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($serviceArea, request()->user());
+
         return Inertia::render('Admin/ServiceAreas/Edit', [
             'serviceArea' => $serviceArea,
         ]);
@@ -83,6 +88,8 @@ class ServiceAreaController extends Controller
     public function update(UpdateServiceAreaRequest $request, ServiceArea $serviceArea): RedirectResponse
     {
         $this->authorize('update', $serviceArea);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($serviceArea, $request->user());
 
         $data = $request->validated();
 
@@ -97,6 +104,8 @@ class ServiceAreaController extends Controller
     public function destroy(ServiceArea $serviceArea): RedirectResponse
     {
         $this->authorize('delete', $serviceArea);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($serviceArea, request()->user());
 
         $serviceArea->delete();
 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\Settings\UserController;
 use App\Http\Controllers\Admin\Settings\UserPasswordController;
 use App\Http\Controllers\Admin\Settings\UserStatusController;
+use App\Http\Controllers\Admin\ServiceAreaController;
+use App\Http\Controllers\Admin\ServiceAreaUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('settings')->name('settings.')->group(function () {
@@ -49,5 +51,20 @@ Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/edit', [OrganizationController::class, 'edit'])->name('edit');
         Route::put('/', [OrganizationController::class, 'update'])->name('update');
         Route::post('/logo', [OrganizationController::class, 'updateLogo'])->name('update-logo');
+    });
+
+    // Service Areas (as part of Settings module)
+    Route::prefix('service-areas')->name('service-areas.')->group(function () {
+        Route::get('/', [ServiceAreaController::class, 'index'])->name('index');
+        Route::get('/create', [ServiceAreaController::class, 'create'])->name('create');
+        Route::post('/', [ServiceAreaController::class, 'store'])->name('store');
+        Route::get('/{serviceArea}', [ServiceAreaController::class, 'show'])->name('show');
+        Route::get('/{serviceArea}/edit', [ServiceAreaController::class, 'edit'])->name('edit');
+        Route::put('/{serviceArea}', [ServiceAreaController::class, 'update'])->name('update');
+        Route::delete('/{serviceArea}', [ServiceAreaController::class, 'destroy'])->name('destroy');
+
+        // Service Area Users
+        Route::post('/{serviceArea}/users', [ServiceAreaUserController::class, 'store'])->name('users.store');
+        Route::delete('/{serviceArea}/users/{userId}', [ServiceAreaUserController::class, 'destroy'])->name('users.destroy');
     });
 });

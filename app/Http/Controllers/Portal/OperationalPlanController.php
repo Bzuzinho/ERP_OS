@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\OperationalPlan;
+use App\Support\OrganizationScope;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,9 +13,12 @@ class OperationalPlanController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', OperationalPlan::class);
+
         $filters = $request->only(['plan_type', 'start_date', 'end_date']);
 
         $plans = OperationalPlan::query()
+            ->visibleToUser($request->user())
             ->whereIn('visibility', ['public', 'portal'])
             ->whereIn('status', ['approved', 'scheduled', 'in_progress', 'completed'])
             ->when($filters['plan_type'] ?? null, fn ($query, $value) => $query->where('plan_type', $value))
@@ -34,6 +38,9 @@ class OperationalPlanController extends Controller
 
     public function show(OperationalPlan $operationalPlan): Response
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($operationalPlan, request()->user());
+        $this->authorize('view', $operationalPlan);
+
         if (! in_array($operationalPlan->visibility, ['public', 'portal'], true)
             || ! in_array($operationalPlan->status, ['approved', 'scheduled', 'in_progress', 'completed'], true)) {
             abort(404);
@@ -44,7 +51,9 @@ class OperationalPlanController extends Controller
             'documents:id,title,description,visibility,status,related_type,related_id',
         ]);
 
-        $publicDocuments = $operationalPlan->documents->filter(fn ($document) => in_array($document->visibility, ['public', 'portal'], true))->values();
+        $publicDocuments = $operationalPlan->documents
+            ->filter(fn ($document) => request()->user()->can('view', $document))
+            ->values();
 
         return Inertia::render('Portal/OperationalPlans/Show', [
             'plan' => [

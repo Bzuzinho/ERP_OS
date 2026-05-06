@@ -12,9 +12,10 @@ type AdminSidebarProps = {
     items: SidebarItem[];
     organizationLabel: string;
     organizationLogoUrl?: string | null;
+    organizationHref: string;
 };
 
-export default function AdminSidebar({ items, organizationLabel, organizationLogoUrl }: AdminSidebarProps) {
+export default function AdminSidebar({ items, organizationLabel, organizationLogoUrl, organizationHref }: AdminSidebarProps) {
     return (
         <aside className="fixed inset-y-0 left-0 hidden w-[260px] border-r border-slate-200/80 bg-white px-4 py-5 lg:flex lg:flex-col">
             <Link href={route('dashboard')} className="mb-6 inline-flex items-center gap-2 text-slate-900">
@@ -45,7 +46,10 @@ export default function AdminSidebar({ items, organizationLabel, organizationLog
 
             <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 p-3">
                 <p className="text-xs font-medium text-slate-500">Organização</p>
-                <button type="button" className="mt-2 flex w-full items-center justify-between text-left text-sm font-semibold text-slate-800">
+                <Link
+                    href={organizationHref}
+                    className="mt-2 flex w-full items-center justify-between rounded-xl text-left text-sm font-semibold text-slate-800 transition hover:text-blue-700"
+                >
                     <span className="inline-flex items-center gap-2 truncate">
                         {organizationLogoUrl ? (
                             <img src={organizationLogoUrl} alt="" className="h-6 w-6 rounded-full object-contain" />
@@ -57,7 +61,7 @@ export default function AdminSidebar({ items, organizationLabel, organizationLog
                         {organizationLabel}
                     </span>
                     <span aria-hidden="true">›</span>
-                </button>
+                </Link>
             </div>
         </aside>
     );

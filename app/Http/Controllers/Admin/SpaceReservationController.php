@@ -9,6 +9,7 @@ use App\Http\Requests\Spaces\UpdateSpaceReservationRequest;
 use App\Models\Contact;
 use App\Models\Space;
 use App\Models\SpaceReservation;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,6 +21,8 @@ class SpaceReservationController extends Controller
     {
         $this->authorize('viewAny', SpaceReservation::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
         $spaceId = $request->string('space_id')->toString();
@@ -27,6 +30,7 @@ class SpaceReservationController extends Controller
         $contactId = $request->string('contact_id')->toString();
 
         $reservations = SpaceReservation::query()
+            ->visibleToUser($user)
             ->with(['space:id,name', 'contact:id,name', 'requestedBy:id,name', 'event:id,title'])
             ->when($search, fn ($query) => $query->where('purpose', 'like', "%{$search}%"))
             ->when($status, fn ($query) => $query->where('status', $status))
@@ -40,8 +44,8 @@ class SpaceReservationController extends Controller
         return Inertia::render('Admin/SpaceReservations/Index', [
             'reservations' => $reservations,
             'filters' => compact('search', 'status', 'spaceId', 'date', 'contactId'),
-            'spaces' => Space::query()->select('id', 'name')->orderBy('name')->get(),
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
+            'spaces' => Space::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
             'statuses' => SpaceReservation::STATUSES,
         ]);
     }
@@ -50,9 +54,11 @@ class SpaceReservationController extends Controller
     {
         $this->authorize('create', SpaceReservation::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/SpaceReservations/Create', [
-            'spaces' => Space::query()->select('id', 'name', 'requires_approval', 'has_cleaning_required')->where('is_active', true)->orderBy('name')->get(),
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
+            'spaces' => Space::query()->visibleToUser($user)->select('id', 'name', 'requires_approval', 'has_cleaning_required')->where('is_active', true)->orderBy('name')->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
             'statuses' => SpaceReservation::STATUSES,
         ]);
     }
@@ -67,6 +73,8 @@ class SpaceReservationController extends Controller
     public function show(SpaceReservation $spaceReservation): Response
     {
         $this->authorize('view', $spaceReservation);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($spaceReservation, request()->user());
 
         $spaceReservation->load([
             'space:id,name,location_text,requires_approval,has_cleaning_required',
@@ -97,16 +105,20 @@ class SpaceReservationController extends Controller
     {
         $this->authorize('update', $spaceReservation);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($spaceReservation, $user);
+
         return Inertia::render('Admin/SpaceReservations/Edit', [
             'reservation' => $spaceReservation,
-            'spaces' => Space::query()->select('id', 'name')->where('is_active', true)->orderBy('name')->get(),
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
+            'spaces' => Space::query()->visibleToUser($user)->select('id', 'name')->where('is_active', true)->orderBy('name')->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
             'statuses' => SpaceReservation::STATUSES,
         ]);
     }
 
     public function update(UpdateSpaceReservationRequest $request, SpaceReservation $spaceReservation): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($spaceReservation, $request->user());
         $spaceReservation->update($request->validated());
 
         return to_route('admin.space-reservations.show', $spaceReservation)->with('success', 'Reserva atualizada com sucesso.');
@@ -115,6 +127,8 @@ class SpaceReservationController extends Controller
     public function destroy(SpaceReservation $spaceReservation): RedirectResponse
     {
         $this->authorize('delete', $spaceReservation);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($spaceReservation, request()->user());
 
         $spaceReservation->delete();
 

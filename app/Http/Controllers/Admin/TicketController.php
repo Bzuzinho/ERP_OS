@@ -15,6 +15,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Services\Notifications\TicketNotificationService;
 use App\Services\Tickets\ActivityLogger;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,17 +27,22 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', Ticket::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
         $priority = $request->string('priority')->toString();
         $source = $request->string('source')->toString();
 
         $tickets = Ticket::query()
+            ->visibleToUser($user)
             ->with(['assignee:id,name', 'creator:id,name'])
-            ->when($search, fn ($query) => $query
-                ->where('reference', 'like', "%{$search}%")
-                ->orWhere('title', 'like', "%{$search}%")
-                ->orWhere('category', 'like', "%{$search}%"))
+            ->when($search, fn ($query) => $query->where(function ($searchQuery) use ($search) {
+                $searchQuery
+                    ->where('reference', 'like', "%{$search}%")
+                    ->orWhere('title', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%");
+            }))
             ->when($status, fn ($query) => $query->where('status', $status))
             ->when($priority, fn ($query) => $query->where('priority', $priority))
             ->when($source, fn ($query) => $query->where('source', $source))
@@ -57,12 +63,14 @@ class TicketController extends Controller
     {
         $this->authorize('create', Ticket::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/Tickets/Create', [
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
-            'departments' => Department::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
-            'teams' => Team::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
-            'serviceAreas' => ServiceArea::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'users' => OrganizationScope::apply(User::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'serviceAreas' => ServiceArea::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
             'statuses' => Ticket::STATUSES,
             'priorities' => Ticket::PRIORITIES,
             'sources' => Ticket::SOURCES,
@@ -95,6 +103,8 @@ class TicketController extends Controller
     {
         $this->authorize('view', $ticket);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($ticket, request()->user());
+
         $ticket->load([
             'organization:id,name',
             'creator:id,name',
@@ -114,7 +124,7 @@ class TicketController extends Controller
             'statuses' => Ticket::STATUSES,
             'priorities' => Ticket::PRIORITIES,
             'sources' => Ticket::SOURCES,
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
+            'users' => OrganizationScope::apply(User::query(), request()->user())->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -122,13 +132,16 @@ class TicketController extends Controller
     {
         $this->authorize('update', $ticket);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($ticket, $user);
+
         return Inertia::render('Admin/Tickets/Edit', [
             'ticket' => $ticket,
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->get(),
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
-            'departments' => Department::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
-            'teams' => Team::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
-            'serviceAreas' => ServiceArea::query()->where('organization_id', request()->user()->organization_id)->select('id', 'name')->orderBy('name')->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'users' => OrganizationScope::apply(User::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'departments' => Department::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'teams' => Team::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
+            'serviceAreas' => ServiceArea::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->get(),
             'priorities' => Ticket::PRIORITIES,
             'sources' => Ticket::SOURCES,
         ]);
@@ -136,6 +149,8 @@ class TicketController extends Controller
 
     public function update(UpdateTicketRequest $request, Ticket $ticket, ActivityLogger $activityLogger): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($ticket, $request->user());
+
         $oldValues = $ticket->only([
             'contact_id',
             'assigned_to',
@@ -178,7 +193,7 @@ class TicketController extends Controller
         $this->authorize('assign', $ticket);
 
         $data = $request->validate([
-            'assigned_to' => ['nullable', 'exists:users,id'],
+            'assigned_to' => ['nullable', OrganizationScope::existsRuleForUser('users', $request->user(), organizationId: $ticket->organization_id)],
         ]);
 
         $assignTicketAction->execute($ticket, $data['assigned_to'] ?? null, $request->user());
@@ -195,6 +210,8 @@ class TicketController extends Controller
     public function destroy(Ticket $ticket): RedirectResponse
     {
         $this->authorize('delete', $ticket);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($ticket, request()->user());
 
         $ticket->delete();
 

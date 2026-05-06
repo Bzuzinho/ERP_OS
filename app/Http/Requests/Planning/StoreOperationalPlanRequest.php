@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Planning;
 
 use App\Models\OperationalPlan;
+use App\Support\OrganizationScope;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,6 +16,8 @@ class StoreOperationalPlanRequest extends FormRequest
 
     public function rules(): array
     {
+        $organizationId = $this->user()?->organization_id;
+
         return [
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255'],
@@ -24,21 +27,21 @@ class StoreOperationalPlanRequest extends FormRequest
             'visibility' => ['required', Rule::in(OperationalPlan::VISIBILITIES)],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'owner_user_id' => ['nullable', 'exists:users,id'],
-            'department_id' => ['nullable', 'exists:departments,id'],
-            'team_id' => ['nullable', 'exists:teams,id'],
-            'related_ticket_id' => ['nullable', 'exists:tickets,id'],
-            'related_space_id' => ['nullable', 'exists:spaces,id'],
+            'owner_user_id' => ['nullable', OrganizationScope::existsRuleForUser('users', $this->user(), organizationId: $organizationId)],
+            'department_id' => ['nullable', OrganizationScope::existsRuleForUser('departments', $this->user(), organizationId: $organizationId)],
+            'team_id' => ['nullable', OrganizationScope::existsRuleForUser('teams', $this->user(), organizationId: $organizationId)],
+            'related_ticket_id' => ['nullable', OrganizationScope::existsRuleForUser('tickets', $this->user(), organizationId: $organizationId)],
+            'related_space_id' => ['nullable', OrganizationScope::existsRuleForUser('spaces', $this->user(), organizationId: $organizationId)],
             'budget_estimate' => ['nullable', 'numeric', 'min:0'],
             'progress_percent' => ['nullable', 'integer', 'min:0', 'max:100'],
             'participants' => ['nullable', 'array'],
-            'participants.*.user_id' => ['nullable', 'exists:users,id'],
-            'participants.*.employee_id' => ['nullable', 'exists:employees,id'],
-            'participants.*.team_id' => ['nullable', 'exists:teams,id'],
+            'participants.*.user_id' => ['nullable', OrganizationScope::existsRuleForUser('users', $this->user(), organizationId: $organizationId)],
+            'participants.*.employee_id' => ['nullable', OrganizationScope::existsRuleForUser('employees', $this->user(), organizationId: $organizationId)],
+            'participants.*.team_id' => ['nullable', OrganizationScope::existsRuleForUser('teams', $this->user(), organizationId: $organizationId)],
             'participants.*.role' => ['nullable', 'string', 'max:255'],
             'resources' => ['nullable', 'array'],
-            'resources.*.inventory_item_id' => ['nullable', 'exists:inventory_items,id'],
-            'resources.*.space_id' => ['nullable', 'exists:spaces,id'],
+            'resources.*.inventory_item_id' => ['nullable', OrganizationScope::existsRuleForUser('inventory_items', $this->user(), organizationId: $organizationId)],
+            'resources.*.space_id' => ['nullable', OrganizationScope::existsRuleForUser('spaces', $this->user(), organizationId: $organizationId)],
             'resources.*.quantity' => ['nullable', 'numeric', 'min:0'],
             'resources.*.notes' => ['nullable', 'string'],
         ];

@@ -11,13 +11,13 @@ type Minute = {
     event?: { id: number; title: string } | null;
 };
 
-type Props = { minutes: { data: Minute[] } };
+type Props = { meetingMinutes: { data: Minute[] } };
 
-export default function PortalMeetingMinutesIndex({ minutes }: Props) {
+export default function PortalMeetingMinutesIndex({ meetingMinutes }: Props) {
     return (
         <PortalLayout title="Atas de Reunião">
             <div className="space-y-3">
-                {minutes.data.map((m) => (
+                {meetingMinutes.data.map((m) => (
                     <div key={m.id} className="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4">
                         <div className="min-w-0 space-y-1">
                             <p className="truncate font-medium text-stone-900">{m.title}</p>
@@ -32,7 +32,7 @@ export default function PortalMeetingMinutesIndex({ minutes }: Props) {
                         </Link>
                     </div>
                 ))}
-                {minutes.data.length === 0 ? (
+                {meetingMinutes.data.length === 0 ? (
                     <p className="rounded-2xl border border-stone-200 bg-white p-6 text-center text-stone-500">Sem atas disponíveis.</p>
                 ) : null}
             </div>

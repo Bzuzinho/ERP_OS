@@ -12,6 +12,7 @@ use App\Http\Requests\Hr\UpdateEmployeeStatusRequest;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\User;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,7 +28,10 @@ class EmployeeController extends Controller
     {
         $this->authorize('viewAny', Employee::class);
 
-        $employees = Employee::where('organization_id', auth()->user()->organization_id)
+        $user = auth()->user();
+
+        $employees = Employee::query()
+            ->visibleToUser($user)
             ->with('user', 'department', 'teams')
             ->when(request('department'), fn($q) => $q->where('department_id', request('department')))
             ->when(request('employment_type'), fn($q) => $q->where('employment_type', request('employment_type')))
@@ -37,7 +41,7 @@ class EmployeeController extends Controller
             ->orderBy('employee_number')
             ->paginate(15);
 
-        $departments = Department::where('organization_id', auth()->user()->organization_id)
+        $departments = Department::query()->visibleToUser($user)
             ->pluck('name', 'id');
 
         return Inertia::render('Admin/Employees/Index', [
@@ -51,11 +55,13 @@ class EmployeeController extends Controller
     {
         $this->authorize('create', Employee::class);
 
-        $users = User::where('organization_id', auth()->user()->organization_id)
+        $user = auth()->user();
+
+        $users = OrganizationScope::apply(User::query(), $user)
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $departments = Department::where('organization_id', auth()->user()->organization_id)
+        $departments = Department::query()->visibleToUser($user)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -83,6 +89,8 @@ class EmployeeController extends Controller
     {
         $this->authorize('view', $employee);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($employee, auth()->user());
+
         $employee->load('user', 'department', 'teams', 'attendanceRecords', 'leaveRequests', 'taskAssignments', 'eventAssignments');
 
         return Inertia::render('Admin/Employees/Show', [
@@ -94,11 +102,14 @@ class EmployeeController extends Controller
     {
         $this->authorize('update', $employee);
 
-        $users = User::where('organization_id', auth()->user()->organization_id)
+        $user = auth()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($employee, $user);
+
+        $users = OrganizationScope::apply(User::query(), $user)
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $departments = Department::where('organization_id', auth()->user()->organization_id)
+        $departments = Department::query()->visibleToUser($user)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -114,6 +125,8 @@ class EmployeeController extends Controller
     {
         $this->authorize('update', $employee);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($employee, $request->user());
+
         $data = $request->validated();
         $employee->update($data);
 
@@ -125,6 +138,8 @@ class EmployeeController extends Controller
     {
         $this->authorize('delete', $employee);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($employee, auth()->user());
+
         $employee->delete();
 
         return redirect()->route('admin.hr.employees.index')
@@ -134,6 +149,8 @@ class EmployeeController extends Controller
     public function updateStatus(UpdateEmployeeStatusRequest $request, Employee $employee): RedirectResponse
     {
         $this->authorize('update', $employee);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($employee, $request->user());
 
         $this->updateStatusAction->execute($employee, $request->validated());
 

@@ -10,6 +10,7 @@ use App\Models\Contact;
 use App\Models\Event;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,17 +22,22 @@ class EventController extends Controller
     {
         $this->authorize('viewAny', Event::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
         $eventType = $request->string('event_type')->toString();
         $date = $request->string('date')->toString();
 
         $events = Event::query()
+            ->visibleToUser($user)
             ->with(['relatedTicket:id,reference,title', 'relatedContact:id,name'])
-            ->when($search, fn ($query) => $query
-                ->where('title', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%")
-                ->orWhere('location_text', 'like', "%{$search}%"))
+            ->when($search, fn ($query) => $query->where(function ($searchQuery) use ($search) {
+                $searchQuery
+                    ->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('location_text', 'like', "%{$search}%");
+            }))
             ->when($status, fn ($query) => $query->where('status', $status))
             ->when($eventType, fn ($query) => $query->where('event_type', $eventType))
             ->when($date, fn ($query) => $query->whereDate('start_at', $date))
@@ -40,6 +46,7 @@ class EventController extends Controller
             ->withQueryString();
 
         $dayList = Event::query()
+            ->visibleToUser($user)
             ->with(['relatedTicket:id,reference,title', 'relatedContact:id,name'])
             ->whereDate('start_at', now()->toDateString())
             ->orderBy('start_at')
@@ -58,13 +65,15 @@ class EventController extends Controller
     {
         $this->authorize('create', Event::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/Events/Create', [
             'statuses' => Event::STATUSES,
             'eventTypes' => Event::TYPES,
             'visibilities' => Event::VISIBILITIES,
-            'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->limit(200)->get(),
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
+            'tickets' => Ticket::query()->visibleToUser($user)->select('id', 'reference', 'title')->latest()->limit(100)->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->limit(200)->get(),
+            'users' => OrganizationScope::apply(User::query(), $user)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -81,6 +90,8 @@ class EventController extends Controller
     public function show(Event $event): Response
     {
         $this->authorize('view', $event);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($event, request()->user());
 
         $event->load([
             'creator:id,name',
@@ -103,20 +114,24 @@ class EventController extends Controller
     {
         $this->authorize('update', $event);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($event, $user);
+
         $event->load('participants.user:id,name', 'participants.contact:id,name');
 
         return Inertia::render('Admin/Events/Edit', [
             'event' => $event,
             'eventTypes' => Event::TYPES,
             'visibilities' => Event::VISIBILITIES,
-            'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->limit(200)->get(),
-            'users' => User::query()->select('id', 'name')->orderBy('name')->get(),
+            'tickets' => Ticket::query()->visibleToUser($user)->select('id', 'reference', 'title')->latest()->limit(100)->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->limit(200)->get(),
+            'users' => OrganizationScope::apply(User::query(), $user)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
     public function update(UpdateEventRequest $request, Event $event): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($event, $request->user());
         $event->update($request->validated());
 
         return to_route('admin.events.show', $event)->with('success', 'Evento atualizado com sucesso.');
@@ -125,6 +140,8 @@ class EventController extends Controller
     public function destroy(Event $event): RedirectResponse
     {
         $this->authorize('delete', $event);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($event, request()->user());
 
         $event->delete();
 

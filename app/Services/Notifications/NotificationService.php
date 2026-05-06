@@ -5,6 +5,7 @@ namespace App\Services\Notifications;
 use App\Models\Notification;
 use App\Models\NotificationRecipient;
 use App\Models\User;
+use App\Support\OrganizationScope;
 use Illuminate\Support\Collection;
 
 class NotificationService
@@ -16,7 +17,19 @@ class NotificationService
     public function createForUsers(array|Collection $users, array $payload): Notification
     {
         $recipientIds = collect($users)
-            ->map(fn ($user) => $user instanceof User ? $user->id : (int) $user)
+            ->map(function ($user) use ($payload) {
+                if ($user instanceof User) {
+                    $organizationId = $payload['organization_id'] ?? null;
+
+                    if ($organizationId !== null && ! $user->hasRole('super_admin') && (int) $user->organization_id !== (int) $organizationId) {
+                        return null;
+                    }
+
+                    return $user->id;
+                }
+
+                return (int) $user;
+            })
             ->filter()
             ->unique()
             ->values();
@@ -73,6 +86,7 @@ class NotificationService
 
         return NotificationRecipient::query()
             ->where('user_id', $user->id)
+            ->when(! OrganizationScope::canBypassOrganizationScope($user), fn ($query) => $query->whereHas('notification', fn ($notificationQuery) => $notificationQuery->where('organization_id', $user->organization_id)))
             ->whereNull('archived_at')
             ->whereNull('read_at')
             ->update([
@@ -86,6 +100,7 @@ class NotificationService
     {
         return NotificationRecipient::query()
             ->where('user_id', $user->id)
+            ->when(! OrganizationScope::canBypassOrganizationScope($user), fn ($query) => $query->whereHas('notification', fn ($notificationQuery) => $notificationQuery->where('organization_id', $user->organization_id)))
             ->whereNull('archived_at')
             ->whereNull('read_at')
             ->count();
@@ -96,6 +111,7 @@ class NotificationService
         return NotificationRecipient::query()
             ->with(['notification'])
             ->where('user_id', $user->id)
+            ->when(! OrganizationScope::canBypassOrganizationScope($user), fn ($query) => $query->whereHas('notification', fn ($notificationQuery) => $notificationQuery->where('organization_id', $user->organization_id)))
             ->whereNull('archived_at')
             ->orderByDesc('created_at')
             ->limit($limit)

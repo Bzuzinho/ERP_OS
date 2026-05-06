@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Space;
+use App\Support\OrganizationScope;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,6 +16,7 @@ class SpaceController extends Controller
         $this->authorize('viewAny', Space::class);
 
         $spaces = Space::query()
+            ->visibleToUser($request->user())
             ->where('is_active', true)
             ->where(function ($query) {
                 $query->where('is_public', true)
@@ -31,6 +33,7 @@ class SpaceController extends Controller
 
     public function show(Space $space): Response
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($space, request()->user());
         $this->authorize('view', $space);
 
         return Inertia::render('Portal/Spaces/Show', [

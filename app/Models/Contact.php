@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Contact extends Model
 {
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const TYPES = [
         'citizen',
@@ -39,11 +40,6 @@ class Contact extends Model
         return [
             'is_active' => 'boolean',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function user(): BelongsTo

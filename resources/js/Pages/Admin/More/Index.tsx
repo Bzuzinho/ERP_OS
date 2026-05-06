@@ -56,6 +56,14 @@ const gearIcon = (
 
 export default function AdminMoreIndex() {
     const { auth } = usePage<PageProps>().props;
+    const accountItems = [
+        { label: 'Perfil', href: route('profile.edit'), tone: 'slate' as const, icon: userIcon },
+        { label: 'Notificações', href: route('admin.dashboard'), tone: 'blue' as const, icon: bellIcon },
+        ...(auth.can.accessSettings
+            ? [{ label: 'Configurações', href: route('admin.settings.index'), tone: 'slate' as const, icon: gearIcon }]
+            : []),
+        { label: 'Ajuda e suporte', href: route('admin.dashboard'), tone: 'amber' as const, icon: circleIcon },
+    ];
 
     return (
         <AdminLayout title="Mais" subtitle="Módulos e conta">
@@ -79,12 +87,7 @@ export default function AdminMoreIndex() {
                     },
                     {
                         title: 'Conta',
-                        items: [
-                            { label: 'Perfil', href: route('profile.edit'), tone: 'slate', icon: userIcon },
-                            { label: 'Notificações', href: route('admin.dashboard'), tone: 'blue', icon: bellIcon },
-                            { label: 'Configurações', href: route('admin.settings.index'), tone: 'slate', icon: gearIcon },
-                            { label: 'Ajuda e suporte', href: route('admin.dashboard'), tone: 'amber', icon: circleIcon },
-                        ],
+                        items: accountItems,
                     },
                     {
                         title: 'Sessão',

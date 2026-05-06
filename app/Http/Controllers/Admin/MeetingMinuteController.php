@@ -10,6 +10,7 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Event;
 use App\Models\MeetingMinute;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,12 +22,15 @@ class MeetingMinuteController extends Controller
     {
         $this->authorize('viewAny', MeetingMinute::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
         $eventId = $request->string('event_id')->toString();
         $date = $request->string('date')->toString();
 
         $meetingMinutes = MeetingMinute::query()
+            ->visibleToUser($user)
             ->with(['event:id,title,start_at', 'approvedBy:id,name'])
             ->when($search, fn ($query) => $query->where('title', 'like', "%{$search}%"))
             ->when($status, fn ($query) => $query->where('status', $status))
@@ -40,7 +44,7 @@ class MeetingMinuteController extends Controller
             'meetingMinutes' => $meetingMinutes,
             'filters' => compact('search', 'status', 'eventId', 'date'),
             'statuses' => MeetingMinute::STATUSES,
-            'events' => Event::query()->select('id', 'title', 'start_at')->latest('start_at')->limit(100)->get(),
+            'events' => Event::query()->visibleToUser($user)->select('id', 'title', 'start_at')->latest('start_at')->limit(100)->get(),
         ]);
     }
 
@@ -48,10 +52,12 @@ class MeetingMinuteController extends Controller
     {
         $this->authorize('create', MeetingMinute::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/MeetingMinutes/Create', [
-            'events' => Event::query()->select('id', 'title', 'start_at')->latest('start_at')->limit(200)->get(),
-            'documents' => Document::query()->select('id', 'title')->latest()->limit(200)->get(),
-            'documentTypes' => DocumentType::query()->select('id', 'name')->orderBy('name')->get(),
+            'events' => Event::query()->visibleToUser($user)->select('id', 'title', 'start_at')->latest('start_at')->limit(200)->get(),
+            'documents' => Document::query()->visibleToUser($user)->select('id', 'title')->latest()->limit(200)->get(),
+            'documentTypes' => OrganizationScope::apply(DocumentType::query(), $user)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -69,6 +75,8 @@ class MeetingMinuteController extends Controller
     public function show(MeetingMinute $meetingMinute): Response
     {
         $this->authorize('view', $meetingMinute);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($meetingMinute, request()->user());
 
         $meetingMinute->load([
             'event:id,title,start_at,end_at',
@@ -90,16 +98,20 @@ class MeetingMinuteController extends Controller
     {
         $this->authorize('update', $meetingMinute);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($meetingMinute, $user);
+
         return Inertia::render('Admin/MeetingMinutes/Edit', [
             'meetingMinute' => $meetingMinute,
             'statuses' => MeetingMinute::STATUSES,
-            'events' => Event::query()->select('id', 'title', 'start_at')->latest('start_at')->limit(200)->get(),
-            'documents' => Document::query()->select('id', 'title')->latest()->limit(200)->get(),
+            'events' => Event::query()->visibleToUser($user)->select('id', 'title', 'start_at')->latest('start_at')->limit(200)->get(),
+            'documents' => Document::query()->visibleToUser($user)->select('id', 'title')->latest()->limit(200)->get(),
         ]);
     }
 
     public function update(UpdateMeetingMinuteRequest $request, MeetingMinute $meetingMinute): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($meetingMinute, $request->user());
         $meetingMinute->update($request->validated());
 
         return to_route('admin.meeting-minutes.show', $meetingMinute)->with('success', 'Ata atualizada com sucesso.');
@@ -108,6 +120,8 @@ class MeetingMinuteController extends Controller
     public function destroy(MeetingMinute $meetingMinute): RedirectResponse
     {
         $this->authorize('delete', $meetingMinute);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($meetingMinute, request()->user());
 
         $meetingMinute->delete();
 

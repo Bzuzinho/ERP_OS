@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SpaceReservation extends Model
 {
     /** @use HasFactory<\Database\Factories\SpaceReservationFactory> */
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const STATUSES = ['requested', 'approved', 'rejected', 'cancelled', 'completed'];
 
@@ -47,11 +48,6 @@ class SpaceReservation extends Model
             'rejected_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function space(): BelongsTo

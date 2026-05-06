@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\InventoryItem;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class InventoryItemPolicy
 {
@@ -19,7 +20,8 @@ class InventoryItemPolicy
 
     public function view(User $user, InventoryItem $inventoryItem): bool
     {
-        return $user->can('inventory.view');
+        return $user->can('inventory.view')
+            && OrganizationScope::sameOrganization($inventoryItem->organization_id, $user);
     }
 
     public function create(User $user): bool
@@ -29,11 +31,13 @@ class InventoryItemPolicy
 
     public function update(User $user, InventoryItem $inventoryItem): bool
     {
-        return $user->can('inventory.update');
+        return $user->can('inventory.update')
+            && OrganizationScope::sameOrganization($inventoryItem->organization_id, $user);
     }
 
     public function delete(User $user, InventoryItem $inventoryItem): bool
     {
-        return $user->can('inventory.delete');
+        return $user->can('inventory.delete')
+            && OrganizationScope::sameOrganization($inventoryItem->organization_id, $user);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\MeetingMinute;
+use App\Support\OrganizationScope;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,6 +17,7 @@ class MeetingMinuteController extends Controller
         $user = request()->user();
 
         $meetingMinutes = MeetingMinute::query()
+            ->visibleToUser($user)
             ->with(['event:id,title,start_at', 'document:id,title,visibility,status'])
             ->where('status', 'approved')
             ->latest('approved_at')
@@ -38,6 +40,7 @@ class MeetingMinuteController extends Controller
 
     public function show(MeetingMinute $meetingMinute): Response
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($meetingMinute, request()->user());
         $this->authorize('view', $meetingMinute);
 
         $meetingMinute->load(['event:id,title,start_at,end_at', 'document.type:id,name']);

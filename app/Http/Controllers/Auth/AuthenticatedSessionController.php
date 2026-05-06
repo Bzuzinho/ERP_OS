@@ -33,7 +33,19 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $intended = $request->session()->pull('url.intended');
+
+        if (is_string($intended) && $intended !== '') {
+            $intendedPath = parse_url($intended, PHP_URL_PATH) ?: '';
+
+            if (str_starts_with($intendedPath, '/admin') && ! $request->user()?->can('admin.access')) {
+                return to_route('portal.dashboard');
+            }
+
+            return redirect()->to($intended);
+        }
+
+        return to_route('dashboard');
     }
 
     /**

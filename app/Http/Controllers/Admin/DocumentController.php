@@ -13,6 +13,7 @@ use App\Models\DocumentType;
 use App\Models\Event;
 use App\Models\Task;
 use App\Models\Ticket;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,6 +25,8 @@ class DocumentController extends Controller
     {
         $this->authorize('viewAny', Document::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $documentTypeId = $request->string('document_type_id')->toString();
         $visibility = $request->string('visibility')->toString();
@@ -31,6 +34,7 @@ class DocumentController extends Controller
         $relatedType = $request->string('related_type')->toString();
 
         $documents = Document::query()
+            ->visibleToUser($user)
             ->with(['type:id,name', 'uploader:id,name'])
             ->when($search, fn ($query) => $query->where('title', 'like', "%{$search}%"))
             ->when($documentTypeId, fn ($query) => $query->where('document_type_id', $documentTypeId))
@@ -44,7 +48,7 @@ class DocumentController extends Controller
         return Inertia::render('Admin/Documents/Index', [
             'documents' => $documents,
             'filters' => compact('search', 'documentTypeId', 'visibility', 'status', 'relatedType'),
-            'documentTypes' => DocumentType::query()->select('id', 'name')->orderBy('name')->get(),
+            'documentTypes' => OrganizationScope::apply(DocumentType::query(), $user)->select('id', 'name')->orderBy('name')->get(),
             'visibilities' => Document::VISIBILITIES,
             'statuses' => Document::STATUSES,
             'relatedTypes' => [Ticket::class, Contact::class, Task::class, Event::class],
@@ -55,11 +59,13 @@ class DocumentController extends Controller
     {
         $this->authorize('create', Document::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/Documents/Create', [
-            'documentTypes' => DocumentType::query()->select('id', 'name')->orderBy('name')->get(),
+            'documentTypes' => OrganizationScope::apply(DocumentType::query(), $user)->select('id', 'name')->orderBy('name')->get(),
             'visibilities' => Document::VISIBILITIES,
             'statuses' => Document::STATUSES,
-            'relatedEntities' => $this->relatedEntities(),
+            'relatedEntities' => $this->relatedEntities($user),
         ]);
     }
 
@@ -73,6 +79,8 @@ class DocumentController extends Controller
     public function show(Document $document): Response
     {
         $this->authorize('view', $document);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($document, request()->user());
 
         $document->load([
             'type:id,name',
@@ -101,17 +109,22 @@ class DocumentController extends Controller
     {
         $this->authorize('update', $document);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($document, $user);
+
         return Inertia::render('Admin/Documents/Edit', [
             'document' => $document,
-            'documentTypes' => DocumentType::query()->select('id', 'name')->orderBy('name')->get(),
+            'documentTypes' => OrganizationScope::apply(DocumentType::query(), $user)->select('id', 'name')->orderBy('name')->get(),
             'visibilities' => Document::VISIBILITIES,
             'statuses' => Document::STATUSES,
-            'relatedEntities' => $this->relatedEntities(),
+            'relatedEntities' => $this->relatedEntities($user),
         ]);
     }
 
     public function update(UpdateDocumentRequest $request, Document $document): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($document, $request->user());
+
         $document->update($request->validated());
 
         return to_route('admin.documents.show', $document)->with('success', 'Documento atualizado com sucesso.');
@@ -121,18 +134,20 @@ class DocumentController extends Controller
     {
         $this->authorize('delete', $document);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($document, request()->user());
+
         $archiveDocumentAction->execute($document, request()->user());
 
         return to_route('admin.documents.index')->with('success', 'Documento arquivado com sucesso.');
     }
 
-    private function relatedEntities(): array
+    private function relatedEntities($user): array
     {
         return [
-            'tickets' => Ticket::query()->select('id', 'reference', 'title')->latest()->limit(100)->get(),
-            'contacts' => Contact::query()->select('id', 'name')->orderBy('name')->limit(100)->get(),
-            'tasks' => Task::query()->select('id', 'title')->latest()->limit(100)->get(),
-            'events' => Event::query()->select('id', 'title')->latest('start_at')->limit(100)->get(),
+            'tickets' => Ticket::query()->visibleToUser($user)->select('id', 'reference', 'title')->latest()->limit(100)->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->select('id', 'name')->orderBy('name')->limit(100)->get(),
+            'tasks' => OrganizationScope::apply(Task::query(), $user)->select('id', 'title')->latest()->limit(100)->get(),
+            'events' => OrganizationScope::apply(Event::query(), $user)->select('id', 'title')->latest('start_at')->limit(100)->get(),
             'types' => [
                 ['label' => 'Ticket', 'value' => Ticket::class],
                 ['label' => 'Contacto', 'value' => Contact::class],

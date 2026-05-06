@@ -135,6 +135,8 @@ export default function PortalLayout({
             title={title}
             subtitle={subtitle}
             organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
+            organizationLogoUrl={user?.organization?.logo_path ? `/storage/${user.organization.logo_path}` : null}
+            organizationHref={auth.can.accessAdmin ? route('admin.settings.organization.edit') : route('profile.edit')}
             desktopNav={desktopNavigationItems}
             mobileNav={mobileNavigationItems}
             showBackOnMobile={isDetailPage}

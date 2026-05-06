@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Space;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class SpacePolicy
 {
@@ -14,11 +15,17 @@ class SpacePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('spaces.view');
+        return $user->can('spaces.view')
+            || $user->can('spaces.reserve')
+            || $user->hasAnyRole(['cidadao', 'associacao', 'empresa']);
     }
 
     public function view(User $user, Space $space): bool
     {
+        if (! OrganizationScope::sameOrganization($space->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('spaces.view')) {
             return true;
         }
@@ -33,11 +40,13 @@ class SpacePolicy
 
     public function update(User $user, Space $space): bool
     {
-        return $user->can('spaces.update');
+        return $user->can('spaces.update')
+            && OrganizationScope::sameOrganization($space->organization_id, $user);
     }
 
     public function delete(User $user, Space $space): bool
     {
-        return $user->can('spaces.delete');
+        return $user->can('spaces.delete')
+            && OrganizationScope::sameOrganization($space->organization_id, $user);
     }
 }

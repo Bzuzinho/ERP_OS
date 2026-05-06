@@ -13,6 +13,7 @@ use App\Models\InventoryLoan;
 use App\Models\InventoryLocation;
 use App\Models\InventoryMovement;
 use App\Models\InventoryRestockRequest;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,6 +25,8 @@ class InventoryItemController extends Controller
     {
         $this->authorize('viewAny', InventoryItem::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $categoryId = $request->string('category_id')->toString();
         $locationId = $request->string('location_id')->toString();
@@ -32,10 +35,13 @@ class InventoryItemController extends Controller
         $lowStock = $request->boolean('low_stock');
 
         $items = InventoryItem::query()
+            ->visibleToUser($user)
             ->with(['category:id,name', 'location:id,name'])
-            ->when($search, fn ($query) => $query
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('sku', 'like', "%{$search}%"))
+            ->when($search, fn ($query) => $query->where(function ($searchQuery) use ($search) {
+                $searchQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
+            }))
             ->when($categoryId, fn ($query) => $query->where('inventory_category_id', $categoryId))
             ->when($locationId, fn ($query) => $query->where('inventory_location_id', $locationId))
             ->when($itemType, fn ($query) => $query->where('item_type', $itemType))
@@ -49,8 +55,8 @@ class InventoryItemController extends Controller
 
         return Inertia::render('Admin/InventoryItems/Index', [
             'items' => $items,
-            'categories' => InventoryCategory::query()->select('id', 'name')->orderBy('name')->get(),
-            'locations' => InventoryLocation::query()->select('id', 'name')->orderBy('name')->get(),
+            'categories' => OrganizationScope::apply(InventoryCategory::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'locations' => OrganizationScope::apply(InventoryLocation::query(), $user)->select('id', 'name')->orderBy('name')->get(),
             'itemTypes' => InventoryItem::ITEM_TYPES,
             'statuses' => InventoryItem::STATUSES,
             'filters' => compact('search', 'categoryId', 'locationId', 'itemType', 'status', 'lowStock'),
@@ -61,9 +67,11 @@ class InventoryItemController extends Controller
     {
         $this->authorize('create', InventoryItem::class);
 
+        $user = request()->user();
+
         return Inertia::render('Admin/InventoryItems/Create', [
-            'categories' => InventoryCategory::query()->select('id', 'name')->orderBy('name')->get(),
-            'locations' => InventoryLocation::query()->select('id', 'name')->orderBy('name')->get(),
+            'categories' => OrganizationScope::apply(InventoryCategory::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'locations' => OrganizationScope::apply(InventoryLocation::query(), $user)->select('id', 'name')->orderBy('name')->get(),
             'itemTypes' => InventoryItem::ITEM_TYPES,
             'units' => InventoryItem::UNITS,
             'statuses' => InventoryItem::STATUSES,
@@ -80,6 +88,8 @@ class InventoryItemController extends Controller
     public function show(InventoryItem $inventoryItem): Response
     {
         $this->authorize('view', $inventoryItem);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($inventoryItem, request()->user());
 
         $inventoryItem->load([
             'category:id,name',
@@ -111,10 +121,13 @@ class InventoryItemController extends Controller
     {
         $this->authorize('update', $inventoryItem);
 
+        $user = request()->user();
+        OrganizationScope::ensureModelBelongsToUserOrganization($inventoryItem, $user);
+
         return Inertia::render('Admin/InventoryItems/Edit', [
             'item' => $inventoryItem,
-            'categories' => InventoryCategory::query()->select('id', 'name')->orderBy('name')->get(),
-            'locations' => InventoryLocation::query()->select('id', 'name')->orderBy('name')->get(),
+            'categories' => OrganizationScope::apply(InventoryCategory::query(), $user)->select('id', 'name')->orderBy('name')->get(),
+            'locations' => OrganizationScope::apply(InventoryLocation::query(), $user)->select('id', 'name')->orderBy('name')->get(),
             'itemTypes' => InventoryItem::ITEM_TYPES,
             'units' => InventoryItem::UNITS,
             'statuses' => InventoryItem::STATUSES,
@@ -123,6 +136,7 @@ class InventoryItemController extends Controller
 
     public function update(UpdateInventoryItemRequest $request, InventoryItem $inventoryItem): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($inventoryItem, $request->user());
         $inventoryItem->update($request->validated());
 
         return to_route('admin.inventory-items.show', $inventoryItem)->with('success', 'Item atualizado com sucesso.');
@@ -131,6 +145,8 @@ class InventoryItemController extends Controller
     public function destroy(InventoryItem $inventoryItem): RedirectResponse
     {
         $this->authorize('delete', $inventoryItem);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($inventoryItem, request()->user());
 
         $inventoryItem->delete();
 

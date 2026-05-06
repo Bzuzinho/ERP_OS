@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Spaces;
 
 use App\Models\SpaceReservation;
+use App\Support\OrganizationScope;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,9 +16,12 @@ class UpdateSpaceReservationRequest extends FormRequest
 
     public function rules(): array
     {
+        $reservation = $this->route('spaceReservation');
+        $organizationId = $reservation instanceof SpaceReservation ? $reservation->organization_id : $this->user()?->organization_id;
+
         return [
-            'contact_id' => ['nullable', 'exists:contacts,id'],
-            'event_id' => ['nullable', 'exists:events,id'],
+            'contact_id' => ['nullable', OrganizationScope::existsRuleForUser('contacts', $this->user(), organizationId: $organizationId)],
+            'event_id' => ['nullable', OrganizationScope::existsRuleForUser('events', $this->user(), organizationId: $organizationId)],
             'start_at' => ['required', 'date'],
             'end_at' => ['required', 'date', 'after:start_at'],
             'purpose' => ['required', 'string', 'max:255'],

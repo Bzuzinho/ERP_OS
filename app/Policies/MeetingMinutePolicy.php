@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\MeetingMinute;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class MeetingMinutePolicy
 {
@@ -19,6 +20,10 @@ class MeetingMinutePolicy
 
     public function view(User $user, MeetingMinute $meetingMinute): bool
     {
+        if (! OrganizationScope::sameOrganization($meetingMinute->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('meeting_minutes.view')) {
             return true;
         }
@@ -41,16 +46,19 @@ class MeetingMinutePolicy
 
     public function update(User $user, MeetingMinute $meetingMinute): bool
     {
-        return $user->can('meeting_minutes.update');
+        return $user->can('meeting_minutes.update')
+            && OrganizationScope::sameOrganization($meetingMinute->organization_id, $user);
     }
 
     public function approve(User $user, MeetingMinute $meetingMinute): bool
     {
-        return $user->can('documents.approve') || $user->can('documents.manage_access') || $user->can('meeting_minutes.approve');
+        return ( $user->can('documents.approve') || $user->can('documents.manage_access') || $user->can('meeting_minutes.approve'))
+            && OrganizationScope::sameOrganization($meetingMinute->organization_id, $user);
     }
 
     public function delete(User $user, MeetingMinute $meetingMinute): bool
     {
-        return $user->can('meeting_minutes.delete');
+        return $user->can('meeting_minutes.delete')
+            && OrganizationScope::sameOrganization($meetingMinute->organization_id, $user);
     }
 }

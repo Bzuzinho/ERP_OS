@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class InventoryItem extends Model
 {
     /** @use HasFactory<\Database\Factories\InventoryItemFactory> */
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const ITEM_TYPES = ['consumable', 'equipment', 'vehicle', 'tool', 'furniture', 'document', 'other'];
 
@@ -51,11 +52,6 @@ class InventoryItem extends Model
             'is_loanable' => 'boolean',
             'is_active' => 'boolean',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function category(): BelongsTo

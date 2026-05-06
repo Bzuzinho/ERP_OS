@@ -41,6 +41,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
             user: User | null;
             can: {
                 accessAdmin: boolean;
+                accessSettings: boolean;
             };
         };
         flash?: Flash;

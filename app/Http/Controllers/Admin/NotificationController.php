@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\NotificationRecipient;
+use App\Support\OrganizationScope;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,6 +20,7 @@ class NotificationController extends Controller
         $notifications = NotificationRecipient::query()
             ->with('notification')
             ->where('user_id', $request->user()->id)
+            ->when(! OrganizationScope::canBypassOrganizationScope($request->user()), fn ($query) => $query->whereHas('notification', fn ($notificationQuery) => $notificationQuery->where('organization_id', $request->user()->organization_id)))
             ->when($filter === 'unread', fn ($query) => $query->whereNull('read_at'))
             ->when($filter === 'read', fn ($query) => $query->whereNotNull('read_at'))
             ->when($filter === 'archived', fn ($query) => $query->whereNotNull('archived_at'))

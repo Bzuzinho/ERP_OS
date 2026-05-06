@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,12 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Department extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
-    }
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public function manager(): BelongsTo
     {

@@ -3,15 +3,15 @@
 namespace App\Services\Documents;
 
 use App\Models\Document;
-use App\Models\DocumentAccessRule;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class DocumentAccessService
 {
     public function canView(User $user, Document $document): bool
     {
-        if ($user->hasRole('super_admin')) {
-            return true;
+        if (! OrganizationScope::sameOrganization($document->organization_id, $user)) {
+            return false;
         }
 
         // Admin users with view permission can see all documents regardless of visibility
@@ -40,8 +40,8 @@ class DocumentAccessService
 
     public function canDownload(User $user, Document $document): bool
     {
-        if ($user->hasRole('super_admin')) {
-            return true;
+        if (! OrganizationScope::sameOrganization($document->organization_id, $user)) {
+            return false;
         }
 
         // Admin users with download permission bypass visibility checks
@@ -59,6 +59,10 @@ class DocumentAccessService
 
     public function canManage(User $user, Document $document): bool
     {
+        if (! OrganizationScope::sameOrganization($document->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->hasRole('super_admin') || $user->can('documents.manage_access')) {
             return true;
         }
@@ -91,6 +95,7 @@ class DocumentAccessService
         $roleNames = $user->roles->pluck('name');
 
         return $document->accessRules()
+            ->where('document_access_rules.organization_id', $document->organization_id)
             ->whereIn('permission', $permissions)
             ->where(function ($query) use ($user, $contactIds, $roleNames) {
                 $query

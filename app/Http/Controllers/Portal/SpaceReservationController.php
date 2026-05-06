@@ -8,6 +8,7 @@ use App\Http\Requests\Spaces\StoreSpaceReservationRequest;
 use App\Models\Contact;
 use App\Models\Space;
 use App\Models\SpaceReservation;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,6 +24,7 @@ class SpaceReservationController extends Controller
         $contactIds = $user->contacts()->pluck('id');
 
         $reservations = SpaceReservation::query()
+            ->visibleToUser($user)
             ->with(['space:id,name'])
             ->where(function ($query) use ($user, $contactIds) {
                 $query->where('requested_by_user_id', $user->id)
@@ -44,12 +46,13 @@ class SpaceReservationController extends Controller
 
         return Inertia::render('Portal/SpaceReservations/Create', [
             'spaces' => Space::query()
+                ->visibleToUser($user)
                 ->where('is_active', true)
                 ->where('is_public', true)
                 ->select('id', 'name', 'requires_approval', 'status')
                 ->orderBy('name')
                 ->get(),
-            'contacts' => Contact::query()->where('user_id', $user->id)->select('id', 'name')->orderBy('name')->get(),
+            'contacts' => Contact::query()->visibleToUser($user)->where('user_id', $user->id)->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 

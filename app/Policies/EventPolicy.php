@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Event;
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class EventPolicy
 {
@@ -19,6 +20,10 @@ class EventPolicy
 
     public function view(User $user, Event $event): bool
     {
+        if (! OrganizationScope::sameOrganization($event->organization_id, $user)) {
+            return false;
+        }
+
         if ($user->can('events.view')) {
             return true;
         }
@@ -45,11 +50,13 @@ class EventPolicy
 
     public function update(User $user, Event $event): bool
     {
-        return $user->can('events.update');
+        return $user->can('events.update')
+            && OrganizationScope::sameOrganization($event->organization_id, $user);
     }
 
     public function delete(User $user, Event $event): bool
     {
-        return $user->can('events.delete');
+        return $user->can('events.delete')
+            && OrganizationScope::sameOrganization($event->organization_id, $user);
     }
 }

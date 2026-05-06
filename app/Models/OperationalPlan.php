@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +41,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OperationalPlan extends Model
 {
     /** @use HasFactory<\Database\Factories\OperationalPlanFactory> */
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const TYPES = [
         'activity',
@@ -78,11 +79,6 @@ class OperationalPlan extends Model
             'completed_at' => 'datetime',
             'budget_estimate' => 'decimal:2',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function owner(): BelongsTo

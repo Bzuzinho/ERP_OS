@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Ticket extends Model
 {
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const STATUSES = [
         'novo',
@@ -70,11 +71,6 @@ class Ticket extends Model
             'due_date' => 'date',
             'closed_at' => 'datetime',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function creator(): BelongsTo

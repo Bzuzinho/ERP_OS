@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Support\OrganizationScope;
 
 class UserPolicy
 {
@@ -44,26 +45,34 @@ class UserPolicy
 
     public function delete(User $authUser, User $target): bool
     {
-        return $authUser->can('users.delete') && $authUser->id !== $target->id;
+        return $authUser->can('users.delete')
+            && $authUser->id !== $target->id
+            && OrganizationScope::sameOrganization($target->organization_id, $authUser);
     }
 
     public function manageRoles(User $authUser, User $target): bool
     {
-        return $authUser->can('users.manage_roles') && $authUser->id !== $target->id;
+        return $authUser->can('users.manage_roles')
+            && $authUser->id !== $target->id
+            && OrganizationScope::sameOrganization($target->organization_id, $authUser);
     }
 
     public function resetPassword(User $authUser, User $target): bool
     {
-        return $authUser->can('users.reset_password');
+        return $authUser->can('users.reset_password')
+            && OrganizationScope::sameOrganization($target->organization_id, $authUser);
     }
 
     public function deactivate(User $authUser, User $target): bool
     {
-        return $authUser->can('users.delete') && $authUser->id !== $target->id;
+        return $authUser->can('users.delete')
+            && $authUser->id !== $target->id
+            && OrganizationScope::sameOrganization($target->organization_id, $authUser);
     }
 
     public function activate(User $authUser, User $target): bool
     {
-        return $authUser->can('users.delete');
+        return $authUser->can('users.delete')
+            && OrganizationScope::sameOrganization($target->organization_id, $authUser);
     }
 }

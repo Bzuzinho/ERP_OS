@@ -1,6 +1,18 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import AppBadge from '@/Components/App/AppBadge';
 import AppCard from '@/Components/App/AppCard';
 import { Head, Link } from '@inertiajs/react';
+
+type Props = {
+    cards: {
+        users: boolean;
+        roles: boolean;
+        serviceAreas: boolean;
+        notifications: boolean;
+        organization: boolean;
+        generalSettings: boolean;
+    };
+};
 
 const iconUsers = (
     <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -42,80 +54,93 @@ const iconBell = (
     </svg>
 );
 
-const cards = [
-    {
-        title: 'Utilizadores',
-        description: 'Gerir utilizadores, acessos e perfis da plataforma.',
-        icon: iconUsers,
-        href: route('admin.settings.users.index'),
-        color: 'blue',
-        available: true,
-    },
-    {
-        title: 'Perfis',
-        description: 'Gerir perfis e as permissões atribuídas a cada perfil.',
-        icon: iconShield,
-        href: route('admin.settings.roles.index'),
-        color: 'indigo',
-        available: true,
-    },
-    {
-        title: 'Organização',
-        description: 'Dados e configurações da organização.',
-        icon: iconBuilding,
-        href: route('admin.settings.organization.edit'),
-        color: 'emerald',
-        available: true,
-    },
-    {
-        title: 'Preferências',
-        description: 'Preferências gerais da aplicação.',
-        icon: iconSliders,
-        href: route('admin.settings.index'),
-        color: 'slate',
-        available: false,
-    },
-    {
-        title: 'Areas funcionais',
-        description: 'Definir responsabilidades e associar utilizadores a areas.',
-        icon: iconBuilding,
-        href: route('admin.service-areas.index'),
-        color: 'emerald',
-        available: true,
-    },
-    {
-        title: 'Alertas',
-        description: 'Consultar alertas e notificacoes internas do sistema.',
-        icon: iconBell,
-        href: route('admin.notifications.index'),
-        color: 'blue',
-        available: true,
-    },
-];
-
 const colorMap: Record<string, string> = {
     blue:    'bg-blue-50 text-blue-600 border-blue-100',
     indigo:  'bg-indigo-50 text-indigo-600 border-indigo-100',
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    amber:   'bg-amber-50 text-amber-600 border-amber-100',
     slate:   'bg-slate-50 text-slate-500 border-slate-100',
 };
 
-export default function SettingsIndex() {
+export default function SettingsIndex({ cards: cardPermissions }: Props) {
+    const cards = [
+        {
+            title: 'Utilizadores',
+            description: 'Gerir acessos à plataforma, estado e perfis.',
+            icon: iconUsers,
+            href: route('admin.settings.users.index'),
+            color: 'blue',
+            available: cardPermissions.users,
+            visible: cardPermissions.users,
+            soon: false,
+        },
+        {
+            title: 'Perfis e permissões',
+            description: 'Consultar e gerir roles e permissões.',
+            icon: iconShield,
+            href: route('admin.settings.roles.index'),
+            color: 'indigo',
+            available: cardPermissions.roles,
+            visible: cardPermissions.roles,
+            soon: false,
+        },
+        {
+            title: 'Áreas funcionais',
+            description: 'Definir responsabilidades para encaminhamento e alertas.',
+            icon: iconBuilding,
+            href: route('admin.settings.service-areas.index'),
+            color: 'emerald',
+            available: cardPermissions.serviceAreas,
+            visible: cardPermissions.serviceAreas,
+            soon: false,
+        },
+        {
+            title: 'Organização',
+            description: 'Dados da junta, identidade e parâmetros institucionais.',
+            icon: iconBuilding,
+            href: route('admin.settings.organization.edit'),
+            color: 'amber',
+            available: cardPermissions.organization,
+            visible: true,
+            soon: !cardPermissions.organization,
+        },
+        {
+            title: 'Parâmetros gerais',
+            description: 'Categorias, estados, prioridades e opções transversais.',
+            icon: iconSliders,
+            href: route('admin.settings.index'),
+            color: 'slate',
+            available: false,
+            visible: true,
+            soon: true,
+        },
+        {
+            title: 'Alertas e notificações',
+            description: 'Consultar notificações e acompanhar alertas da plataforma.',
+            icon: iconBell,
+            href: route('admin.notifications.index'),
+            color: 'blue',
+            available: cardPermissions.notifications,
+            visible: cardPermissions.notifications,
+            soon: false,
+        },
+    ].filter((card) => card.visible);
+
     return (
-        <AdminLayout title="Configurações" subtitle="Gestão da plataforma">
+        <AdminLayout title="Configurações" subtitle="Gestão estrutural da plataforma">
             <Head title="Configurações" />
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {cards.map((card) => {
                     const content = (
-                        <AppCard className={`flex items-start gap-4 transition-shadow ${card.available ? 'hover:shadow-md cursor-pointer' : 'opacity-50'}`}>
+                        <AppCard className={`flex items-start gap-4 rounded-3xl bg-white transition-shadow ${card.available ? 'cursor-pointer hover:shadow-md' : 'opacity-70'}`}>
                             <div className={`rounded-2xl border p-3 ${colorMap[card.color]}`}>
                                 {card.icon}
                             </div>
                             <div className="min-w-0">
                                 <p className="font-semibold text-slate-800">{card.title}</p>
                                 <p className="mt-0.5 text-sm text-slate-500">{card.description}</p>
-                                {!card.available && (
-                                    <span className="mt-1 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-400">Em breve</span>
+                                {card.soon && (
+                                    <AppBadge tone="slate" className="mt-2">Em breve</AppBadge>
                                 )}
                             </div>
                         </AppCard>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,18 +25,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 ])]
 class Notification extends Model
 {
-    use HasFactory;
+    use BelongsToOrganization, HasFactory;
 
     protected function casts(): array
     {
         return [
             'data' => 'array',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function creator(): BelongsTo

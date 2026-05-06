@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Spaces\StoreSpaceRequest;
 use App\Http\Requests\Spaces\UpdateSpaceRequest;
 use App\Models\Space;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,16 +19,21 @@ class SpaceController extends Controller
     {
         $this->authorize('viewAny', Space::class);
 
+        $user = $request->user();
+
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
         $isPublic = $request->string('is_public')->toString();
         $isActive = $request->string('is_active')->toString();
 
         $spaces = Space::query()
-            ->when($search, fn ($query) => $query
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('location_text', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%"))
+            ->visibleToUser($user)
+            ->when($search, fn ($query) => $query->where(function ($searchQuery) use ($search) {
+                $searchQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('location_text', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            }))
             ->when($status, fn ($query) => $query->where('status', $status))
             ->when($isPublic !== '', fn ($query) => $query->where('is_public', filter_var($isPublic, FILTER_VALIDATE_BOOLEAN)))
             ->when($isActive !== '', fn ($query) => $query->where('is_active', filter_var($isActive, FILTER_VALIDATE_BOOLEAN)))
@@ -65,6 +71,8 @@ class SpaceController extends Controller
     {
         $this->authorize('view', $space);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($space, request()->user());
+
         $space->load([
             'reservations' => fn ($query) => $query
                 ->where('start_at', '>=', now())
@@ -93,6 +101,8 @@ class SpaceController extends Controller
     {
         $this->authorize('update', $space);
 
+        OrganizationScope::ensureModelBelongsToUserOrganization($space, request()->user());
+
         return Inertia::render('Admin/Spaces/Edit', [
             'space' => $space,
             'statuses' => Space::STATUSES,
@@ -101,6 +111,7 @@ class SpaceController extends Controller
 
     public function update(UpdateSpaceRequest $request, Space $space): RedirectResponse
     {
+        OrganizationScope::ensureModelBelongsToUserOrganization($space, $request->user());
         $space->update($request->validated());
 
         return to_route('admin.spaces.show', $space)->with('success', 'Espaco atualizado com sucesso.');
@@ -109,6 +120,8 @@ class SpaceController extends Controller
     public function destroy(Space $space): RedirectResponse
     {
         $this->authorize('delete', $space);
+
+        OrganizationScope::ensureModelBelongsToUserOrganization($space, request()->user());
 
         $space->delete();
 

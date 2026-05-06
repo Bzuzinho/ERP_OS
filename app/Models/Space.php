@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Space extends Model
 {
     /** @use HasFactory<\Database\Factories\SpaceFactory> */
-    use HasFactory, SoftDeletes;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     public const STATUSES = ['available', 'unavailable', 'maintenance', 'inactive'];
 
@@ -45,11 +46,6 @@ class Space extends Model
             'is_public' => 'boolean',
             'is_active' => 'boolean',
         ];
-    }
-
-    public function organization(): BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
     }
 
     public function reservations(): HasMany

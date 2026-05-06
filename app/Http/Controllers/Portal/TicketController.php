@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\ServiceArea;
 use App\Models\Ticket;
 use App\Services\Notifications\TicketNotificationService;
+use App\Support\OrganizationScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -24,6 +25,7 @@ class TicketController extends Controller
         $user = $request->user();
 
         $tickets = Ticket::query()
+            ->visibleToUser($user)
             ->where(function ($query) use ($user) {
                 $query->where('created_by', $user->id)
                     ->orWhereHas('contact', fn ($contactQuery) => $contactQuery->where('user_id', $user->id));
@@ -44,6 +46,7 @@ class TicketController extends Controller
 
         return Inertia::render('Portal/Tickets/Create', [
             'contacts' => Contact::query()
+                ->visibleToUser($user)
                 ->where('user_id', $user->id)
                 ->select('id', 'name')
                 ->orderBy('name')

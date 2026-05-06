@@ -10,7 +10,7 @@ trait BuildsUsersWithPermissions
 {
     protected function makeSuperAdmin(?Organization $organization = null): User
     {
-        $organization ??= Organization::factory()->create();
+        $organization ??= Organization::query()->first() ?? Organization::factory()->create();
 
         $user = User::factory()->create([
             'organization_id' => $organization->id,
@@ -23,7 +23,7 @@ trait BuildsUsersWithPermissions
 
     protected function makeAdminWithPermissions(array $permissions, ?Organization $organization = null): User
     {
-        $organization ??= Organization::factory()->create();
+        $organization ??= Organization::query()->first() ?? Organization::factory()->create();
 
         $user = User::factory()->create([
             'organization_id' => $organization->id,

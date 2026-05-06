@@ -19,4 +19,19 @@ class UpdateUserRolesRequest extends FormRequest
             'roles.*' => ['string', Rule::exists('roles', 'name')],
         ];
     }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if ($this->user()?->hasRole('super_admin')) {
+                return;
+            }
+
+            $roles = collect($this->input('roles', []));
+
+            if ($roles->contains('super_admin')) {
+                $validator->errors()->add('roles', 'Apenas o super_admin pode atribuir ou remover o perfil super_admin.');
+            }
+        });
+    }
 }

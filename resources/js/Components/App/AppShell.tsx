@@ -16,6 +16,7 @@ type AppShellProps = {
     subtitle?: string;
     organizationLabel: string;
     organizationLogoUrl?: string | null;
+    organizationHref: string;
     desktopNav: NavItem[];
     mobileNav: NavItem[];
     children: ReactNode;
@@ -28,6 +29,7 @@ export default function AppShell({
     subtitle,
     organizationLabel,
     organizationLogoUrl,
+    organizationHref,
     desktopNav,
     mobileNav,
     children,
@@ -47,6 +49,7 @@ export default function AppShell({
                 }))}
                 organizationLabel={organizationLabel}
                 organizationLogoUrl={organizationLogoUrl}
+                organizationHref={organizationHref}
             />
 
             <div className="min-w-0 pb-24 lg:ml-[260px] lg:pb-0">

@@ -15,13 +15,13 @@ type Minute = {
 };
 
 type Props = {
-    minutes: { data: Minute[] };
+    meetingMinutes: { data: Minute[] };
     filters: { search?: string; status?: string; eventId?: string };
     statuses: string[];
     events: { id: number; title: string }[];
 };
 
-export default function MeetingMinutesIndex({ minutes, filters, statuses, events }: Props) {
+export default function MeetingMinutesIndex({ meetingMinutes, filters, statuses, events }: Props) {
     return (
         <AdminLayout
             title="Atas de Reunião"
@@ -46,7 +46,7 @@ export default function MeetingMinutesIndex({ minutes, filters, statuses, events
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {minutes.data.map((m) => (
+                        {meetingMinutes.data.map((m) => (
                             <tr key={m.id}>
                                 <td className="px-4 py-3 font-medium text-slate-900">
                                     <Link href={route('admin.meeting-minutes.show', m.id)} className="hover:text-slate-700">{m.title}</Link>
@@ -57,7 +57,7 @@ export default function MeetingMinutesIndex({ minutes, filters, statuses, events
                                 <td className="px-4 py-3 text-slate-600">{m.approvedBy?.name ?? '-'}</td>
                             </tr>
                         ))}
-                        {minutes.data.length === 0 ? (
+                        {meetingMinutes.data.length === 0 ? (
                             <tr><td colSpan={5} className="px-4 py-6 text-center text-slate-500">Sem atas.</td></tr>
                         ) : null}
                     </tbody>

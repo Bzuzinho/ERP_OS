@@ -20,6 +20,8 @@ type MobileMoreMenuProps = {
         name: string;
         role: string;
         organization: string;
+        avatarUrl?: string | null;
+        organizationLogoUrl?: string | null;
     };
     sections: MenuSection[];
 };
@@ -38,11 +40,24 @@ export default function MobileMoreMenu({ profile, sections }: MobileMoreMenuProp
         <div className="space-y-4">
             <AppCard>
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-slate-200" />
+                    <div className="h-12 w-12 overflow-hidden rounded-full border border-slate-200 bg-slate-200">
+                        {profile.avatarUrl ? (
+                            <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                            <span className="flex h-full w-full items-center justify-center text-sm font-bold text-slate-500">
+                                {profile.name.charAt(0).toUpperCase()}
+                            </span>
+                        )}
+                    </div>
                     <div>
                         <p className="text-sm font-bold text-slate-900">{profile.name}</p>
                         <p className="text-xs text-slate-500">{profile.role}</p>
-                        <p className="text-xs text-slate-500">{profile.organization}</p>
+                        <p className="inline-flex items-center gap-1 text-xs text-slate-500">
+                            {profile.organizationLogoUrl ? (
+                                <img src={profile.organizationLogoUrl} alt="" className="h-4 w-4 rounded-full object-contain" />
+                            ) : null}
+                            {profile.organization}
+                        </p>
                     </div>
                 </div>
             </AppCard>

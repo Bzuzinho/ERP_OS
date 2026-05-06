@@ -128,6 +128,7 @@ const detailBackRoutes: Record<string, string> = {
     'Admin/Tasks/': 'admin.tasks.index',
     'Admin/Documents/': 'admin.documents.index',
     'Admin/Spaces/': 'admin.spaces.index',
+    'Admin/ServiceAreas/': 'admin.settings.service-areas.index',
     'Admin/Settings/Users/': 'admin.settings.users.index',
     'Admin/Settings/Roles/': 'admin.settings.roles.index',
 };
@@ -164,6 +165,7 @@ export default function AdminLayout({
             subtitle={subtitle}
             organizationLabel={user?.organization?.name ?? 'Junta de Freguesia Demo'}
             organizationLogoUrl={user?.organization?.logo_path ? `/storage/${user.organization.logo_path}` : null}
+            organizationHref={route('admin.settings.organization.edit')}
             desktopNav={desktopNavigationItems}
             mobileNav={mobileNavigationItems}
             showBackOnMobile={isDetailPage}

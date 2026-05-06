@@ -55,6 +55,13 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'can' => [
                     'accessAdmin' => $user?->can('admin.access') ?? false,
+                    'accessSettings' => $user
+                        ? ($user->can('settings.view')
+                            || $user->can('users.view')
+                            || $user->can('roles.view')
+                            || $user->can('service_areas.view')
+                            || $user->can('notifications.view'))
+                        : false,
                 ],
             ],
             'flash' => [
