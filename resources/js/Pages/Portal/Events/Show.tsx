@@ -16,7 +16,7 @@ type Props = {
 
 export default function Show({ event }: Props) {
     return (
-        <PortalLayout title="Agenda" subtitle="Eventos e marcacoes">
+        <PortalLayout title="Agenda" subtitle="Detalhe do evento">
             <Head title={event.title} />
             <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">

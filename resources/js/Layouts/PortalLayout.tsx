@@ -135,13 +135,22 @@ export default function PortalLayout({
                 <PageHeader title={title} subtitle={subtitle} actions={<div className="flex items-center gap-2">{headerActions}</div>} />
             </div>
 
-            <div className="mb-4 lg:hidden">{headerActions}</div>
+            <div className="mb-4 lg:hidden">
+                <div className="w-full [&>*]:w-full [&>*]:justify-center">{headerActions}</div>
+            </div>
 
             {flash?.success && flashVisible ? (
                 <AppCard className="mb-4 border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
                     <div className="flex items-start justify-between gap-2">
                         <span>{flash.success}</span>
-                        <button onClick={() => setFlashVisible(false)} className="text-blue-600 hover:text-blue-800">x</button>
+                        <button
+                            type="button"
+                            onClick={() => setFlashVisible(false)}
+                            aria-label="Fechar mensagem"
+                            className="rounded-lg p-1 text-blue-600 hover:bg-blue-100 hover:text-blue-800"
+                        >
+                            ×
+                        </button>
                     </div>
                 </AppCard>
             ) : null}
@@ -150,7 +159,14 @@ export default function PortalLayout({
                 <AppCard className="mb-4 border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                     <div className="flex items-start justify-between gap-2">
                         <span>{flash.error}</span>
-                        <button onClick={() => setFlashVisible(false)} className="text-rose-600 hover:text-rose-800">x</button>
+                        <button
+                            type="button"
+                            onClick={() => setFlashVisible(false)}
+                            aria-label="Fechar mensagem"
+                            className="rounded-lg p-1 text-rose-600 hover:bg-rose-100 hover:text-rose-800"
+                        >
+                            ×
+                        </button>
                     </div>
                 </AppCard>
             ) : null}

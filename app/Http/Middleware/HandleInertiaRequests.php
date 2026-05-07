@@ -71,7 +71,7 @@ class HandleInertiaRequests extends Middleware
             'notifications' => $user ? [
                 'unread_count' => $this->notificationService->getUnreadCount($user),
                 'recent' => $this->notificationService
-                    ->getRecentForUser($user, 10)
+                    ->getRecentForUser($user, 6)
                     ->map(fn ($recipient) => [
                         'recipient_id' => $recipient->id,
                         'id' => $recipient->id,

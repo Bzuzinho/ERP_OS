@@ -201,13 +201,22 @@ export default function AdminLayout({
                 />
             </div>
 
-            <div className="mb-4 lg:hidden">{headerActions}</div>
+            <div className="mb-4 lg:hidden">
+                <div className="w-full [&>*]:w-full [&>*]:justify-center">{headerActions}</div>
+            </div>
 
             {flash?.success && flashVisible ? (
                 <AppCard className="mb-4 border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
                     <div className="flex items-start justify-between gap-2">
                         <span>{flash.success}</span>
-                        <button onClick={() => setFlashVisible(false)} className="text-emerald-600 hover:text-emerald-800">x</button>
+                        <button
+                            type="button"
+                            onClick={() => setFlashVisible(false)}
+                            aria-label="Fechar mensagem"
+                            className="rounded-lg p-1 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-800"
+                        >
+                            ×
+                        </button>
                     </div>
                 </AppCard>
             ) : null}
@@ -216,7 +225,14 @@ export default function AdminLayout({
                 <AppCard className="mb-4 border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                     <div className="flex items-start justify-between gap-2">
                         <span>{flash.error}</span>
-                        <button onClick={() => setFlashVisible(false)} className="text-rose-600 hover:text-rose-800">x</button>
+                        <button
+                            type="button"
+                            onClick={() => setFlashVisible(false)}
+                            aria-label="Fechar mensagem"
+                            className="rounded-lg p-1 text-rose-600 hover:bg-rose-100 hover:text-rose-800"
+                        >
+                            ×
+                        </button>
                     </div>
                 </AppCard>
             ) : null}

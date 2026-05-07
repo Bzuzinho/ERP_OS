@@ -48,9 +48,9 @@ export default function PortalNotificationsIndex({ notifications, filter }: Prop
                 <button
                     type="button"
                     onClick={() => router.post(route('portal.notifications.mark-all-read'))}
-                    className="ml-auto rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:ml-auto sm:w-auto"
                 >
-Marcar todos como lidos
+                    Marcar todos como lidos
                 </button>
             </div>
 

@@ -1,4 +1,5 @@
 import PublicReservationStatusBadge from '@/Components/Portal/PublicReservationStatusBadge';
+import EmptyState from '@/Components/App/EmptyState';
 import PortalLayout from '@/Layouts/PortalLayout';
 import { Link } from '@inertiajs/react';
 
@@ -28,6 +29,14 @@ export default function PortalSpaceReservationsIndex({ reservations }: Props) {
                         </div>
                     </article>
                 ))}
+                {reservations.data.length === 0 ? (
+                    <EmptyState
+                        title="Sem reservas para mostrar"
+                        description="Ainda nao existem pedidos de reserva associados a sua conta."
+                        actionLabel="Criar pedido de reserva"
+                        actionHref={route('portal.space-reservations.create')}
+                    />
+                ) : null}
             </div>
         </PortalLayout>
     );

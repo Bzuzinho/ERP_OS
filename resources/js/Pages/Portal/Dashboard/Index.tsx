@@ -50,13 +50,32 @@ const journeyCards: JourneyCard[] = [
 
 export default function PortalDashboard({ data }: PortalDashboardProps) {
     return (
-        <PortalLayout title="Inicio" subtitle="Escolha a acao que pretende realizar.">
+        <PortalLayout
+            title="Balcao digital"
+            subtitle="Submeta pedidos, acompanhe respostas da Junta e consulte servicos publicos."
+            headerActions={
+                <Link href={route('portal.tickets.create')} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700">
+                    Criar pedido
+                </Link>
+            }
+        >
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
                 <KpiCard label="Pedidos ativos" value={data.kpis.my_active_tickets ?? 0} />
                 <KpiCard label="Pedidos resolvidos" value={data.kpis.resolved_tickets ?? 0} />
                 <KpiCard label="Alertas nao lidos" value={data.kpis.unread_alerts ?? 0} />
                 <KpiCard label="Proximos eventos e reservas" value={data.kpis.upcoming_items ?? 0} />
             </div>
+
+            <AppCard className="mt-4 border-blue-100 bg-blue-50/60">
+                <h2 className="text-lg font-bold text-slate-900">Precisa de ajuda da Junta?</h2>
+                <p className="mt-1 text-sm text-slate-700">Registe um pedido em menos de um minuto e acompanhe todas as atualizacoes no mesmo local.</p>
+                <Link
+                    href={route('portal.tickets.create')}
+                    className="mt-4 inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                    Criar pedido agora
+                </Link>
+            </AppCard>
 
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {journeyCards.map((card) => (

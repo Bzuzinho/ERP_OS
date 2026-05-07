@@ -1,4 +1,5 @@
 import PortalLayout from '@/Layouts/PortalLayout';
+import EmptyState from '@/Components/App/EmptyState';
 import { Link } from '@inertiajs/react';
 
 type DocumentItem = {
@@ -25,12 +26,12 @@ export default function PortalDocumentsIndex({ documents }: Props) {
                                 <p className="text-xs text-stone-600">Tipo: {doc.type?.name ?? 'Documento'}</p>
                                 <p className="text-xs text-stone-500">Data: {new Date(doc.created_at).toLocaleDateString()}</p>
                             </div>
-                            <div className="flex shrink-0 gap-2">
-                                <Link href={route('portal.documents.show', doc.id)} className="rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50">
+                            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                                <Link href={route('portal.documents.show', doc.id)} className="rounded-xl border border-stone-300 px-3 py-2.5 text-center text-sm text-stone-700 hover:bg-stone-50">
                                     Ver
                                 </Link>
                                 {doc.can_download ? (
-                                    <a href={route('portal.documents.download', doc.id)} className="rounded-xl bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-500">
+                                    <a href={route('portal.documents.download', doc.id)} className="rounded-xl bg-amber-600 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-amber-500">
                                         Descarregar
                                     </a>
                                 ) : null}
@@ -38,7 +39,12 @@ export default function PortalDocumentsIndex({ documents }: Props) {
                         </div>
                     </div>
                 ))}
-                {documents.data.length === 0 ? <p className="rounded-2xl border border-stone-200 bg-white p-6 text-center text-stone-500">Sem documentos disponiveis.</p> : null}
+                {documents.data.length === 0 ? (
+                    <EmptyState
+                        title="Sem documentos disponiveis"
+                        description="Quando houver documentos partilhados consigo, vao aparecer aqui."
+                    />
+                ) : null}
             </div>
         </PortalLayout>
     );

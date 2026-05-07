@@ -109,9 +109,16 @@ export default function TicketsIndex({ tickets, filters, statuses, priorities, s
                         placeholder="Pesquisar referência, assunto ou categoria"
                         className="max-w-xl"
                     />
-                    <div className="mt-3 -mx-1" onMouseLeave={handleSearchBlur}>
+                    <div className="mt-3 -mx-1">
                         <FilterPills options={statusOptions} selected={selectedStatus} onChange={handleStatusChange} />
                     </div>
+                    <button
+                        type="button"
+                        onClick={handleSearchBlur}
+                        className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                        Aplicar pesquisa
+                    </button>
                 </div>
 
                 <AppCard className="hidden p-4 lg:block">

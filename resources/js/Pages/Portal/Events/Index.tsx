@@ -34,7 +34,7 @@ const statusTone: Record<string, 'blue' | 'amber' | 'green' | 'red' | 'slate'> =
 
 export default function Index({ events }: Props) {
     return (
-        <PortalLayout title="Agenda" subtitle="Eventos e marcacoes.">
+        <PortalLayout title="Agenda" subtitle="Eventos publicos e atividades da freguesia.">
             <Head title="Agenda" />
 
             <div className="grid gap-4 xl:grid-cols-2">

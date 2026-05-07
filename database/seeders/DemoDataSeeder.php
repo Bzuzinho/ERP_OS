@@ -37,6 +37,7 @@ use App\Models\Space;
 use App\Models\SpaceCleaningRecord;
 use App\Models\SpaceReservation;
 use App\Models\SpaceReservationApproval;
+use App\Models\ServiceArea;
 use App\Models\Task;
 use App\Models\TaskChecklist;
 use App\Models\TaskChecklistItem;
@@ -356,16 +357,17 @@ class DemoDataSeeder extends Seeder
     {
         $definitions = [
             [
-                'title' => 'Buraco na via publica',
+                'title' => 'Buraco na Rua Principal',
                 'category' => 'Espaco Publico',
                 'priority' => 'high',
                 'status' => 'em_execucao',
                 'source' => 'portal',
                 'contact' => 'miguel',
                 'assigned_to' => 'operacional@juntaos.local',
-                'created_by' => 'administrativo@juntaos.local',
-                'description' => 'Foi identificado um buraco junto a passadeira na Rua da Escola Basica, representando risco para peoes e veiculos.',
-                'location_text' => 'Rua da Escola Basica',
+                'created_by' => 'cidadao@juntaos.local',
+                'description' => 'Foi identificado um buraco junto a passadeira na Rua Principal, representando risco para peoes e veiculos.',
+                'location_text' => 'Rua Principal',
+                'service_area_slug' => 'manutencao',
                 'due_days' => 3,
             ],
             [
@@ -514,6 +516,13 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($definitions as $definition) {
+            $serviceAreaId = isset($definition['service_area_slug'])
+                ? ServiceArea::query()
+                    ->where('organization_id', $this->organization->id)
+                    ->where('slug', $definition['service_area_slug'])
+                    ->value('id')
+                : null;
+
             $ticket = Ticket::query()
                 ->where('organization_id', $this->organization->id)
                 ->where('title', $definition['title'])
@@ -526,6 +535,7 @@ class DemoDataSeeder extends Seeder
                     'created_by' => $this->users[$definition['created_by']]->id,
                     'contact_id' => isset($definition['contact']) ? $this->contacts[$definition['contact']]->id : null,
                     'assigned_to' => $definition['assigned_to'] ? $this->users[$definition['assigned_to']]->id : null,
+                    'service_area_id' => $serviceAreaId,
                     'department_id' => null,
                     'category' => $definition['category'],
                     'priority' => $definition['priority'],
@@ -544,6 +554,7 @@ class DemoDataSeeder extends Seeder
                     'created_by' => $this->users[$definition['created_by']]->id,
                     'contact_id' => isset($definition['contact']) ? $this->contacts[$definition['contact']]->id : null,
                     'assigned_to' => $definition['assigned_to'] ? $this->users[$definition['assigned_to']]->id : null,
+                    'service_area_id' => $serviceAreaId,
                     'category' => $definition['category'],
                     'priority' => $definition['priority'],
                     'status' => $definition['status'],
@@ -612,8 +623,8 @@ class DemoDataSeeder extends Seeder
         }
 
         $comments = [
-            ['ticket' => 'Buraco na via publica', 'author' => 'operacional@juntaos.local', 'body' => 'Vistoria no local concluida. Intervencao agendada para esta semana.'],
-            ['ticket' => 'Buraco na via publica', 'author' => 'executivo@juntaos.local', 'body' => 'Prioridade mantida como alta devido ao risco rodoviario.'],
+            ['ticket' => 'Buraco na Rua Principal', 'author' => 'operacional@juntaos.local', 'body' => 'Vistoria no local concluida. Intervencao agendada para esta semana.', 'visibility' => 'public'],
+            ['ticket' => 'Buraco na Rua Principal', 'author' => 'executivo@juntaos.local', 'body' => 'Prioridade mantida como alta devido ao risco rodoviario.', 'visibility' => 'internal'],
             ['ticket' => 'Pedido de emissao de atestado', 'author' => 'administrativo@juntaos.local', 'body' => 'Documentacao confirmada. Processo segue para analise final.'],
             ['ticket' => 'Manutencao de equipamento no parque infantil', 'author' => 'manutencao@juntaos.local', 'body' => 'Peca de substituicao encomendada ao fornecedor.'],
             ['ticket' => 'Pedido de poda de arvores', 'author' => 'operacional@juntaos.local', 'body' => 'Intervencao colocada em agenda para quinta-feira.'],
@@ -629,7 +640,7 @@ class DemoDataSeeder extends Seeder
                 [
                     'organization_id' => $this->organization->id,
                     'user_id' => $this->users[$comment['author']]->id,
-                    'visibility' => 'internal',
+                    'visibility' => $comment['visibility'] ?? 'internal',
                 ],
             );
         }
@@ -638,8 +649,10 @@ class DemoDataSeeder extends Seeder
     private function seedTasks(): void
     {
         $definitions = [
-            ['title' => 'Verificar buraco na Rua da Escola', 'status' => 'in_progress', 'priority' => 'high', 'assigned_to' => 'operacional@juntaos.local', 'ticket' => 'Buraco na via publica'],
+            ['title' => 'Verificar buraco na Rua Principal', 'status' => 'in_progress', 'priority' => 'high', 'assigned_to' => 'operacional@juntaos.local', 'ticket' => 'Buraco na Rua Principal'],
             ['title' => 'Preparar sala para reuniao de executivo', 'status' => 'pending', 'priority' => 'normal', 'assigned_to' => 'administrativo@juntaos.local', 'ticket' => null],
+            ['title' => 'Preparar salao para evento da associacao', 'status' => 'pending', 'priority' => 'normal', 'assigned_to' => 'operacional@juntaos.local', 'ticket' => null],
+            ['title' => 'Limpeza final do salao apos evento', 'status' => 'pending', 'priority' => 'normal', 'assigned_to' => 'manutencao@juntaos.local', 'ticket' => null],
             ['title' => 'Confirmar reserva do auditorio', 'status' => 'waiting', 'priority' => 'normal', 'assigned_to' => 'administrativo@juntaos.local', 'ticket' => 'Pedido de cedencia de sala'],
             ['title' => 'Atualizar stock de materiais de limpeza', 'status' => 'pending', 'priority' => 'normal', 'assigned_to' => 'armazem@juntaos.local', 'ticket' => null],
             ['title' => 'Responder a pedido de atestado', 'status' => 'in_progress', 'priority' => 'high', 'assigned_to' => 'administrativo@juntaos.local', 'ticket' => 'Pedido de emissao de atestado'],
@@ -744,6 +757,7 @@ class DemoDataSeeder extends Seeder
             ['title' => 'Visita tecnica - Parque Infantil do Calhariz', 'type' => 'visit', 'status' => 'scheduled', 'start' => $today->copy()->addDay()->setTime(15, 0), 'end' => $today->copy()->addDay()->setTime(16, 0), 'location' => 'Parque Infantil do Calhariz'],
             ['title' => 'Atendimento ao Publico', 'type' => 'appointment', 'status' => 'scheduled', 'start' => $today->copy()->addDays(2)->setTime(9, 30), 'end' => $today->copy()->addDays(2)->setTime(11, 0), 'location' => 'Edificio da Junta'],
             ['title' => 'Evento Comunitario - Dia da Freguesia', 'type' => 'activity', 'status' => 'scheduled', 'start' => $today->copy()->addDays(2)->setTime(11, 30), 'end' => $today->copy()->addDays(2)->setTime(13, 0), 'location' => 'Centro Comunitario do Calhariz'],
+            ['title' => 'Sessao publica de esclarecimento', 'type' => 'activity', 'status' => 'scheduled', 'start' => $today->copy()->addDays(3)->setTime(18, 0), 'end' => $today->copy()->addDays(3)->setTime(19, 30), 'location' => 'Sala Polivalente', 'visibility' => 'public'],
         ];
 
         foreach ($definitions as $definition) {
@@ -761,7 +775,7 @@ class DemoDataSeeder extends Seeder
                     'end_at' => $definition['end'],
                     'location_text' => $definition['location'],
                     'created_by' => $this->users['executivo@juntaos.local']->id,
-                    'visibility' => 'internal',
+                    'visibility' => $definition['visibility'] ?? 'internal',
                 ],
             );
 
@@ -800,7 +814,7 @@ class DemoDataSeeder extends Seeder
 
         $definitions = [
             [
-                'purpose' => 'Assembleia da Associacao Cultural',
+                'purpose' => 'Reserva do Salao Polivalente - Assembleia da Associacao Cultural',
                 'space' => 'sala-polivalente',
                 'contact' => 'associacao',
                 'requested_by' => 'associacao@juntaos.local',
@@ -979,6 +993,42 @@ class DemoDataSeeder extends Seeder
                     );
                 }
 
+                if (str_contains(Str::lower($reservation->purpose), 'salao')) {
+                    Task::query()->updateOrCreate(
+                        [
+                            'organization_id' => $this->organization->id,
+                            'title' => 'Preparar salao para evento da associacao',
+                        ],
+                        [
+                            'organization_id' => $this->organization->id,
+                            'assigned_to' => $this->users['operacional@juntaos.local']->id,
+                            'created_by' => $this->users['administrativo@juntaos.local']->id,
+                            'description' => 'Preparacao do salao para reserva aprovada no portal.',
+                            'status' => 'pending',
+                            'priority' => 'normal',
+                            'start_date' => now()->toDateString(),
+                            'due_date' => now()->addDay()->toDateString(),
+                        ],
+                    );
+
+                    Task::query()->updateOrCreate(
+                        [
+                            'organization_id' => $this->organization->id,
+                            'title' => 'Limpeza final do salao apos evento',
+                        ],
+                        [
+                            'organization_id' => $this->organization->id,
+                            'assigned_to' => $this->users['manutencao@juntaos.local']->id,
+                            'created_by' => $this->users['administrativo@juntaos.local']->id,
+                            'description' => 'Limpeza e fecho operacional apos evento da associacao.',
+                            'status' => 'pending',
+                            'priority' => 'normal',
+                            'start_date' => now()->toDateString(),
+                            'due_date' => now()->addDays(2)->toDateString(),
+                        ],
+                    );
+                }
+
                 $this->logActivity(
                     $reservation,
                     'space_reservation.approved',
@@ -1021,7 +1071,7 @@ class DemoDataSeeder extends Seeder
 
         $definitions = [
             ['title' => 'Ata da reuniao de executivo', 'type' => 'Ata', 'visibility' => 'restricted', 'related_event' => 'Reuniao de Executivo'],
-            ['title' => 'Edital de obras na via publica', 'type' => 'Edital', 'visibility' => 'public', 'related_ticket' => 'Buraco na via publica'],
+            ['title' => 'Edital de obras na via publica', 'type' => 'Edital', 'visibility' => 'public', 'related_ticket' => 'Buraco na Rua Principal'],
             ['title' => 'Regulamento de cedencia de espacos', 'type' => 'Regulamento', 'visibility' => 'portal', 'related_space' => 'sala-polivalente'],
             ['title' => 'Formulario de pedido de atestado', 'type' => 'Formulario', 'visibility' => 'portal', 'related_ticket' => 'Pedido de emissao de atestado'],
             ['title' => 'Contrato de manutencao de equipamentos', 'type' => 'Contrato', 'visibility' => 'restricted', 'related_contact' => 'limpezas'],
@@ -1258,7 +1308,7 @@ class DemoDataSeeder extends Seeder
                     'quantity' => $movement['quantity'],
                     'from_location_id' => $movement['from'] ? $this->inventoryLocations[$movement['from']]->id : null,
                     'to_location_id' => $movement['to'] ? $this->inventoryLocations[$movement['to']]->id : null,
-                    'related_ticket_id' => $this->tickets['Buraco na via publica']->id,
+                    'related_ticket_id' => $this->tickets['Buraco na Rua Principal']->id,
                     'requested_by' => $this->users['armazem@juntaos.local']->id,
                     'handled_by' => $this->users['armazem@juntaos.local']->id,
                     'occurred_at' => now()->subDays(2),
@@ -1722,7 +1772,7 @@ class DemoDataSeeder extends Seeder
                     'owner_user_id' => $this->users['executivo@juntaos.local']->id,
                     'department_id' => $this->teams[$definition['team']]->department_id,
                     'team_id' => $this->teams[$definition['team']]->id,
-                    'related_ticket_id' => $this->tickets['Buraco na via publica']->id,
+                    'related_ticket_id' => $this->tickets['Buraco na Rua Principal']->id,
                     'related_space_id' => $this->spaces[$definition['related_space']]->id,
                     'budget_estimate' => 5000,
                     'progress_percent' => $definition['progress'],
@@ -1936,10 +1986,19 @@ class DemoDataSeeder extends Seeder
         $attachments = [
             [
                 'subject_type' => Ticket::class,
-                'subject_id' => $this->tickets['Buraco na via publica']->id,
+                'subject_id' => $this->tickets['Buraco na Rua Principal']->id,
                 'file_name' => 'foto-buraco-via-publica.txt',
                 'content' => 'Anexo demo: fotografia descritiva de ocorrencia em via publica.',
                 'uploaded_by' => 'operacional@juntaos.local',
+                'visibility' => 'public',
+            ],
+            [
+                'subject_type' => Ticket::class,
+                'subject_id' => $this->tickets['Buraco na Rua Principal']->id,
+                'file_name' => 'relatorio-interno-buraco-rua-principal.txt',
+                'content' => 'Anexo interno: relatorio tecnico com plano de intervencao.',
+                'uploaded_by' => 'manutencao@juntaos.local',
+                'visibility' => 'internal',
             ],
             [
                 'subject_type' => Event::class,
@@ -1973,7 +2032,7 @@ class DemoDataSeeder extends Seeder
                     'file_path' => $path,
                     'mime_type' => 'text/plain',
                     'size' => strlen($definition['content']),
-                    'visibility' => 'internal',
+                    'visibility' => $definition['visibility'] ?? 'internal',
                 ],
             );
         }

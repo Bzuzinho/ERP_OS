@@ -17,13 +17,8 @@ class SpaceReservationNotificationService
      */
     public function notifyReservationRequested(SpaceReservation $reservation, User $requestedBy): void
     {
-        // Notify space managers and admin
-        $spaceManager = $reservation->space->manager();
+        // Notify admin/staff that can process reservations.
         $recipients = [];
-
-        if ($spaceManager) {
-            $recipients[] = $spaceManager;
-        }
 
         // Also notify users with spaces.approve_reservation permission
         $recipients = array_merge(
@@ -137,11 +132,6 @@ class SpaceReservationNotificationService
 
         if ($reservation->contact && $reservation->contact->user_id) {
             $recipients[] = $reservation->contact->user_id;
-        }
-
-        // Notify space manager
-        if ($reservation->space->manager()) {
-            $recipients[] = $reservation->space->manager()->id;
         }
 
         if (empty($recipients)) {

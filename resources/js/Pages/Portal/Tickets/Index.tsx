@@ -92,7 +92,12 @@ export default function PortalTicketsIndex({ tickets }: Props) {
                     </table>
                     {filteredTickets.length === 0 ? (
                         <div className="p-6">
-                            <EmptyState title="Ainda nao submeteu pedidos." description="Crie o seu primeiro pedido para comecar a acompanhar atualizacoes." />
+                            <EmptyState
+                                title="Ainda nao submeteu pedidos."
+                                description="Crie o seu primeiro pedido para comecar a acompanhar atualizacoes."
+                                actionLabel="Criar pedido"
+                                actionHref={route('portal.tickets.create')}
+                            />
                         </div>
                     ) : null}
                 </AppCard>
@@ -118,7 +123,14 @@ export default function PortalTicketsIndex({ tickets }: Props) {
                         </AppCard>
                     ))}
 
-                    {filteredTickets.length === 0 ? <EmptyState title="Ainda nao submeteu pedidos." description="Crie o seu primeiro pedido para comecar a acompanhar atualizacoes." /> : null}
+                    {filteredTickets.length === 0 ? (
+                        <EmptyState
+                            title="Ainda nao submeteu pedidos."
+                            description="Crie o seu primeiro pedido para comecar a acompanhar atualizacoes."
+                            actionLabel="Criar pedido"
+                            actionHref={route('portal.tickets.create')}
+                        />
+                    ) : null}
                 </div>
             </div>
 

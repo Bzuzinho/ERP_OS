@@ -111,7 +111,7 @@ export default function PortalTicketsShow({ ticket }: Props) {
                         {ticket.location_text ? (
                             <p><span className="font-semibold text-slate-900">Localizacao:</span> {ticket.location_text}</p>
                         ) : null}
-                        <p><span className="font-semibold text-slate-900">Estado publico:</span> {mapTicketStatusToPublicLabel(ticket.status)}</p>
+                        <p><span className="font-semibold text-slate-900">Estado:</span> {mapTicketStatusToPublicLabel(ticket.status)}</p>
                         <p><span className="font-semibold text-slate-900">Data de submissao:</span> {new Date(ticket.created_at).toLocaleString()}</p>
                     </div>
                 </AppCard>
@@ -129,7 +129,7 @@ export default function PortalTicketsShow({ ticket }: Props) {
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
                 <div className="space-y-4">
                     <AppCard>
-                        <h3 className="text-base font-bold text-slate-900">Comunicacao</h3>
+                        <h3 className="text-base font-bold text-slate-900">Mensagens</h3>
                         <p className="mt-1 text-xs text-slate-600">A sua mensagem sera enviada a Junta e ficara associada a este pedido.</p>
                         <p className="mt-1 text-xs text-slate-600">Recebera um alerta sempre que houver atualizacao.</p>
                         <div className="mt-3">
@@ -153,7 +153,7 @@ export default function PortalTicketsShow({ ticket }: Props) {
 
                 <div className="space-y-4">
                     <AppCard>
-                        <h3 className="text-base font-bold text-slate-900">Anexos publicos</h3>
+                        <h3 className="text-base font-bold text-slate-900">Anexos</h3>
                         <AttachmentUploader
                             storeRoute={route('portal.tickets.attachments.store', ticket.id)}
                             defaultVisibility="public"

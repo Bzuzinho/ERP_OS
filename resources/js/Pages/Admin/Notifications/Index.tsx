@@ -39,7 +39,7 @@ export default function AdminNotificationsIndex({ notifications, filter }: Props
                     <Link
                         key={item.key}
                         href={route('admin.notifications.index', { filter: item.key })}
-                        className={`rounded-xl border px-3 py-1.5 text-sm ${filter === item.key ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+                        className={`rounded-xl border px-3 py-2 text-sm ${filter === item.key ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
                     >
                         {item.label}
                     </Link>
@@ -48,7 +48,7 @@ export default function AdminNotificationsIndex({ notifications, filter }: Props
                 <button
                     type="button"
                     onClick={() => router.post(route('admin.notifications.mark-all-read'))}
-                    className="ml-auto rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:ml-auto sm:w-auto"
                 >
                     Marcar todos como lidos
                 </button>

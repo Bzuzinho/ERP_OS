@@ -27,10 +27,10 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             AbsenceTypeSeeder::class,
             TeamSeeder::class,
+            ServiceAreaSeeder::class,
             OperationalPlanSeeder::class,
             RecurringOperationSeeder::class,
             DemoDataSeeder::class,
-            ServiceAreaSeeder::class,
             NotificationDemoSeeder::class,
         ]);
     }
