@@ -16,6 +16,9 @@ class ReportFilterRequest extends FormRequest
         return [
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'all_my_scopes' => ['nullable', 'boolean'],
+            'organization_id' => ['nullable', 'integer'],
+            'service_area_id' => ['nullable', 'integer'],
             'status' => ['nullable', 'string'],
             'priority' => ['nullable', 'string'],
             'category' => ['nullable', 'string'],

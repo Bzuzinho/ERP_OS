@@ -29,11 +29,17 @@ type Ticket = {
     status: string;
     priority: string;
     source: string;
+    type: string;
     due_date: string | null;
     created_by: number;
     created_at?: string | null;
     visibility: string;
+    organization?: { id: number; name: string } | null;
     assignee: UserRef | null;
+    validator?: UserRef | null;
+    validated_at?: string | null;
+    validation_notes?: string | null;
+    resolution_notes?: string | null;
     service_area?: { id: number; name: string } | null;
     department?: { id: number; name: string } | null;
     team?: { id: number; name: string } | null;
@@ -75,17 +81,53 @@ type Ticket = {
         created_at: string;
         user: UserRef | null;
     }>;
+    tasks?: Array<{
+        id: number;
+        title: string;
+        status: string;
+    }>;
 };
 
 type Props = {
     ticket: Ticket;
     statuses: string[];
     users: UserRef[];
+    can: {
+        submitValidation: boolean;
+        validate: boolean;
+        cancel: boolean;
+        generateTasks: boolean;
+    };
+    ticketAbilities: {
+        can_be_validated: boolean;
+        can_be_cancelled: boolean;
+        can_generate_tasks: boolean;
+        can_submit_for_validation: boolean;
+    };
+    taskProgress: {
+        total: number;
+        eligible: number;
+        done: number;
+        cancelled: number;
+        open: number;
+        in_progress: number;
+        ready_for_validation: boolean;
+    };
 };
 
-export default function TicketsShow({ ticket, statuses, users }: Props) {
+export default function TicketsShow({ ticket, statuses, users, can, ticketAbilities, taskProgress }: Props) {
     const statusForm = useForm({ status: ticket.status, notes: '' });
     const assignForm = useForm({ assigned_to: ticket.assignee?.id ? String(ticket.assignee.id) : '' });
+    const submitValidationForm = useForm({ notes: '', resolution_notes: ticket.resolution_notes ?? '' });
+    const validateForm = useForm({ validation_notes: '', resolution_notes: '' });
+    const cancelForm = useForm({ notes: '' });
+    const generateTaskForm = useForm({
+        tasks: [{
+            title: `Tarefa de ${ticket.reference}`,
+            description: ticket.title,
+            priority: 'normal',
+        }],
+    });
 
     const submitStatus = (event: FormEvent) => {
         event.preventDefault();
@@ -95,6 +137,26 @@ export default function TicketsShow({ ticket, statuses, users }: Props) {
     const submitAssign = (event: FormEvent) => {
         event.preventDefault();
         assignForm.patch(route('admin.tickets.assign', ticket.id));
+    };
+
+    const submitValidate = (event: FormEvent) => {
+        event.preventDefault();
+        validateForm.post(route('admin.tickets.validate', ticket.id));
+    };
+
+    const submitForValidation = (event: FormEvent) => {
+        event.preventDefault();
+        submitValidationForm.post(route('admin.tickets.submit-validation', ticket.id));
+    };
+
+    const submitCancel = (event: FormEvent) => {
+        event.preventDefault();
+        cancelForm.post(route('admin.tickets.cancel', ticket.id));
+    };
+
+    const submitGenerateTask = (event: FormEvent) => {
+        event.preventDefault();
+        generateTaskForm.post(route('admin.tickets.generate-tasks', ticket.id));
     };
 
     const statusTone = (status: string): 'blue' | 'amber' | 'green' | 'red' | 'slate' => {
@@ -116,6 +178,7 @@ export default function TicketsShow({ ticket, statuses, users }: Props) {
 
     const communicationComments = ticket.comments.filter((comment) => comment.visibility === 'public');
     const internalNotes = ticket.comments.filter((comment) => comment.visibility === 'internal');
+    const progressPercent = taskProgress.eligible > 0 ? Math.round((taskProgress.done / taskProgress.eligible) * 100) : 0;
 
     const timelineEntries: TimelineEntry[] = [
         ...(ticket.created_at
@@ -184,10 +247,17 @@ export default function TicketsShow({ ticket, statuses, users }: Props) {
                         <AppBadge tone={priorityTone(ticket.priority)}>{ticket.priority}</AppBadge>
                     </div>
                     <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                        <p><span className="font-semibold text-slate-900">Tipo:</span> {ticket.type}</p>
+                        <p><span className="font-semibold text-slate-900">Organização:</span> {ticket.organization?.name ?? 'Nao definida'}</p>
                         <p><span className="font-semibold text-slate-900">Responsavel:</span> {ticket.assignee?.name ?? 'Por atribuir'}</p>
-                        <p><span className="font-semibold text-slate-900">Area funcional:</span> {ticket.service_area?.name ?? 'Nao definida'}</p>
+                        <p><span className="font-semibold text-slate-900">Tema:</span> {ticket.service_area?.name ?? 'Nao definida'}</p>
                         <p><span className="font-semibold text-slate-900">Departamento:</span> {ticket.department?.name ?? 'Nao definido'}</p>
                         <p><span className="font-semibold text-slate-900">Equipa:</span> {ticket.team?.name ?? 'Nao definida'}</p>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                        <p><span className="font-semibold text-slate-900">Validação:</span> {ticket.validated_at ? `Validado por ${ticket.validator?.name ?? 'utilizador'} em ${new Date(ticket.validated_at).toLocaleString()}` : 'Pendente'}</p>
+                        {ticket.validation_notes ? <p className="mt-1"><span className="font-semibold text-slate-900">Notas validação:</span> {ticket.validation_notes}</p> : null}
+                        {ticket.resolution_notes ? <p className="mt-1"><span className="font-semibold text-slate-900">Notas resolução:</span> {ticket.resolution_notes}</p> : null}
                     </div>
                 </AppCard>
 
@@ -208,6 +278,44 @@ export default function TicketsShow({ ticket, statuses, users }: Props) {
                     <a href="#bloco-notas" className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 font-semibold text-amber-700 hover:bg-amber-100">Adicionar nota interna</a>
                     <a href="#bloco-anexos" className="rounded-xl border border-slate-300 px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-100">Anexar ficheiro</a>
                 </div>
+            </AppCard>
+
+            <AppCard className="mt-4">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <h3 className="text-base font-bold text-slate-900">Progresso operacional</h3>
+                        <p className="mt-1 text-sm text-slate-600">
+                            {taskProgress.total === 0
+                                ? 'Este pedido ainda não tem tarefas associadas.'
+                                : `${taskProgress.done}/${taskProgress.eligible || taskProgress.total} tarefas elegíveis concluídas`}
+                        </p>
+                    </div>
+                    {taskProgress.total > 0 ? <AppBadge tone={taskProgress.ready_for_validation ? 'green' : 'blue'}>{progressPercent}%</AppBadge> : null}
+                </div>
+                {taskProgress.total > 0 ? (
+                    <>
+                        <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200">
+                            <div className={`h-full rounded-full ${taskProgress.ready_for_validation ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${progressPercent}%` }} />
+                        </div>
+                        <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-4">
+                            <p><span className="font-semibold text-slate-900">Totais:</span> {taskProgress.total}</p>
+                            <p><span className="font-semibold text-slate-900">Concluídas:</span> {taskProgress.done}</p>
+                            <p><span className="font-semibold text-slate-900">Abertas:</span> {taskProgress.open}</p>
+                            <p><span className="font-semibold text-slate-900">Canceladas:</span> {taskProgress.cancelled}</p>
+                        </div>
+                    </>
+                ) : null}
+                {ticketAbilities.can_submit_for_validation ? (
+                    <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                        <p className="text-sm font-semibold text-emerald-900">Todas as tarefas estão concluídas. Pedido pronto para validação.</p>
+                        {can.submitValidation ? (
+                            <form onSubmit={submitForValidation} className="mt-3">
+                                <textarea value={submitValidationForm.data.resolution_notes} onChange={(event) => submitValidationForm.setData('resolution_notes', event.target.value)} placeholder="Notas finais de resolução" className="min-h-20 w-full rounded-2xl border border-emerald-300 px-3 py-2.5 text-sm" />
+                                <button type="submit" className="mt-3 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Enviar para validação</button>
+                            </form>
+                        ) : null}
+                    </div>
+                ) : null}
             </AppCard>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -232,6 +340,34 @@ export default function TicketsShow({ ticket, statuses, users }: Props) {
                         <button type="submit" className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Guardar</button>
                     </div>
                 </form>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                {can.validate && ticketAbilities.can_be_validated ? (
+                    <form onSubmit={submitValidate} className="rounded-3xl border border-emerald-200 bg-emerald-50/40 p-5">
+                        <h3 className="text-base font-semibold text-emerald-900">Validar pedido</h3>
+                        <textarea value={validateForm.data.validation_notes} onChange={(event) => validateForm.setData('validation_notes', event.target.value)} placeholder="Notas de validação" className="mt-3 min-h-20 w-full rounded-2xl border border-emerald-300 px-3 py-2.5 text-sm" />
+                        <textarea value={validateForm.data.resolution_notes} onChange={(event) => validateForm.setData('resolution_notes', event.target.value)} placeholder="Notas de resolução" className="mt-2 min-h-20 w-full rounded-2xl border border-emerald-300 px-3 py-2.5 text-sm" />
+                        <button type="submit" className="mt-3 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">Validar</button>
+                    </form>
+                ) : null}
+
+                {can.cancel && ticketAbilities.can_be_cancelled ? (
+                    <form onSubmit={submitCancel} className="rounded-3xl border border-rose-200 bg-rose-50/40 p-5">
+                        <h3 className="text-base font-semibold text-rose-900">Cancelar pedido</h3>
+                        <textarea value={cancelForm.data.notes} onChange={(event) => cancelForm.setData('notes', event.target.value)} placeholder="Motivo do cancelamento" className="mt-3 min-h-20 w-full rounded-2xl border border-rose-300 px-3 py-2.5 text-sm" />
+                        <button type="submit" className="mt-3 rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700">Cancelar</button>
+                    </form>
+                ) : null}
+
+                {can.generateTasks && ticketAbilities.can_generate_tasks ? (
+                    <form onSubmit={submitGenerateTask} className="rounded-3xl border border-blue-200 bg-blue-50/40 p-5">
+                        <h3 className="text-base font-semibold text-blue-900">Criar tarefa</h3>
+                        <input value={generateTaskForm.data.tasks[0].title} onChange={(event) => generateTaskForm.setData('tasks', [{ ...generateTaskForm.data.tasks[0], title: event.target.value }])} placeholder="Título da tarefa" className="mt-3 w-full rounded-2xl border border-blue-300 px-3 py-2.5 text-sm" />
+                        <textarea value={generateTaskForm.data.tasks[0].description} onChange={(event) => generateTaskForm.setData('tasks', [{ ...generateTaskForm.data.tasks[0], description: event.target.value }])} placeholder="Descrição" className="mt-2 min-h-20 w-full rounded-2xl border border-blue-300 px-3 py-2.5 text-sm" />
+                        <button type="submit" className="mt-3 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Gerar tarefa</button>
+                    </form>
+                ) : null}
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-2">

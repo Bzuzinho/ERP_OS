@@ -26,6 +26,20 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class, 'organization_user')
+            ->withPivot('role_context', 'has_global_access', 'is_default', 'is_active')
+            ->withTimestamps();
+    }
+
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class, 'department_user')
+            ->withPivot('organization_id', 'role_context', 'is_active')
+            ->withTimestamps();
+    }
+
     public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class);
@@ -189,8 +203,35 @@ class User extends Authenticatable
     public function serviceAreas(): BelongsToMany
     {
         return $this->belongsToMany(ServiceArea::class, 'service_area_user')
-            ->withPivot('role', 'is_primary')
+            ->withPivot('organization_id', 'role', 'role_context', 'is_primary', 'is_active')
             ->withTimestamps();
+    }
+
+    public function defaultOrganization(): ?Organization
+    {
+        $default = $this->organizations()
+            ->wherePivot('is_active', true)
+            ->wherePivot('is_default', true)
+            ->first();
+
+        if ($default !== null) {
+            return $default;
+        }
+
+        return $this->organization;
+    }
+
+    public function hasGlobalAccessToOrganization(Organization $organization): bool
+    {
+        if ($this->hasRole('super_admin')) {
+            return true;
+        }
+
+        return $this->organizations()
+            ->where('organizations.id', $organization->id)
+            ->wherePivot('is_active', true)
+            ->wherePivot('has_global_access', true)
+            ->exists();
     }
 
     public function notificationRecipients(): HasMany

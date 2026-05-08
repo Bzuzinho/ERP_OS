@@ -18,7 +18,7 @@ class UpdateTaskStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::in(Task::STATUSES)],
+            'status' => ['required', Rule::in(['pending', 'in_progress', 'waiting', 'done', 'cancelled'])],
         ];
     }
 }

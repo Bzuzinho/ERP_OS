@@ -43,9 +43,12 @@ use App\Http\Controllers\Admin\TaskChecklistController as AdminTaskChecklistCont
 use App\Http\Controllers\Admin\TaskChecklistItemController as AdminTaskChecklistItemController;
 use App\Http\Controllers\Admin\TaskController as AdminTaskController;
 use App\Http\Controllers\Admin\TaskStatusController as AdminTaskStatusController;
+use App\Http\Controllers\Admin\TaskValidationController as AdminTaskValidationController;
 use App\Http\Controllers\Admin\TicketAttachmentController as AdminTicketAttachmentController;
 use App\Http\Controllers\Admin\TicketCommentController as AdminTicketCommentController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\Admin\TicketTaskGenerationController as AdminTicketTaskGenerationController;
+use App\Http\Controllers\Admin\TicketValidationController as AdminTicketValidationController;
 use App\Http\Controllers\Admin\TicketStatusController as AdminTicketStatusController;
 use App\Http\Controllers\Portal\AttachmentDownloadController as PortalAttachmentDownloadController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
@@ -112,6 +115,10 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::resource('tickets', AdminTicketController::class);
         Route::patch('tickets/{ticket}/status', [AdminTicketStatusController::class, 'update'])->name('tickets.status.update');
         Route::patch('tickets/{ticket}/assign', [AdminTicketController::class, 'assign'])->name('tickets.assign');
+        Route::post('tickets/{ticket}/submit-validation', [AdminTicketValidationController::class, 'submitForValidation'])->name('tickets.submit-validation');
+        Route::post('tickets/{ticket}/validate', [AdminTicketValidationController::class, 'validate'])->name('tickets.validate');
+        Route::post('tickets/{ticket}/cancel', [AdminTicketValidationController::class, 'cancel'])->name('tickets.cancel');
+        Route::post('tickets/{ticket}/generate-tasks', [AdminTicketTaskGenerationController::class, 'store'])->name('tickets.generate-tasks');
         Route::post('tickets/{ticket}/comments', [AdminTicketCommentController::class, 'store'])->name('tickets.comments.store');
         Route::post('tickets/{ticket}/attachments', [AdminTicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
         Route::get('attachments/{attachment}/download', AdminAttachmentDownloadController::class)->name('attachments.download');
@@ -120,6 +127,9 @@ Route::middleware(['auth', 'permission:admin.access'])
             ->missing(fn () => to_route('admin.tasks.index'));
         Route::patch('tasks/{task}/status', [AdminTaskStatusController::class, 'update'])->name('tasks.status.update');
         Route::post('tasks/{task}/complete', [AdminTaskController::class, 'complete'])->name('tasks.complete');
+        Route::post('tasks/{task}/submit-validation', [AdminTaskValidationController::class, 'submitForValidation'])->name('tasks.submit-validation');
+        Route::post('tasks/{task}/validate', [AdminTaskValidationController::class, 'validateTask'])->name('tasks.validate');
+        Route::post('tasks/{task}/reopen', [AdminTaskValidationController::class, 'reopen'])->name('tasks.reopen');
         Route::post('tasks/{task}/checklists', [AdminTaskChecklistController::class, 'store'])->name('tasks.checklists.store');
         Route::patch('tasks/{task}/checklists/{checklist}', [AdminTaskChecklistController::class, 'update'])->name('tasks.checklists.update');
         Route::delete('tasks/{task}/checklists/{checklist}', [AdminTaskChecklistController::class, 'destroy'])->name('tasks.checklists.destroy');

@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToOrganization;
+use App\Services\Scopes\UserOperationalScopeService;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,10 +30,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'description',
     'location_text',
     'source',
+    'type',
     'visibility',
     'due_date',
     'closed_at',
     'closed_by',
+    'validated_at',
+    'validated_by',
+    'validation_notes',
+    'resolution_notes',
 ])]
 class Ticket extends Model
 {
@@ -48,6 +55,19 @@ class Ticket extends Model
         'fechado',
         'cancelado',
         'indeferido',
+        'com_tarefas',
+        'aguarda_validacao',
+    ];
+
+    public const TYPES = [
+        'internal',
+        'portal',
+        'occurrence',
+        'maintenance',
+        'logistics',
+        'cleaning',
+        'complaint',
+        'information',
     ];
 
     public const PRIORITIES = [
@@ -70,6 +90,7 @@ class Ticket extends Model
         return [
             'due_date' => 'date',
             'closed_at' => 'datetime',
+            'validated_at' => 'datetime',
         ];
     }
 
@@ -91,6 +112,11 @@ class Ticket extends Model
     public function closedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'closed_by');
+    }
+
+    public function validator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
     }
 
     public function department(): BelongsTo
@@ -176,5 +202,74 @@ class Ticket extends Model
     public function notifications(): MorphMany
     {
         return $this->morphMany(Notification::class, 'notifiable');
+    }
+
+    public function scopeByType(Builder $query, ?string $type): Builder
+    {
+        if ($type === null || $type === '') {
+            return $query;
+        }
+
+        return $query->where('type', $type);
+    }
+
+    public function scopeAwaitingValidation(Builder $query): Builder
+    {
+        return $query->where('status', 'aguarda_validacao');
+    }
+
+    public function scopeOperational(Builder $query, User $user, UserOperationalScopeService $scopeService): Builder
+    {
+        $organizationIds = $scopeService->organizationsFor($user)->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+        if ($organizationIds === []) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereIn($this->qualifyColumn('organization_id'), $organizationIds);
+    }
+
+    public function scopeByOperationalContext(
+        Builder $query,
+        ?int $organizationId,
+        ?int $departmentId = null,
+        ?int $serviceAreaId = null,
+    ): Builder {
+        if ($organizationId !== null) {
+            $query->where('organization_id', $organizationId);
+        }
+
+        if ($departmentId !== null) {
+            $query->where('department_id', $departmentId);
+        }
+
+        if ($serviceAreaId !== null) {
+            $query->where('service_area_id', $serviceAreaId);
+        }
+
+        return $query;
+    }
+
+    public function canBeValidated(): bool
+    {
+        if ($this->validated_at !== null || $this->validated_by !== null) {
+            return false;
+        }
+
+        return $this->status === 'aguarda_validacao';
+    }
+
+    public function canGenerateTasks(): bool
+    {
+        if (in_array($this->status, ['cancelado', 'fechado', 'indeferido'], true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canBeCancelled(): bool
+    {
+        return ! in_array($this->status, ['cancelado', 'fechado'], true);
     }
 }

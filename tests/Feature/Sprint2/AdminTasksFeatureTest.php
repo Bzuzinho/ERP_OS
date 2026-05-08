@@ -86,7 +86,7 @@ class AdminTasksFeatureTest extends TestCase
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'status' => 'done',
+            'status' => 'pending_validation',
             'completed_by' => $admin->id,
         ]);
 

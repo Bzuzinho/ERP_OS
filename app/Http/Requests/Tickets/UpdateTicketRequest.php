@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Tickets;
 
 use App\Models\Ticket;
-use App\Support\OrganizationScope;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,18 +17,18 @@ class UpdateTicketRequest extends FormRequest
 
     public function rules(): array
     {
-        $ticket = $this->route('ticket');
-        $organizationId = $ticket instanceof Ticket ? $ticket->organization_id : $this->user()?->organization_id;
-
         return [
-            'contact_id' => ['nullable', OrganizationScope::existsRuleForUser('contacts', $this->user(), organizationId: $organizationId)],
-            'assigned_to' => ['nullable', OrganizationScope::existsRuleForUser('users', $this->user(), organizationId: $organizationId)],
-            'department_id' => ['nullable', OrganizationScope::existsRuleForUser('departments', $this->user(), organizationId: $organizationId)],
-            'service_area_id' => ['nullable', OrganizationScope::existsRuleForUser('service_areas', $this->user(), organizationId: $organizationId)],
-            'team_id' => ['nullable', OrganizationScope::existsRuleForUser('teams', $this->user(), organizationId: $organizationId)],
+            'all_my_scopes' => ['sometimes', 'boolean'],
+            'organization_id' => ['nullable', 'integer', 'exists:organizations,id'],
+            'contact_id' => ['nullable', 'integer', 'exists:contacts,id'],
+            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'service_area_id' => ['nullable', 'integer', 'exists:service_areas,id'],
+            'team_id' => ['nullable', 'integer', 'exists:teams,id'],
             'category' => ['nullable', 'string', 'max:120'],
             'subcategory' => ['nullable', 'string', 'max:120'],
             'priority' => ['required', Rule::in(Ticket::PRIORITIES)],
+            'type' => ['sometimes', Rule::in(Ticket::TYPES)],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'location_text' => ['nullable', 'string'],

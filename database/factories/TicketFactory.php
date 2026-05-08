@@ -33,10 +33,15 @@ class TicketFactory extends Factory
             'description' => fake()->paragraph(),
             'location_text' => fake()->optional()->address(),
             'source' => 'internal',
+            'type' => 'internal',
             'visibility' => 'internal',
             'due_date' => null,
             'closed_at' => null,
             'closed_by' => null,
+            'validated_at' => null,
+            'validated_by' => null,
+            'validation_notes' => null,
+            'resolution_notes' => null,
         ];
     }
 }

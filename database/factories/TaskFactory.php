@@ -30,6 +30,11 @@ class TaskFactory extends Factory
             'due_date' => fake()->optional()->date(),
             'completed_at' => null,
             'completed_by' => null,
+            'validated_at' => null,
+            'validated_by' => null,
+            'validation_notes' => null,
+            'observations' => null,
+            'reopen_count' => 0,
         ];
     }
 

@@ -60,4 +60,13 @@ return [
     */
     'organization_default_code' => env('JUNTAOS_ORG_DEFAULT_CODE', 'DEMO'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Tasks Validation Workflow
+    |--------------------------------------------------------------------------
+    */
+    'tasks' => [
+        'validation_workflow_enabled' => env('JUNTAOS_TASK_VALIDATION_WORKFLOW_ENABLED', true),
+    ],
+
 ];

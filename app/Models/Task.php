@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,12 +26,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'due_date',
     'completed_at',
     'completed_by',
+    'validated_at',
+    'validated_by',
+    'validation_notes',
+    'observations',
+    'reopen_count',
 ])]
 class Task extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const STATUSES = ['pending', 'in_progress', 'waiting', 'done', 'cancelled'];
+    public const STATUSES = ['pending', 'in_progress', 'waiting', 'done', 'cancelled', 'pending_validation', 'validated', 'reopened'];
 
     public const PRIORITIES = ['low', 'normal', 'high', 'urgent'];
 
@@ -40,6 +46,8 @@ class Task extends Model
             'start_date' => 'date',
             'due_date' => 'date',
             'completed_at' => 'datetime',
+            'validated_at' => 'datetime',
+            'reopen_count' => 'integer',
         ];
     }
 
@@ -71,6 +79,11 @@ class Task extends Model
     public function completedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'completed_by');
+    }
+
+    public function validator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
     }
 
     public function checklists(): HasMany
@@ -141,4 +154,50 @@ class Task extends Model
     {
         return $this->hasOne(RecurringOperationRun::class, 'generated_task_id');
     }
+
+    public function canSubmitForValidation(): bool
+    {
+        return in_array($this->status, ['done', 'reopened'], true);
+    }
+
+    public function canValidate(): bool
+    {
+        return $this->status === 'pending_validation';
+    }
+
+    public function canReopen(): bool
+    {
+        return in_array($this->status, ['pending_validation', 'validated', 'done'], true);
+    }
+
+    public function isValidated(): bool
+    {
+        return $this->status === 'validated';
+    }
+
+    public function isPendingValidation(): bool
+    {
+        return $this->status === 'pending_validation';
+    }
+
+    public function scopeAwaitingValidation(Builder $query): Builder
+    {
+        return $query->where('status', 'pending_validation');
+    }
+
+    public function scopeValidated(Builder $query): Builder
+    {
+        return $query->where('status', 'validated');
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereIn('status', ['pending', 'in_progress', 'waiting', 'pending_validation', 'reopened']);
+    }
+
+    public function scopeNotCancelled(Builder $query): Builder
+    {
+        return $query->where('status', '!=', 'cancelled');
+    }
 }
+

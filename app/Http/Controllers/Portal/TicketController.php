@@ -85,6 +85,7 @@ class TicketController extends Controller
             'location_text' => $validated['location_text'] ?? null,
             'priority' => 'normal',
             'source' => 'portal',
+            'type' => 'portal',
             'status' => 'novo',
             'visibility' => 'internal',
             'assigned_to' => null,

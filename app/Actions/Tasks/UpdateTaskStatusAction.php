@@ -4,40 +4,24 @@ namespace App\Actions\Tasks;
 
 use App\Models\Task;
 use App\Models\User;
-use App\Services\Tickets\ActivityLogger;
+use App\Services\Tasks\TaskStateTransitionService;
 
 class UpdateTaskStatusAction
 {
-    public function __construct(private readonly ActivityLogger $activityLogger)
+    public function __construct(
+        private readonly TaskStateTransitionService $taskStateTransitionService,
+    )
     {
     }
 
-    public function execute(Task $task, string $status, User $performedBy): Task
+    public function execute(Task $task, string $status, User $performedBy, string $logAction = 'task.status_updated'): Task
     {
-        $oldStatus = $task->status;
-
-        $task->status = $status;
-
-        if ($status === 'done') {
-            $task->completed_at = now();
-            $task->completed_by = $performedBy->id;
-        } else {
-            $task->completed_at = null;
-            $task->completed_by = null;
-        }
-
-        $task->save();
-
-        $this->activityLogger->log(
-            subject: $task,
-            action: 'task.status_updated',
-            user: $performedBy,
-            organization: $task->organization,
-            oldValues: ['status' => $oldStatus],
-            newValues: ['status' => $status],
+        return $this->taskStateTransitionService->transition(
+            task: $task,
+            newStatus: $status,
+            performedBy: $performedBy,
+            logAction: $logAction,
             description: 'Estado da tarefa atualizado.',
         );
-
-        return $task;
     }
 }

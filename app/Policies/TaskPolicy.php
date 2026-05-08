@@ -46,6 +46,21 @@ class TaskPolicy
         return $user->can('tasks.complete');
     }
 
+    public function submitValidation(User $user, Task $task): bool
+    {
+        return $user->can('tasks.submit-validation');
+    }
+
+    public function validate(User $user, Task $task): bool
+    {
+        return $user->can('tasks.validate');
+    }
+
+    public function reopen(User $user, Task $task): bool
+    {
+        return $user->can('tasks.reopen');
+    }
+
     public function delete(User $user, Task $task): bool
     {
         return $user->can('tasks.delete');

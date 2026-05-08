@@ -66,6 +66,98 @@ class TicketNotificationService
         ]);
     }
 
+    public function notifyTicketSubmittedForValidation(Ticket $ticket, ?User $actor = null): void
+    {
+        $recipients = $this->recipientResolver->resolveWorkflowRecipients($ticket, $actor);
+
+        if ($recipients->isNotEmpty()) {
+            $this->notificationService->createForUsers($recipients, [
+                'organization_id' => $ticket->organization_id,
+                'type' => 'ticket_ready_for_validation',
+                'title' => 'Pedido pronto para validação',
+                'message' => sprintf('O pedido %s foi enviado para validação.', $ticket->reference),
+                'notifiable' => $ticket,
+                'action_url' => route('admin.tickets.show', $ticket, false),
+                'priority' => $ticket->priority ?? 'normal',
+                'created_by' => $actor?->id,
+                'data' => [
+                    'ticket_id' => $ticket->id,
+                    'ticket_reference' => $ticket->reference,
+                    'ticket_status' => $ticket->status,
+                ],
+            ]);
+        }
+
+        $citizenRecipient = $this->recipientResolver->resolveCitizenRecipient($ticket);
+
+        if ($citizenRecipient && ! $recipients->contains(fn (User $user) => (int) $user->id === (int) $citizenRecipient->id)) {
+            $this->notificationService->createForUsers([$citizenRecipient], [
+                'organization_id' => $ticket->organization_id,
+                'type' => 'ticket_ready_for_validation',
+                'title' => 'Pedido pronto para validação',
+                'message' => sprintf('O pedido %s entrou em validação final.', $ticket->reference),
+                'notifiable' => $ticket,
+                'action_url' => route('portal.tickets.show', $ticket, false),
+                'priority' => $ticket->priority ?? 'normal',
+                'created_by' => $actor?->id,
+                'data' => [
+                    'ticket_id' => $ticket->id,
+                    'ticket_reference' => $ticket->reference,
+                    'ticket_status' => $ticket->status,
+                ],
+            ]);
+        }
+    }
+
+    public function notifyTicketValidated(Ticket $ticket, ?User $actor = null): void
+    {
+        $recipients = $this->recipientResolver->resolveWorkflowRecipients($ticket, $actor);
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        $this->notificationService->createForUsers($recipients, [
+            'organization_id' => $ticket->organization_id,
+            'type' => 'ticket_validated',
+            'title' => 'Pedido validado',
+            'message' => sprintf('O pedido %s foi validado e marcado como resolvido.', $ticket->reference),
+            'notifiable' => $ticket,
+            'action_url' => route('admin.tickets.show', $ticket, false),
+            'priority' => $ticket->priority ?? 'normal',
+            'created_by' => $actor?->id,
+            'data' => [
+                'ticket_id' => $ticket->id,
+                'ticket_reference' => $ticket->reference,
+                'ticket_status' => $ticket->status,
+                'validated_at' => optional($ticket->validated_at)?->toIso8601String(),
+            ],
+        ]);
+    }
+
+    public function notifyTicketReopenedFromTasks(Ticket $ticket, ?User $actor = null): void
+    {
+        $recipients = $this->recipientResolver->resolveWorkflowRecipients($ticket, $actor);
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        $this->notificationService->createForUsers($recipients, [
+            'organization_id' => $ticket->organization_id,
+            'type' => 'ticket_reopened_from_tasks',
+            'title' => 'Pedido reaberto operacionalmente',
+            'message' => sprintf('O pedido %s voltou ao circuito operacional após reabertura de tarefa.', $ticket->reference),
+            'notifiable' => $ticket,
+            'action_url' => route('admin.tickets.show', $ticket, false),
+            'priority' => $ticket->priority ?? 'normal',
+            'created_by' => $actor?->id,
+            'data' => [
+                'ticket_id' => $ticket->id,
+                'ticket_reference' => $ticket->reference,
+                'ticket_status' => $ticket->status,
+            ],
+        ]);
+    }
+
     public function notifyTicketStatusChanged(Ticket $ticket, string $oldStatus, string $newStatus, ?User $actor = null): void
     {
         if (! PublicTicketStatus::shouldNotifyCitizenForTransition($oldStatus, $newStatus)) {

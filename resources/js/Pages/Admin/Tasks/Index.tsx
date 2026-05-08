@@ -36,7 +36,10 @@ export default function Index({ tasks, filters, statuses, priorities, users }: P
 
     const pendingCount = tasks.data.filter((task) => task.status.toLowerCase().includes('pend')).length;
     const inProgressCount = tasks.data.filter((task) => task.status.toLowerCase().includes('curso') || task.status.toLowerCase().includes('exec')).length;
-    const doneCount = tasks.data.filter((task) => task.status.toLowerCase().includes('conc') || task.status.toLowerCase().includes('done')).length;
+    const doneCount = tasks.data.filter((task) => {
+        const normalized = task.status.toLowerCase();
+        return normalized.includes('conc') || normalized.includes('done') || normalized.includes('valid');
+    }).length;
 
     const applyStatus = (status: string) => {
         setSelectedStatus(status);
@@ -53,6 +56,9 @@ export default function Index({ tasks, filters, statuses, priorities, users }: P
 
     const statusTone = (status: string): 'blue' | 'amber' | 'green' | 'red' | 'slate' => {
         const normalized = status.toLowerCase();
+        if (normalized.includes('valid') || normalized.includes('done') || normalized.includes('conc')) return 'green';
+        if (normalized.includes('reopen')) return 'blue';
+        if (normalized.includes('pend') || normalized.includes('wait')) return 'amber';
         if (normalized.includes('conc') || normalized.includes('done')) return 'green';
         if (normalized.includes('curso') || normalized.includes('exec')) return 'blue';
         if (normalized.includes('pend')) return 'amber';

@@ -668,3 +668,197 @@ Opções:
 **Data:** Maio 7, 2026  
 **Confiança:** 95%  
 **Pronto para Implementação:** ✅ SIM, após aprovação de riscos
+
+---
+
+## 11. FASE 0B - AUDITORIA DE ESCOPOS OPERACIONAIS (MULTI-ORG / MULTI-DEPARTAMENTO / MULTI-TEMA)
+
+**Data:** Maio 8, 2026  
+**Objetivo:** Validar se a arquitetura atual suporta pirâmide operacional com múltiplos contextos por utilizador antes de avançar para Fase 1A.
+
+### 11.1 O que já existe
+
+#### Organizações e utilizadores
+- Existe `organizations`.
+- `users` tem apenas **um** `organization_id` direto (single-org ativo por registo de utilizador).
+- Existe `OrganizationScope` e trait `BelongsToOrganization` para aplicar isolamento por `organization_id`.
+- Bypass de organização existe apenas para papel `super_admin`.
+
+#### Departamentos e equipas
+- `departments` pertence a organização (`organization_id`).
+- `teams` pertence a organização e departamento (`organization_id`, `department_id`).
+- Não existe pivot `department_user`.
+- Não existe pivot `team_user`.
+
+#### Service areas (temas)
+- `service_areas` existe com `organization_id`.
+- Existe pivot `service_area_user` com `role` e `is_primary`.
+- Não existe `department_id` em `service_areas`.
+- Não existe `parent_id` em `service_areas` (sem árvore hierárquica).
+
+### 11.2 O que falta para suportar os casos obrigatórios
+
+#### Multi-organização por utilizador
+- Falta pivot `organization_user` (ou equivalente).
+- Atualmente o sistema usa `user.organization_id` como organização corrente única em controllers/services.
+
+#### Acesso por departamento
+- Falta pivot `department_user` para autorizar acesso granular por departamento.
+
+#### Acesso por tema com hierarquia
+- `service_area_user` já existe e deve ser reutilizada.
+- Falta reforçar `service_areas` com:
+   - `parent_id` (árvore)
+   - `department_id` (vinculação opcional ao departamento)
+
+#### Contexto ativo no dashboard
+- Não existe `DashboardContext`.
+- `AdminDashboardService` trabalha com `User` e assume uma organização (`$user->organization_id`).
+- Não há vista consolidada "Tudo o que me diz respeito" multi-scope.
+
+### 11.3 Auditoria de filtragem por domínio (organization / department / service_area)
+
+#### Tickets
+- Direto: `organization_id`, `department_id`, `service_area_id`, `team_id`.
+- Conclusão: já permite filtro completo por contexto, mas autorização ainda é orientada ao `user.organization_id`.
+
+#### Tasks
+- Direto: `organization_id`, `ticket_id`, `space_reservation_id`.
+- Indireto: departamento/tema via `ticket`.
+- Lacuna: não tem `department_id` nem `service_area_id` próprios.
+
+#### Events
+- Direto: `organization_id`, `space_id`, `related_ticket_id`.
+- Indireto: departamento/tema via `related_ticket_id`.
+- Lacuna: não tem `department_id` nem `service_area_id` próprios.
+
+#### Operational plans
+- Direto: `organization_id`, `department_id`, `team_id`.
+- Indireto: tema via `related_ticket_id` (quando existir ticket associado).
+- Lacuna: não tem `service_area_id` próprio.
+
+#### Spaces / reservations
+- Direto: `organization_id`.
+- Indireto: tema/departamento apenas por vínculos relacionados (evento, ticket, tarefa).
+- Lacuna: não tem `department_id` nem `service_area_id` próprios.
+
+#### Inventory (items/movements/loans)
+- Direto: `organization_id`.
+- Indireto: departamento/tema via `related_ticket_id`, `related_task_id`, `related_event_id`, `related_space_id`, `related_space_reservation_id`.
+- Lacuna: não tem `department_id` nem `service_area_id` próprios.
+
+#### Communications
+- Hoje: notificações + comentários + anexos (morphable).
+- Não existem tabelas de canais (`conversation_channels`, etc.).
+- Filtragem por departamento/tema ainda não existe para comunicação contextual.
+
+### 11.4 Migrations mínimas propostas (arquitetura primeiro)
+
+#### M1. Criar `organization_user` (obrigatória)
+Campos:
+- `organization_id`
+- `user_id`
+- `role_context` (string)
+- `has_global_access` (boolean, default false)
+- `is_default` (boolean, default false)
+- `is_active` (boolean, default true)
+- timestamps
+
+Regras:
+- unique(`organization_id`, `user_id`)
+- unique parcial por utilizador para `is_default = true` (garantir um contexto default)
+
+#### M2. Criar `department_user` (obrigatória)
+Campos:
+- `department_id`
+- `user_id`
+- `organization_id` (redundância útil para validação/índices)
+- `role_context` (nullable)
+- `is_active` (boolean)
+- timestamps
+
+Regras:
+- unique(`department_id`, `user_id`)
+- validação de consistência com `department.organization_id`
+
+#### M3. Evoluir `service_areas` para árvore e vínculo departamental
+Adicionar:
+- `parent_id` FK self nullable
+- `department_id` FK departments nullable
+
+Índices:
+- (`organization_id`, `department_id`)
+- (`organization_id`, `parent_id`)
+
+#### M4. Reforçar `service_area_user`
+Adicionar:
+- `organization_id` (para validação e performance)
+- `is_active` (boolean)
+
+Regras:
+- manter unique(`service_area_id`, `user_id`)
+- validar organização do utilizador e da service area
+
+#### M5. Migração de compatibilidade
+- Backfill de `organization_user` a partir de `users.organization_id`.
+- Marcar `is_default = true` para associação principal existente.
+- Backfill opcional de `service_area_user.organization_id`.
+
+### 11.5 Serviços e arquitetura aplicacional propostos
+
+#### UserOperationalScopeService (novo)
+Responsabilidades:
+- `getOrganizations(User $user)`
+- `getDepartments(User $user, ?int $organizationId)`
+- `getServiceAreas(User $user, ?int $organizationId, ?int $departmentId)`
+- `canAccessContext(User $user, ?int $organizationId, ?int $departmentId, ?int $serviceAreaId)`
+- `applyScope(Builder $query, User $user, DashboardContext $context, array $mapping = [])`
+
+Regras de acesso:
+- `has_global_access = true`: vê tudo na organização (departamentos e temas).
+- Sem global access: precisa associação explícita por departamento e/ou service area.
+- Regra do Presidente na Junta: modelar por `has_global_access = true` no vínculo da organização Junta.
+- Presidente noutra organização externa: vínculo sem global access e com service areas/departamentos explícitos.
+
+#### DashboardContext (novo DTO/Value Object)
+Campos:
+- `user`
+- `organization_id`
+- `department_id`
+- `service_area_id`
+- `all_my_scopes` (boolean)
+
+Validação:
+- construído por factory no backend após validação com `UserOperationalScopeService`.
+
+#### OperationalDashboardService (evolução)
+- Trocar assinatura principal para receber `DashboardContext` em vez de apenas `User`.
+- Aplicar filtros por árvore: organização -> departamento -> tema.
+- Suportar modo "Tudo o que me diz respeito" agregando contextos permitidos.
+
+### 11.6 Impacto na Fase 1A (tickets)
+
+Antes de mexer em lógica funcional de tickets/tasks:
+- Implementar fundação de escopo operacional (M1-M5 + serviços de escopo).
+- Ajustar validações backend para filtros de contexto em tickets.
+- Só depois introduzir novos estados/ações da Fase 1A.
+
+Impacto direto:
+- `TicketController`, `StoreTicketRequest`, `UpdateTicketRequest` deverão validar `department_id` e `service_area_id` contra contexto autorizado do utilizador, não apenas contra `user.organization_id`.
+- Listagens/dashboards deixam de depender exclusivamente de `user.organization_id`.
+
+### 11.7 Recomendações de compatibilidade
+
+1. Manter `users.organization_id` temporariamente como "contexto default legado".
+2. Introduzir feature flag para novo modelo de escopo (rollout progressivo).
+3. Não remover filtros atuais até concluir backfill e testes de autorização.
+4. Criar testes de segurança de escopo cruzado:
+    - multi-org por utilizador
+    - global access numa organização e restrito noutra
+    - filtros backend rejeitando contexto não autorizado
+5. Só depois de estabilizar escopos, avançar com Fase 1A funcional.
+
+### 11.8 Conclusão
+
+✅ O projeto está bem preparado para isolamento por organização, mas ainda em modelo single-org ativo por utilizador.  
+⚠️ Para cumprir os casos obrigatórios de pirâmide operacional, a prioridade técnica correta é introduzir camada de escopos (organization_user + department_user + service area hierárquica + UserOperationalScopeService + DashboardContext) antes da Fase 1A de tickets.

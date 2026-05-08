@@ -4,30 +4,27 @@ namespace App\Actions\Tasks;
 
 use App\Models\Task;
 use App\Models\User;
-use App\Services\Tickets\ActivityLogger;
+use App\Services\Tasks\TaskStateTransitionService;
 
 class CompleteTaskAction
 {
-    public function __construct(private readonly ActivityLogger $activityLogger)
+    public function __construct(private readonly TaskStateTransitionService $taskStateTransitionService)
     {
     }
 
     public function execute(Task $task, User $performedBy): Task
     {
-        $task->status = 'done';
-        $task->completed_at = now();
-        $task->completed_by = $performedBy->id;
-        $task->save();
+        $targetStatus = config('juntaos.tasks.validation_workflow_enabled', true)
+            ? 'pending_validation'
+            : 'done';
 
-        $this->activityLogger->log(
-            subject: $task,
-            action: 'task.completed',
-            user: $performedBy,
-            organization: $task->organization,
-            newValues: ['status' => 'done', 'completed_by' => $performedBy->id],
-            description: 'Tarefa concluida.',
+        return $this->taskStateTransitionService->transition(
+            task: $task,
+            newStatus: $targetStatus,
+            performedBy: $performedBy,
+            logAction: 'task.completed',
+            description: 'Tarefa concluída explicitamente.',
         );
-
-        return $task;
     }
 }
+

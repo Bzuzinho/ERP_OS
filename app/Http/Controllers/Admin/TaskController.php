@@ -81,6 +81,7 @@ class TaskController extends Controller
             'assignee:id,name',
             'creator:id,name',
             'completedBy:id,name',
+            'validator:id,name',
             'checklists.items.completedBy:id,name',
             'comments.user:id,name',
             'attachments.uploader:id,name',
@@ -90,6 +91,11 @@ class TaskController extends Controller
             'task' => $task,
             'statuses' => Task::STATUSES,
             'priorities' => Task::PRIORITIES,
+            'can' => [
+                'submitValidation' => request()->user()?->can('submitValidation', $task) ?? false,
+                'validate' => request()->user()?->can('validate', $task) ?? false,
+                'reopen' => request()->user()?->can('reopen', $task) ?? false,
+            ],
         ]);
     }
 

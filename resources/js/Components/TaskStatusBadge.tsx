@@ -5,6 +5,9 @@ const labelMap: Record<string, string> = {
     in_progress: 'Em curso',
     waiting: 'Em espera',
     done: 'Concluida',
+    pending_validation: 'Pendente de validacao',
+    validated: 'Validada',
+    reopened: 'Reaberta',
     cancelled: 'Cancelada',
 };
 
@@ -13,6 +16,9 @@ const classMap: Record<string, string> = {
     in_progress: 'bg-blue-100 text-blue-700',
     waiting: 'bg-amber-100 text-amber-700',
     done: 'bg-emerald-100 text-emerald-700',
+    pending_validation: 'bg-orange-100 text-orange-700',
+    validated: 'bg-emerald-100 text-emerald-700',
+    reopened: 'bg-indigo-100 text-indigo-700',
     cancelled: 'bg-rose-100 text-rose-700',
 };
 

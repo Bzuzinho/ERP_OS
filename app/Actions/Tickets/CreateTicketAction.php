@@ -2,6 +2,7 @@
 
 namespace App\Actions\Tickets;
 
+use App\Models\Organization;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\Tickets\ActivityLogger;
@@ -19,14 +20,16 @@ class CreateTicketAction
     public function execute(User $creator, array $data): Ticket
     {
         return DB::transaction(function () use ($creator, $data) {
-            $organization = $creator->organization;
+            $organizationId = isset($data['organization_id']) ? (int) $data['organization_id'] : (int) $creator->organization_id;
+            $organization = Organization::query()->find($organizationId) ?? $creator->organization;
             $reference = $this->referenceGenerator->generate($organization);
 
             $ticket = Ticket::create([
                 ...$data,
-                'organization_id' => $data['organization_id'] ?? $creator->organization_id,
+                'organization_id' => $organization?->id ?? $creator->organization_id,
                 'reference' => $reference,
                 'created_by' => $creator->id,
+                'type' => $data['type'] ?? 'internal',
             ]);
 
             $ticket->statusHistories()->create([

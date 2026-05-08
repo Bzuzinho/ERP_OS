@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Services\Tickets\ActivityLogger;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UpdateTicketStatusAction
 {
@@ -16,6 +17,12 @@ class UpdateTicketStatusAction
 
     public function execute(Ticket $ticket, string $newStatus, User $changedBy, ?string $notes = null): Ticket
     {
+        if ($newStatus === 'aguarda_validacao') {
+            throw ValidationException::withMessages([
+                'status' => 'A transição para aguarda_validacao deve ser feita pelo fluxo de envio para validação.',
+            ]);
+        }
+
         return DB::transaction(function () use ($ticket, $newStatus, $changedBy, $notes) {
             $oldStatus = $ticket->status;
 

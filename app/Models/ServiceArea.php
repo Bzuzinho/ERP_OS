@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'organization_id',
+    'parent_id',
+    'department_id',
     'name',
     'slug',
     'description',
@@ -32,8 +34,23 @@ class ServiceArea extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'service_area_user')
-            ->withPivot('role', 'is_primary')
+            ->withPivot('organization_id', 'role', 'role_context', 'is_primary', 'is_active')
             ->withTimestamps();
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function tickets(): HasMany

@@ -11,6 +11,28 @@ use Illuminate\Support\Collection;
 
 class TicketNotificationRecipientResolver
 {
+    public function resolveWorkflowRecipients(Ticket $ticket, ?User $actor = null): Collection
+    {
+        $users = $this->resolveInternalRecipients($ticket, $actor);
+
+        if ($ticket->created_by) {
+            $creator = User::query()->find($ticket->created_by);
+
+            if (
+                $creator
+                && $creator->is_active
+                && (int) $creator->organization_id === (int) $ticket->organization_id
+                && ! $creator->hasAnyRole(['cidadao', 'associacao', 'empresa'])
+            ) {
+                $users->push($creator);
+            }
+        }
+
+        return $users
+            ->unique('id')
+            ->values();
+    }
+
     public function resolveCitizenRecipient(Ticket $ticket, ?User $actor = null): ?User
     {
         $candidate = null;
