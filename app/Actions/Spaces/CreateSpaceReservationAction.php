@@ -6,6 +6,7 @@ use App\Models\Space;
 use App\Models\SpaceReservation;
 use App\Models\User;
 use App\Services\Spaces\SpaceAvailabilityService;
+use App\Services\Spaces\SpaceReservationNotificationService;
 use App\Services\Spaces\SpaceReservationService;
 use App\Services\Tickets\ActivityLogger;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ class CreateSpaceReservationAction
     public function __construct(
         private readonly SpaceAvailabilityService $availabilityService,
         private readonly SpaceReservationService $reservationService,
+        private readonly SpaceReservationNotificationService $notificationService,
         private readonly ActivityLogger $activityLogger,
     ) {
     }
@@ -68,7 +70,14 @@ class CreateSpaceReservationAction
                 $reservation->loadMissing('space', 'organization', 'event');
                 $this->reservationService->ensureReservationEvent($reservation, $creator);
                 $this->reservationService->ensureCleaningRecord($reservation, $creator);
+                $this->reservationService->createReservationTasks($reservation, $creator);
+                $this->notificationService->notifyReservationApproved($reservation, $creator);
+
+                return $reservation;
             }
+
+            $reservation->loadMissing('space', 'organization');
+            $this->notificationService->notifyReservationRequested($reservation, $creator);
 
             return $reservation;
         });

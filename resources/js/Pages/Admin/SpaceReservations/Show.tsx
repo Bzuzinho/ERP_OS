@@ -13,7 +13,8 @@ type Reservation = {
     internal_notes: string | null;
     space?: { id: number; name: string } | null;
     contact?: { id: number; name: string } | null;
-    event?: { id: number; title: string } | null;
+    event?: { id: number; title: string; event_type: string; status: string; start_at: string; end_at: string } | null;
+    tasks?: { id: number; title: string; status: string; priority: string; due_date: string | null; assignee?: { id: number; name: string } | null }[];
     approvals: { id: number; action: string; old_status: string | null; new_status: string; notes: string | null; created_at: string; decided_by?: { id: number; name: string } | null; }[];
 };
 
@@ -34,6 +35,10 @@ export default function AdminSpaceReservationsShow({ reservation, can }: Props) 
                 <p className="mt-2">Notas: {reservation.notes ?? '-'}</p>
                 <p className="mt-1">Notas internas: {reservation.internal_notes ?? '-'}</p>
                 <p className="mt-1">Evento: {reservation.event?.title ?? '-'}</p>
+                <p className="mt-1">Tipo de evento: {reservation.event?.event_type ?? '-'}</p>
+                <p className="mt-1">Estado do evento: {reservation.event?.status ?? '-'}</p>
+                {reservation.event ? <p className="mt-1">Agenda: {new Date(reservation.event.start_at).toLocaleString()} - {new Date(reservation.event.end_at).toLocaleString()}</p> : null}
+                {reservation.status === 'approved' ? <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">Reserva aprovada bloqueia agenda do espaco no periodo indicado.</p> : null}
             </section>
             {can.approve ? (
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -46,6 +51,21 @@ export default function AdminSpaceReservationsShow({ reservation, can }: Props) 
             <section className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="mb-2 font-semibold text-slate-900">Timeline</p>
                 <SpaceReservationTimeline approvals={reservation.approvals ?? []} />
+            </section>
+
+            <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="font-semibold text-slate-900">Tarefas operacionais associadas</p>
+                <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                    {(reservation.tasks ?? []).map((task) => (
+                        <li key={task.id} className="rounded-lg bg-slate-50 px-3 py-2">
+                            <span className="font-medium text-slate-900">{task.title}</span>
+                            <span className="ml-2 text-xs text-slate-500">{task.status}</span>
+                            <span className="ml-2 text-xs text-slate-500">Prazo: {task.due_date ?? '-'}</span>
+                            <span className="ml-2 text-xs text-slate-500">Responsavel: {task.assignee?.name ?? 'Nao atribuido'}</span>
+                        </li>
+                    ))}
+                    {(reservation.tasks ?? []).length === 0 ? <li className="text-slate-500">Sem tarefas associadas.</li> : null}
+                </ul>
             </section>
         </AdminLayout>
     );

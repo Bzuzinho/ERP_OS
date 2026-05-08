@@ -13,16 +13,15 @@ class SpaceReservationService
     public function __construct(
         private readonly ActivityLogger $activityLogger,
         private readonly SpaceCleaningService $spaceCleaningService,
+        private readonly SpaceReservationNotificationService $notificationService,
     ) {
     }
 
     public function ensureReservationEvent(SpaceReservation $reservation, User $performedBy): Event
     {
-        if ($reservation->event) {
-            return $reservation->event;
-        }
+        $reservation->loadMissing('event', 'space', 'organization');
 
-        $event = Event::create([
+        $eventPayload = [
             'organization_id' => $reservation->organization_id,
             'space_id' => $reservation->space_id,
             'title' => 'Reserva de Espaco: '.$reservation->space->name,
@@ -35,7 +34,32 @@ class SpaceReservationService
             'created_by' => $performedBy->id,
             'related_contact_id' => $reservation->contact_id,
             'visibility' => 'internal',
-        ]);
+        ];
+
+        if ($reservation->event) {
+            $event = $reservation->event;
+            $oldValues = $event->only(['space_id', 'event_type', 'status', 'start_at', 'end_at']);
+
+            $event->fill($eventPayload);
+
+            if ($event->isDirty()) {
+                $event->save();
+
+                $this->activityLogger->log(
+                    subject: $event,
+                    action: 'event.synced_from_space_reservation',
+                    user: $performedBy,
+                    organization: $event->organization,
+                    oldValues: $oldValues,
+                    newValues: $event->only(['space_id', 'event_type', 'status', 'start_at', 'end_at']),
+                    description: 'Evento associado sincronizado com a reserva aprovada.',
+                );
+            }
+
+            return $event;
+        }
+
+        $event = Event::create($eventPayload);
 
         $reservation->event()->associate($event);
         $reservation->save();
@@ -96,58 +120,56 @@ class SpaceReservationService
      */
     public function createReservationTasks(SpaceReservation $reservation, User $performedBy): void
     {
-        // Load necessary relationships
         $reservation->loadMissing('space', 'organization');
 
-        // Determine assignee (space manager or fallback to system user)
-        $assigneeId = null;
-        if ($reservation->space->managed_by) {
-            $assigneeId = $reservation->space->managed_by;
+        $assigneeId = $reservation->space->getAttribute('managed_by');
+        $assigneeId = is_numeric($assigneeId) ? (int) $assigneeId : null;
+
+        $taskTemplates = [
+            [
+                'title' => 'Preparar espaco: '.$reservation->space->name,
+                'description' => 'Preparar o espaço para a reserva: '.$reservation->purpose,
+                'due_date' => $reservation->start_at->copy()->subHours(1)->toDateString(),
+            ],
+            [
+                'title' => 'Limpeza apos reserva: '.$reservation->space->name,
+                'description' => 'Proceder a limpeza do espaço apos a reserva: '.$reservation->purpose,
+                'due_date' => $reservation->end_at->copy()->addHours(2)->toDateString(),
+            ],
+        ];
+
+        foreach ($taskTemplates as $taskTemplate) {
+            $task = Task::firstOrCreate(
+                [
+                    'space_reservation_id' => $reservation->id,
+                    'title' => $taskTemplate['title'],
+                ],
+                [
+                    'organization_id' => $reservation->organization_id,
+                    'assigned_to' => $assigneeId,
+                    'created_by' => $performedBy->id,
+                    'description' => $taskTemplate['description'],
+                    'status' => 'pending',
+                    'priority' => 'normal',
+                    'due_date' => $taskTemplate['due_date'],
+                ]
+            );
+
+            if (! $task->wasRecentlyCreated) {
+                continue;
+            }
+
+            $this->activityLogger->log(
+                subject: $task,
+                action: 'task.created_from_space_reservation',
+                user: $performedBy,
+                organization: $reservation->organization,
+                newValues: $task->only(['title', 'space_reservation_id', 'status', 'due_date', 'assigned_to']),
+                description: 'Tarefa operacional criada automaticamente para reserva aprovada.',
+            );
+
+            $this->notificationService->notifyTaskCreated($task, $performedBy);
         }
-
-        // Create preparation task (due before start_at)
-        $preparationTask = Task::create([
-            'organization_id' => $reservation->organization_id,
-            'space_reservation_id' => $reservation->id,
-            'assigned_to' => $assigneeId,
-            'created_by' => $performedBy->id,
-            'title' => 'Preparar espaco: '.$reservation->space->name,
-            'description' => 'Preparar o espaço para a reserva: '.$reservation->purpose,
-            'status' => 'pending',
-            'priority' => 'normal',
-            'due_date' => $reservation->start_at->copy()->subHours(1)->toDateString(),
-        ]);
-
-        $this->activityLogger->log(
-            subject: $preparationTask,
-            action: 'task.created_from_space_reservation',
-            user: $performedBy,
-            organization: $reservation->organization,
-            newValues: $preparationTask->only(['title', 'space_reservation_id', 'due_date']),
-            description: 'Tarefa de preparacao criada automaticamente para reserva aprovada.',
-        );
-
-        // Create cleaning task (due after end_at)
-        $cleaningTask = Task::create([
-            'organization_id' => $reservation->organization_id,
-            'space_reservation_id' => $reservation->id,
-            'assigned_to' => $assigneeId,
-            'created_by' => $performedBy->id,
-            'title' => 'Limpeza apos reserva: '.$reservation->space->name,
-            'description' => 'Proceder a limpeza do espaço apos a reserva: '.$reservation->purpose,
-            'status' => 'pending',
-            'priority' => 'normal',
-            'due_date' => $reservation->end_at->copy()->addHours(2)->toDateString(),
-        ]);
-
-        $this->activityLogger->log(
-            subject: $cleaningTask,
-            action: 'task.created_from_space_reservation',
-            user: $performedBy,
-            organization: $reservation->organization,
-            newValues: $cleaningTask->only(['title', 'space_reservation_id', 'due_date']),
-            description: 'Tarefa de limpeza criada automaticamente para reserva aprovada.',
-        );
     }
 
     /**
@@ -155,7 +177,7 @@ class SpaceReservationService
      */
     public function cancelReservationTasks(SpaceReservation $reservation, User $performedBy): void
     {
-        $tasks = $reservation->tasks()->where('status', '!=', 'done')->where('status', '!=', 'cancelled')->get();
+        $tasks = $reservation->tasks()->whereNotIn('status', ['done', 'cancelled', 'validated'])->get();
 
         foreach ($tasks as $task) {
             $task->status = 'cancelled';

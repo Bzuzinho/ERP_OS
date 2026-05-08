@@ -83,7 +83,7 @@ class SpaceReservationController extends Controller
                     'id' => $approval->id,
                     'action' => $approval->action,
                     'new_status' => $approval->new_status,
-                    'notes' => $approval->notes,
+                    'notes' => null,
                     'created_at' => $approval->created_at,
                 ])->values(),
             ],

@@ -80,12 +80,13 @@ class SpaceReservationController extends Controller
             'space:id,name,location_text,requires_approval,has_cleaning_required',
             'requestedBy:id,name',
             'contact:id,name,email,phone,mobile',
-            'event:id,title,event_type,status,start_at,end_at',
+            'event:id,title,event_type,status,start_at,end_at,space_id',
             'approvedBy:id,name',
             'rejectedBy:id,name',
             'cancelledBy:id,name',
             'approvals.decidedBy:id,name',
             'cleaningRecords.assignee:id,name',
+            'tasks.assignee:id,name',
             'comments.user:id,name',
             'attachments.uploader:id,name',
         ]);
@@ -97,6 +98,8 @@ class SpaceReservationController extends Controller
                 'approve' => request()->user()->can('approve', $spaceReservation),
                 'cancel' => request()->user()->can('cancel', $spaceReservation),
                 'update' => request()->user()->can('update', $spaceReservation),
+                'reject' => request()->user()->can('approve', $spaceReservation),
+                'complete' => request()->user()->can('approve', $spaceReservation),
             ],
         ]);
     }

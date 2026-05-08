@@ -157,6 +157,7 @@ Route::middleware(['auth', 'permission:admin.access'])
 
         Route::resource('spaces', AdminSpaceController::class);
         Route::patch('spaces/{space}/status', [AdminSpaceStatusController::class, 'update'])->name('spaces.status.update');
+        Route::post('spaces/{space}/maintenance-ticket', [AdminSpaceController::class, 'storeMaintenanceTicket'])->name('spaces.maintenance-ticket.store');
 
         Route::resource('space-reservations', AdminSpaceReservationController::class)
             ->parameters(['space-reservations' => 'spaceReservation']);
@@ -296,5 +297,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Mobile Routes
+require __DIR__.'/mobile.php';
 
 require __DIR__.'/auth.php';
