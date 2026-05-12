@@ -28,6 +28,10 @@ use App\Http\Controllers\Admin\NotificationController as AdminNotificationContro
 use App\Http\Controllers\Admin\NotificationReadController as AdminNotificationReadController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\ReportExportController as AdminReportExportController;
+use App\Http\Controllers\Admin\ResourceRequestApprovalController as AdminResourceRequestApprovalController;
+use App\Http\Controllers\Admin\ResourceRequestController as AdminResourceRequestController;
+use App\Http\Controllers\Admin\ResourceRequestDeliveryController as AdminResourceRequestDeliveryController;
+use App\Http\Controllers\Admin\ResourceRequestReturnController as AdminResourceRequestReturnController;
 use App\Http\Controllers\Admin\ServiceAreaController as AdminServiceAreaController;
 use App\Http\Controllers\Admin\ServiceAreaUserController as AdminServiceAreaUserController;
 use App\Http\Controllers\Admin\SpaceCleaningRecordController as AdminSpaceCleaningRecordController;
@@ -165,6 +169,20 @@ Route::middleware(['auth', 'permission:admin.access'])
         Route::post('space-reservations/{spaceReservation}/reject', [AdminSpaceReservationApprovalController::class, 'reject'])->name('space-reservations.reject');
         Route::post('space-reservations/{spaceReservation}/complete', [AdminSpaceReservationApprovalController::class, 'complete'])->name('space-reservations.complete');
         Route::post('space-reservations/{spaceReservation}/cancel', AdminSpaceReservationCancellationController::class)->name('space-reservations.cancel');
+
+        Route::resource('resource-requests', AdminResourceRequestController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->parameters(['resource-requests' => 'resourceRequest']);
+        Route::post('resource-requests/{resourceRequest}/approve', [AdminResourceRequestApprovalController::class, 'approve'])->name('resource-requests.approve');
+        Route::post('resource-requests/{resourceRequest}/reject', [AdminResourceRequestApprovalController::class, 'reject'])->name('resource-requests.reject');
+        Route::post('resource-requests/{resourceRequest}/prepare', [AdminResourceRequestApprovalController::class, 'prepare'])->name('resource-requests.prepare');
+        Route::post('resource-requests/{resourceRequest}/deliver', [AdminResourceRequestDeliveryController::class, 'deliver'])->name('resource-requests.deliver');
+        Route::post('resource-requests/{resourceRequest}/return', [AdminResourceRequestReturnController::class, 'store'])->name('resource-requests.return');
+        Route::post('space-reservations/{spaceReservation}/resource-requests', [AdminResourceRequestController::class, 'storeForSpaceReservation'])->name('space-reservations.resource-requests.store');
+        Route::post('events/{event}/resource-requests', [AdminResourceRequestController::class, 'storeForEvent'])->name('events.resource-requests.store');
+        Route::post('tasks/{task}/resource-requests', [AdminResourceRequestController::class, 'storeForTask'])->name('tasks.resource-requests.store');
+        Route::post('tickets/{ticket}/resource-requests', [AdminResourceRequestController::class, 'storeForTicket'])->name('tickets.resource-requests.store');
+        Route::post('operational-plans/{operationalPlan}/resource-requests', [AdminResourceRequestController::class, 'storeForOperationalPlan'])->name('operational-plans.resource-requests.store');
 
         Route::resource('space-maintenance', AdminSpaceMaintenanceRecordController::class)
             ->parameters(['space-maintenance' => 'spaceMaintenance']);

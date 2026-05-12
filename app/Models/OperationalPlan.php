@@ -148,6 +148,11 @@ class OperationalPlan extends Model
         return $this->hasMany(OperationalPlanResource::class);
     }
 
+    public function resourceRequests(): MorphMany
+    {
+        return $this->morphMany(ResourceRequest::class, 'requestable');
+    }
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

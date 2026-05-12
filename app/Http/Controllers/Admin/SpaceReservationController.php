@@ -87,6 +87,7 @@ class SpaceReservationController extends Controller
             'approvals.decidedBy:id,name',
             'cleaningRecords.assignee:id,name',
             'tasks.assignee:id,name',
+            'resourceRequests:id,organization_id,requestable_type,requestable_id,title,status,created_at',
             'comments.user:id,name',
             'attachments.uploader:id,name',
         ]);

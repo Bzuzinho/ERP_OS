@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
     'organization_id',
+    'resource_request_id',
+    'resource_request_item_id',
     'inventory_item_id',
     'movement_type',
     'quantity',
@@ -97,6 +99,16 @@ class InventoryMovement extends Model
     public function handledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'handled_by');
+    }
+
+    public function resourceRequest(): BelongsTo
+    {
+        return $this->belongsTo(ResourceRequest::class);
+    }
+
+    public function resourceRequestItem(): BelongsTo
+    {
+        return $this->belongsTo(ResourceRequestItem::class);
     }
 
     public function comments(): MorphMany

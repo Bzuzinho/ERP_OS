@@ -1,6 +1,7 @@
 import SpaceReservationStatusBadge from '@/Components/SpaceReservationStatusBadge';
 import SpaceReservationTimeline from '@/Components/SpaceReservationTimeline';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { Link } from '@inertiajs/react';
 import { useForm } from '@inertiajs/react';
 
 type Reservation = {
@@ -15,6 +16,7 @@ type Reservation = {
     contact?: { id: number; name: string } | null;
     event?: { id: number; title: string; event_type: string; status: string; start_at: string; end_at: string } | null;
     tasks?: { id: number; title: string; status: string; priority: string; due_date: string | null; assignee?: { id: number; name: string } | null }[];
+    resource_requests?: { id: number; title: string; status: string; created_at: string }[];
     approvals: { id: number; action: string; old_status: string | null; new_status: string; notes: string | null; created_at: string; decided_by?: { id: number; name: string } | null; }[];
 };
 
@@ -65,6 +67,27 @@ export default function AdminSpaceReservationsShow({ reservation, can }: Props) 
                         </li>
                     ))}
                     {(reservation.tasks ?? []).length === 0 ? <li className="text-slate-500">Sem tarefas associadas.</li> : null}
+                </ul>
+            </section>
+
+            <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="mb-2 flex items-center justify-between">
+                    <p className="font-semibold text-slate-900">Requisicoes de recursos associadas</p>
+                    <Link href={route('admin.resource-requests.create')} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-700">
+                        Nova requisicao
+                    </Link>
+                </div>
+                <ul className="space-y-2 text-sm text-slate-700">
+                    {(reservation.resource_requests ?? []).map((resourceRequest) => (
+                        <li key={resourceRequest.id} className="rounded-lg bg-slate-50 px-3 py-2">
+                            <Link href={route('admin.resource-requests.show', resourceRequest.id)} className="font-medium text-blue-700 hover:underline">
+                                {resourceRequest.title}
+                            </Link>
+                            <span className="ml-2 text-xs text-slate-500">{resourceRequest.status}</span>
+                            <span className="ml-2 text-xs text-slate-500">{new Date(resourceRequest.created_at).toLocaleString()}</span>
+                        </li>
+                    ))}
+                    {(reservation.resource_requests ?? []).length === 0 ? <li className="text-slate-500">Sem requisicoes associadas.</li> : null}
                 </ul>
             </section>
         </AdminLayout>

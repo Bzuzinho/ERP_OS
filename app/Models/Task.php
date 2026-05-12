@@ -116,6 +116,11 @@ class Task extends Model
         return $this->hasMany(InventoryBreakage::class, 'related_task_id');
     }
 
+    public function resourceRequests(): MorphMany
+    {
+        return $this->morphMany(ResourceRequest::class, 'requestable');
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');

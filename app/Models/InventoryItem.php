@@ -74,6 +74,11 @@ class InventoryItem extends Model
         return $this->hasMany(InventoryLoan::class);
     }
 
+    public function resourceRequestItems(): HasMany
+    {
+        return $this->hasMany(ResourceRequestItem::class);
+    }
+
     public function restockRequests(): HasMany
     {
         return $this->hasMany(InventoryRestockRequest::class);

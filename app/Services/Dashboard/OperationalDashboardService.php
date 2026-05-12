@@ -7,6 +7,7 @@ use App\Models\AttendanceRecord;
 use App\Models\Event;
 use App\Models\OperationalPlan;
 use App\Models\Organization;
+use App\Models\ResourceRequest;
 use App\Models\Space;
 use App\Models\SpaceReservation;
 use App\Models\Task;
@@ -175,18 +176,45 @@ class OperationalDashboardService
             ->limit(self::LIST_LIMIT)
             ->get(['id', 'space_id', 'purpose', 'status', 'start_at', 'end_at']);
 
+        $pendingResourceRequests = ResourceRequest::query()
+            ->whereIn('organization_id', $orgIds)
+            ->where('status', 'requested')
+            ->latest('id')
+            ->limit(self::LIST_LIMIT)
+            ->get(['id', 'title', 'status', 'created_at']);
+
+        $approvedToPrepare = ResourceRequest::query()
+            ->whereIn('organization_id', $orgIds)
+            ->where('status', 'approved')
+            ->latest('id')
+            ->limit(self::LIST_LIMIT)
+            ->get(['id', 'title', 'status', 'approved_at']);
+
+        $deliveredToReturn = ResourceRequest::query()
+            ->whereIn('organization_id', $orgIds)
+            ->whereIn('status', ['delivered', 'partially_returned'])
+            ->latest('id')
+            ->limit(self::LIST_LIMIT)
+            ->get(['id', 'title', 'status', 'delivered_at']);
+
         return [
             'overdue_tasks'                 => $overdueTasks,
             'reopened_tasks'                => $reopenedTasks,
             'pending_validation_tasks'      => $pendingValidationTasks,
             'awaiting_validation_tickets'   => $awaitingValidationTickets,
             'pending_reservations'          => $pendingReservations,
+            'pending_resource_requests'     => $pendingResourceRequests,
+            'approved_resource_requests'    => $approvedToPrepare,
+            'delivered_resource_requests'   => $deliveredToReturn,
             'counts' => [
                 'overdue_tasks'               => $overdueTasks->count(),
                 'reopened_tasks'              => $reopenedTasks->count(),
                 'pending_validation_tasks'    => $pendingValidationTasks->count(),
                 'awaiting_validation_tickets' => $awaitingValidationTickets->count(),
                 'pending_reservations'        => $pendingReservations->count(),
+                'pending_resource_requests'   => $pendingResourceRequests->count(),
+                'approved_resource_requests'  => $approvedToPrepare->count(),
+                'delivered_resource_requests' => $deliveredToReturn->count(),
             ],
         ];
     }
@@ -428,6 +456,9 @@ class OperationalDashboardService
             'reservations_today'           => SpaceReservation::query()->whereIn('organization_id', $orgIds)->whereDate('start_at', $today)->count(),
             'pending_reservations'         => SpaceReservation::query()->whereIn('organization_id', $orgIds)->where('status', 'requested')->count(),
             'active_plans'                 => OperationalPlan::query()->whereIn('organization_id', $orgIds)->whereIn('status', ['scheduled', 'in_progress'])->count(),
+            'pending_resource_requests'    => ResourceRequest::query()->whereIn('organization_id', $orgIds)->where('status', 'requested')->count(),
+            'approved_resource_requests'   => ResourceRequest::query()->whereIn('organization_id', $orgIds)->where('status', 'approved')->count(),
+            'delivered_resource_requests'  => ResourceRequest::query()->whereIn('organization_id', $orgIds)->whereIn('status', ['delivered', 'partially_returned'])->count(),
         ];
     }
 
@@ -517,6 +548,9 @@ class OperationalDashboardService
             'reservations_today'          => 0,
             'pending_reservations'        => 0,
             'active_plans'                => 0,
+            'pending_resource_requests'   => 0,
+            'approved_resource_requests'  => 0,
+            'delivered_resource_requests' => 0,
         ];
     }
 }

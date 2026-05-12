@@ -83,6 +83,11 @@ class Space extends Model
         return $this->morphMany(Document::class, 'related', 'related_type', 'related_id');
     }
 
+    public function resourceRequests(): MorphMany
+    {
+        return $this->morphMany(ResourceRequest::class, 'requestable');
+    }
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

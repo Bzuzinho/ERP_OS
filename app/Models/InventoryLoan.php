@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'organization_id',
+    'resource_request_id',
+    'resource_request_item_id',
     'inventory_item_id',
     'borrower_user_id',
     'borrower_contact_id',
@@ -93,6 +95,16 @@ class InventoryLoan extends Model
     public function relatedSpaceReservation(): BelongsTo
     {
         return $this->belongsTo(SpaceReservation::class, 'related_space_reservation_id');
+    }
+
+    public function resourceRequest(): BelongsTo
+    {
+        return $this->belongsTo(ResourceRequest::class);
+    }
+
+    public function resourceRequestItem(): BelongsTo
+    {
+        return $this->belongsTo(ResourceRequestItem::class);
     }
 
     public function comments(): MorphMany
